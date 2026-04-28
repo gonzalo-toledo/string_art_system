@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Build
+.next/
+out/
+dist/
+
+# Environment
+.env
+.env.local
+.env.production
+
+# IDE
+.vscode/
+.idea/
+
+# ATL (skill registry — auto-generated)
+.atl/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Vercel
+.vercel/
