@@ -1,6 +1,18 @@
 version: "1.0"
 artifact_store:
-  mode: openspec
+  mode: hybrid
+context: |
+  Tech stack: Next.js 14, React 18, TypeScript, TailwindCSS
+  Architecture: Client-side processing (Web Workers) + Next.js API (proxy)
+  Testing: Jest
+  Style: ESLint, TypeScript
+strict_tdd: true
+testing:
+  runner: jest
+  unit: true
+  integration: false
+  e2e: false
+  coverage: false
 rules:
   proposal: []
   spec: []

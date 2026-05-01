@@ -8,9 +8,11 @@ interface Props {
   totalPins: number;
   canvasSize: number;
   previewUrl: string | null;
+  lineOpacity?: number;
+  lineWidth?: number;
 }
 
-export function CanvasRenderer({ sequence, totalPins, canvasSize, previewUrl }: Props) {
+export function CanvasRenderer({ sequence, totalPins, canvasSize, previewUrl, lineOpacity = 0.15, lineWidth = 1 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sequenceIndexRef = useRef(0);
 
@@ -52,9 +54,9 @@ export function CanvasRenderer({ sequence, totalPins, canvasSize, previewUrl }: 
     const drawLines = () => {
       if (sequenceIndexRef.current >= sequence.length - 1) return;
 
-      // Dark, transparent line
-      ctx.strokeStyle = 'rgba(10, 10, 10, 0.15)'; 
-      ctx.lineWidth = 1;
+      // Dynamic line styles
+      ctx.strokeStyle = `rgba(10, 10, 10, ${lineOpacity})`; 
+      ctx.lineWidth = lineWidth;
       ctx.beginPath();
 
       // Draw batches
@@ -80,7 +82,7 @@ export function CanvasRenderer({ sequence, totalPins, canvasSize, previewUrl }: 
     animationFrameId = requestAnimationFrame(drawLines);
 
     return () => cancelAnimationFrame(animationFrameId);
-  }, [sequence, totalPins, canvasSize]);
+  }, [sequence, totalPins, canvasSize, lineOpacity, lineWidth]);
 
   return (
     <div className={styles.canvasContainer}>
