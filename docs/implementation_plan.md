@@ -253,7 +253,7 @@ export const HAGALO_KIT = {
 ## 6. Arquitectura de Carpetas (Next.js)
 
 ```
-hacelo-art/
+string_art_system/
 ├── app/
 │   ├── [locale]/                    # i18n routing
 │   │   ├── layout.tsx

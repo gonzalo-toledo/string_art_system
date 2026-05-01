@@ -81,7 +81,7 @@ archivos. Las fotos NUNCA salen del browser del usuario.
 ## 4. Estructura de carpetas
 
 ```
-hacelo-art/
+string_art_system/
 ├── app/
 │   ├── [locale]/                    # Routing i18n (es/en/pt)
 │   │   ├── layout.tsx               # Layout principal con i18n provider
