@@ -33,10 +33,12 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
           break; // No more valid lines
         }
 
-        if (result.score < MIN_SCORE_THRESHOLD) {
-          keepGoing = false;
-          break; // Diminishing returns reached
-        }
+        // Removido: Corte temprano por score. Queremos que respete maxIterations estrictamente
+        // para que genere exactamente la cantidad de hilos solicitados, incluso si el score baja.
+        // if (result.score < MIN_SCORE_THRESHOLD) {
+        //   keepGoing = false;
+        //   break;
+        // }
 
         iteration++;
 

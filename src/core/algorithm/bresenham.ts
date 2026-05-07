@@ -10,8 +10,9 @@ export function generatePinCoordinates(totalPins: number, width: number, height:
   const centerY = Math.floor(height / 2);
 
   for (let i = 0; i < totalPins; i++) {
-    // Top (12 o'clock) is -PI/2
-    const angle = (i * 2 * Math.PI) / totalPins - Math.PI / 2;
+    // Fórmula matemática pura sin offset. 
+    // Esto sitúa el Pin 0 a las 3 en punto (0 radianes).
+    const angle = (i * 2 * Math.PI) / totalPins;
     pins.push({
       x: Math.round(centerX + radius * Math.cos(angle)),
       y: Math.round(centerY + radius * Math.sin(angle)),

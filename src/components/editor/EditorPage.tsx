@@ -72,6 +72,20 @@ export function EditorPage() {
           >
             {worker.isRunning ? `Generating... (${worker.progress}/${worker.total})` : 'Start Generation'}
           </button>
+          
+          {worker.sequence && !worker.isRunning && (
+            <button 
+              className={styles.button}
+              style={{ marginTop: '10px', backgroundColor: '#4CAF50' }}
+              onClick={() => {
+                navigator.clipboard.writeText(worker.sequence!.join(','));
+                alert('Secuencia copiada al portapapeles!');
+              }}
+            >
+              Copiar Secuencia
+            </button>
+          )}
+
           {worker.error && <p style={{ color: 'red', marginTop: '8px' }}>{worker.error}</p>}
         </div>
       </div>
