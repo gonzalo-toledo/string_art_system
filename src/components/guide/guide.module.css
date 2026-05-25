@@ -1,0 +1,406 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh; /* dynamic viewport height for mobile browsers */
+  background-color: #1a1a1a;
+  color: #f5f5f5;
+  font-family: var(--font-primary, sans-serif);
+  padding: 16px;
+  box-sizing: border-box;
+  justify-content: space-between;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* Header styles */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #333;
+}
+
+.headerTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0;
+  color: #fff;
+}
+
+.headerActions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.iconButton {
+  background: none;
+  border: none;
+  color: #ccc;
+  cursor: pointer;
+  padding: 8px;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.iconButton:hover {
+  background-color: #333;
+  color: #fff;
+}
+
+.iconButtonActive {
+  color: var(--color-accent, #d4af37);
+}
+
+/* Progress bar section */
+.progressSection {
+  width: 100%;
+  margin-top: 12px;
+}
+
+.progressText {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: #aaa;
+  margin-bottom: 6px;
+}
+
+.progressBar {
+  width: 100%;
+  height: 8px;
+  background-color: #333;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background-color: var(--color-accent, #d4af37);
+  transition: width 0.3s ease;
+}
+
+/* Main content: center display */
+.centerSection {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  text-align: center;
+  position: relative;
+  touch-action: pan-y;
+}
+
+.label {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #888;
+  margin-bottom: 8px;
+}
+
+.targetPinContainer {
+  background-color: #262626;
+  border-radius: 24px;
+  width: min(70vw, 240px);
+  aspect-ratio: 1 / 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  border: 2px solid #3a3a3a;
+  margin: 16px 0;
+  transition: transform 0.1s ease;
+}
+
+.targetPinContainer:active {
+  transform: scale(0.96);
+}
+
+.targetPinNumber {
+  font-size: clamp(4.5rem, 15vw, 6.5rem);
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+}
+
+.originPin {
+  font-size: 1.1rem;
+  color: #aaa;
+  font-weight: 500;
+}
+
+.originPinHighlight {
+  color: var(--color-accent, #d4af37);
+  font-weight: 700;
+  background-color: #2a2a2a;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-left: 4px;
+}
+
+/* Bottom Controls Section */
+.controlsSection {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #333;
+}
+
+.navButtons {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.btn {
+  font-family: inherit;
+  font-weight: 700;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btnPrev {
+  flex: 2;
+  background-color: #333;
+  color: #fff;
+  font-size: 1.1rem;
+  padding: 18px 0;
+}
+
+.btnPrev:hover {
+  background-color: #444;
+}
+
+.btnNext {
+  flex: 3;
+  background-color: var(--color-accent, #d4af37);
+  color: #111;
+  font-size: 1.25rem;
+  padding: 18px 0;
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2);
+}
+
+.btnNext:hover {
+  background-color: #e6be43;
+}
+
+.subControls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0 4px;
+}
+
+.autoplayGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btnPlayPause {
+  background-color: #2a2a2a;
+  border: 1px solid #444;
+  color: #fff;
+  border-radius: 12px;
+  padding: 8px 16px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btnPlayPauseActive {
+  background-color: rgba(212, 175, 55, 0.15);
+  border-color: var(--color-accent, #d4af37);
+  color: var(--color-accent, #d4af37);
+}
+
+.speedSelector {
+  background-color: #2a2a2a;
+  border: 1px solid #444;
+  color: #fff;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 0.9rem;
+  outline: none;
+  cursor: pointer;
+}
+
+/* Screen wake lock message */
+.wakeLockIndicator {
+  font-size: 0.75rem;
+  color: #666;
+  text-align: center;
+  margin-top: 4px;
+}
+
+.wakeLockIndicatorActive {
+  color: #4caf50;
+}
+
+/* Modal / Canvas overlay */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 24px;
+}
+
+.modal {
+  background-color: #222;
+  border-radius: 20px;
+  padding: 20px;
+  width: 100%;
+  max-width: 450px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  border: 1px solid #333;
+}
+
+.modalTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0;
+  width: 100%;
+  text-align: center;
+}
+
+.modalCanvasContainer {
+  width: 100%;
+  aspect-ratio: 1/1;
+  background-color: #fff;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modalCanvas {
+  width: 100%;
+  height: 100%;
+}
+
+.modalCloseBtn {
+  background-color: #333;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 24px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+.modalCloseBtn:hover {
+  background-color: #444;
+}
+
+/* Language selector */
+.languageSelect {
+  background: #2a2a2a;
+  border: 1px solid #444;
+  color: #fff;
+  border-radius: 8px;
+  padding: 4px 8px;
+  font-size: 0.85rem;
+  outline: none;
+  cursor: pointer;
+}
+
+/* Loader / Empty States */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  text-align: center;
+  height: 100%;
+}
+
+.loader {
+  border: 3px solid #333;
+  border-radius: 50%;
+  border-top: 3px solid var(--color-accent, #d4af37);
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Completed Screen overlay */
+.completedOverlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+  gap: 16px;
+  height: 100%;
+}
+
+.celebrationIcon {
+  font-size: 4rem;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.completedTitle {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--color-accent, #d4af37);
+}
+
+.completedDesc {
+  font-size: 1rem;
+  color: #ccc;
+  margin-bottom: 24px;
+}

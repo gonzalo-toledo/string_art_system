@@ -44,3 +44,16 @@ export type WorkerResponse =
   | WorkerProgressResponse 
   | WorkerCompleteResponse 
   | WorkerErrorResponse;
+
+export interface GuidedSession {
+  sequence: number[];
+  currentStep: number;
+  totalSteps: number;
+  config: {
+    totalPins: number;
+    maxIterations: number;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
