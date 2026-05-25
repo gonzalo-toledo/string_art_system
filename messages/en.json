@@ -25,6 +25,7 @@
     "celebration": "Congratulations! You have completed your artwork.",
     "startOver": "Start over",
     "backToEditor": "Back to Editor",
-    "screenLockWarning": "Screen active (Wake Lock enabled)"
+    "screenLockWarning": "Screen active (Wake Lock enabled)",
+    "sequenceList": "Sequence"
   }
 }

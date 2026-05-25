@@ -164,24 +164,32 @@ que orquesta el flujo: imagen → algoritmo → outputs. Nunca imports cruzados 
 export const HAGALO_KIT = {
   boardDiameter: 500,        // mm (50 cm)
   totalPins: 240,            // cantidad de pines — FIJO, no configurable por el usuario
-  stringLength: 3000,        // metros de cuerda incluidos en el kit
-  stringThickness: 0.5,      // mm — para cálculo de escala visual en canvas
+  stringLength: 4000,        // metros de hilo incluidos en el kit
+  stringType: 'sewing',      // hilo de costura estándar, negro, 4000m
+  stringThickness: 0.12,     // mm — hilo de costura real (~0.12mm)
   boardShape: 'circle',      // forma del tablero — solo circular
 } as const;
 
 export type HagaloKit = typeof HAGALO_KIT;
 ```
 
+### Tipo de hilo
+
+El kit incluye hilo de costura negro estándar (poliéster) de **4000 metros**.
+El grosor real del hilo es ~0.12mm. Esto es CRÍTICO para:
+- **Canvas rendering**: las líneas deben ser ultra-finas con baja opacidad. La imagen se construye por ACUMULACIÓN de miles de hilos semi-transparentes, no por líneas gruesas individuales.
+- **Cálculo de iteraciones máximas**: el sistema debe calcular cuántas líneas permite el largo del hilo y NO ofrecer más iteraciones de las físicamente posibles.
+
 ### Distribución de pines
 
 Los 240 pines se distribuyen **uniformemente en un círculo**:
 - Ángulo entre pines: `360° / 240 = 1.5°`
-- Pin 0 está en la posición "12 en punto" (top center)
+- Pin 0 está en la posición **"3 en punto"** (estándar de mercado, 0 radianes)
 - Numeración en sentido horario: 0, 1, 2, ..., 239
 - La posición de cada pin se calcula como:
   ```
-  x = center + radius * cos(pin_index * 2π / 240 - π/2)
-  y = center + radius * sin(pin_index * 2π / 240 - π/2)
+  x = center + radius * cos(pin_index * 2π / 240)
+  y = center + radius * sin(pin_index * 2π / 240)
   ```
 
 ---
@@ -230,7 +238,7 @@ Es el corazón del sistema y la pieza de mayor complejidad técnica.
 El algoritmo se detiene cuando se cumple **cualquiera** de:
 1. Se alcanza el máximo de iteraciones (configurable por el usuario via slider)
 2. El score de la mejor línea cae por debajo de un threshold mínimo
-3. Se estima que se agotó la cuerda disponible (3000m)
+3. Se estima que se agotó el hilo disponible (4000m)
 
 ### Cálculo de metros de cuerda consumidos
 
@@ -619,4 +627,43 @@ El 90% de los usuarios va a usar la web en el celular mientras tiene el tablero 
 - **Evitar desvanecimiento de pantalla (Wake Lock)**: Implementar la API de Wake Lock del browser (con fallback) para que la pantalla del celular no se apague sola mientras el usuario está colocando un hilo.
 - **Contraste y legibilidad**: En el celular, el número del pin actual debe ser GIGANTE (al menos `4rem` o `64px`), legible a 1 metro de distancia.
 - **Gestos**: Soportar gestos simples (como tap grande o swipe lateral) para pasar de paso si es cómodo.
+
+---
+
+## 18. Restricción de Hilo y Cálculo de Iteraciones Máximas
+
+El sistema DEBE limitar las iteraciones ofrecidas al usuario en función del largo de hilo disponible. No tiene sentido permitir 5000 líneas si físicamente el hilo se agota en 3500.
+
+### Cálculo de la longitud promedio de una cuerda
+
+```
+distancia_entre_pines(i, j) = 2 × radius × sin(|i - j| × π / totalPins)
+```
+
+- Radio del tablero: 250mm
+- Distancia promedio de cuerda (distribución aleatoria sobre el círculo): `diameter × 2/π ≈ 318mm`
+- Con el algoritmo greedy, las cuerdas tienden a ser más largas (cruzan el centro más seguido): estimamos ~350mm promedio
+
+### Iteraciones máximas estimadas
+
+```
+max_lines = stringLength(mm) / avg_chord_length(mm)
+         = 4,000,000mm / 350mm
+         ≈ 11,428 líneas
+```
+
+### Regla de negocio
+
+- El slider de iteraciones NUNCA debe ofrecer más de `maxLinesEstimate` calculado dinámicamente.
+- Valor default: 3000 líneas (suficiente para la mayoría de imágenes con buena resolución).
+- El cálculo preciso se hace **post-generación** sumando la distancia real de cada segmento generado: `Σ distancia_entre_pines(seq[n], seq[n+1])`. Si supera los 4000m, el algoritmo debe detenerse.
+- En el slider UI, mostrar la estimación de metros que consumiría la cantidad de iteraciones seleccionada.
+
+### Canvas rendering del hilo
+
+El hilo de costura es ~0.12mm sobre un tablero de 500mm. Al renderizar:
+- **Editor canvas (500px)**: `lineWidth ≈ 0.5`, `opacity ≈ 0.12-0.15`
+- **Mini-canvas guía (350px)**: `lineWidth ≈ 0.3`, `opacity ≈ 0.08-0.12`
+- La imagen se construye por ACUMULACIÓN. Cada línea individual es casi invisible, la densidad crea la forma.
+- Referencia visual: ver foto del cuadro terminado proporcionada por el cliente.
 

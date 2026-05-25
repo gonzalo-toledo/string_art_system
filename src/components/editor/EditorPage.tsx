@@ -31,7 +31,7 @@ export function EditorPage() {
   const router = useRouter();
   const paramsRoute = useParams();
   const locale = (paramsRoute.locale as string) || 'es';
-  const { session, startSession } = useGuidedSession();
+  const { session, startSession, clearSession } = useGuidedSession();
 
   const [params, setParams] = useState<AlgorithmParams>(DEFAULT_PARAMS);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -73,10 +73,18 @@ export function EditorPage() {
   }, [reprocessImage]);
 
   const handleImageSelected = async (file: File) => {
+    // Guard: warn user if there's an active session
+    if (session) {
+      const confirmed = window.confirm(
+        'You have a project in progress. Uploading a new image will erase all your progress. Continue?'
+      );
+      if (!confirmed) return;
+      clearSession();
+    }
+
     try {
       worker.reset();
       
-      // Clean up previous object URL
       if (objectUrlRef.current) {
         URL.revokeObjectURL(objectUrlRef.current);
       }
@@ -85,11 +93,9 @@ export function EditorPage() {
       sourceImageRef.current = img;
       objectUrlRef.current = objectUrl;
 
-      // Reset adjustments on new image
       setAdjustments(DEFAULT_ADJUSTMENTS);
       setCrop(DEFAULT_CROP);
 
-      // Initial processing
       const result = processImage(img, CANVAS_SIZE);
       setPixelData(result.imageData);
       setPreviewUrl(result.previewUrl);
@@ -122,102 +128,129 @@ export function EditorPage() {
     <div className={styles.container}>
       <div className={styles.sidebar}>
         {session && (
-          <div style={{
+          <div className={styles.banner} style={{
             background: 'rgba(212, 175, 55, 0.12)',
             border: '1px solid #d4af37',
             borderRadius: '8px',
             padding: '12px',
             width: '100%',
             marginBottom: '16px',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
             boxSizing: 'border-box'
           }}>
-            <div style={{ flex: 1, paddingRight: '8px' }}>
-              <h4 style={{ margin: 0, color: '#fff', fontSize: '0.95rem' }}>Cuadro en progreso</h4>
-              <p style={{ margin: '4px 0 0 0', fontSize: '0.8rem', color: '#aaa' }}>
-                Paso {session.currentStep + 1} de {session.totalSteps + 1} ({Math.round((session.currentStep / session.totalSteps) * 100)}%)
-              </p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ flex: 1, paddingRight: '8px' }}>
+                <h4 style={{ margin: 0, color: '#fff', fontSize: '0.95rem' }}>Project in progress</h4>
+                <p style={{ margin: '4px 0 0 0', fontSize: '0.8rem', color: '#aaa' }}>
+                  Step {session.currentStep + 1} of {session.totalSteps + 1} ({Math.round((session.currentStep / session.totalSteps) * 100)}%)
+                </p>
+              </div>
+              <button
+                onClick={() => router.push(`/${locale}/guide`)}
+                style={{
+                  background: '#d4af37',
+                  color: '#111',
+                  border: 'none',
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  fontSize: '0.85rem'
+                }}
+              >
+                Continue
+              </button>
             </div>
             <button
-              onClick={() => router.push(`/${locale}/guide`)}
+              onClick={() => {
+                const confirmed = window.confirm(
+                  'This will erase all your progress. Are you sure?'
+                );
+                if (confirmed) clearSession();
+              }}
               style={{
-                background: '#d4af37',
-                color: '#111',
+                background: 'none',
                 border: 'none',
-                padding: '6px 12px',
-                borderRadius: '6px',
-                fontWeight: 'bold',
+                color: '#ef4444',
                 cursor: 'pointer',
-                fontSize: '0.85rem'
+                fontSize: '0.8rem',
+                marginTop: '8px',
+                padding: 0,
+                textDecoration: 'underline'
               }}
             >
-              Continuar
+              Cancel project
             </button>
           </div>
         )}
 
-        <h2>{t('title')} Editor</h2>
+        <h2 className={styles.title}>{t('title')} Editor</h2>
         
-        <ImageUploader 
-          onImageSelected={handleImageSelected} 
-          disabled={worker.isRunning} 
-        />
+        <div className={styles.stepOne}>
+          <ImageUploader 
+            onImageSelected={handleImageSelected} 
+            disabled={worker.isRunning} 
+          />
+        </div>
 
         {sourceImageRef.current && (
-          <ImageAdjuster
-            adjustments={adjustments}
-            crop={crop}
-            onAdjustmentsChange={setAdjustments}
-            onCropChange={setCrop}
-            onReset={handleResetAdjustments}
-            disabled={worker.isRunning}
-          />
+          <div className={styles.adjuster}>
+            <ImageAdjuster
+              adjustments={adjustments}
+              crop={crop}
+              onAdjustmentsChange={setAdjustments}
+              onCropChange={setCrop}
+              onReset={handleResetAdjustments}
+              disabled={worker.isRunning}
+            />
+          </div>
         )}
         
-        <ConfigPanel 
-          params={params} 
-          onChange={setParams} 
-          disabled={worker.isRunning} 
-        />
+        <div className={styles.stepTwo}>
+          <ConfigPanel 
+            params={params} 
+            onChange={setParams} 
+            disabled={worker.isRunning} 
+          />
+        </div>
 
-        <div className={styles.panel}>
-          <h3>3. Generate</h3>
-          <button 
-            className={styles.button} 
-            onClick={handleGenerate}
-            disabled={!pixelData || worker.isRunning}
-          >
-            {worker.isRunning ? `Generating... (${worker.progress}/${worker.total})` : 'Start Generation'}
-          </button>
-          
-          {worker.sequence && !worker.isRunning && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '10px' }}>
-              <button 
-                className={styles.button}
-                style={{ backgroundColor: '#2196F3' }}
-                onClick={() => {
-                  startSession(Array.from(worker.sequence!), params.totalPins, params.maxIterations);
-                  router.push(`/${locale}/guide`);
-                }}
-              >
-                Modo Guiado 🚀
-              </button>
-              <button 
-                className={styles.button}
-                style={{ backgroundColor: '#4CAF50' }}
-                onClick={() => {
-                  navigator.clipboard.writeText(worker.sequence!.join(','));
-                  alert('Secuencia copiada al portapapeles!');
-                }}
-              >
-                Copiar Secuencia
-              </button>
-            </div>
-          )}
+        <div className={styles.stepThree}>
+          <div className={styles.panel}>
+            <h3>3. Generate</h3>
+            <button 
+              className={styles.button} 
+              onClick={handleGenerate}
+              disabled={!pixelData || worker.isRunning}
+            >
+              {worker.isRunning ? `Generating... (${worker.progress}/${worker.total})` : 'Start Generation'}
+            </button>
+            
+            {worker.sequence && !worker.isRunning && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '10px' }}>
+                <button 
+                  className={styles.button}
+                  style={{ backgroundColor: '#2196F3' }}
+                  onClick={() => {
+                    startSession(Array.from(worker.sequence!), params.totalPins, params.maxIterations);
+                    router.push(`/${locale}/guide`);
+                  }}
+                >
+                  Modo Guiado 🚀
+                </button>
+                <button 
+                  className={styles.button}
+                  style={{ backgroundColor: '#4CAF50' }}
+                  onClick={() => {
+                    navigator.clipboard.writeText(worker.sequence!.join(','));
+                    alert('Secuencia copiada al portapapeles!');
+                  }}
+                >
+                  Copiar Secuencia
+                </button>
+              </div>
+            )}
 
-          {worker.error && <p style={{ color: 'red', marginTop: '8px' }}>{worker.error}</p>}
+            {worker.error && <p style={{ color: 'red', marginTop: '8px' }}>{worker.error}</p>}
+          </div>
         </div>
       </div>
 

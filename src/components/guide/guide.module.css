@@ -404,3 +404,65 @@
   color: #ccc;
   margin-bottom: 24px;
 }
+
+/* Sequence List Modal */
+.sequenceListContainer {
+  width: 100%;
+  max-height: 55vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.seqRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background-color: #2a2a2a;
+  font-size: 0.9rem;
+  color: #aaa;
+  transition: background-color 0.15s;
+}
+
+.seqRowDone {
+  background-color: rgba(212, 175, 55, 0.12);
+  color: #bbb;
+}
+
+.seqRowCurrent {
+  background-color: rgba(212, 175, 55, 0.25);
+  border: 1px solid var(--color-accent, #d4af37);
+  color: #fff;
+  font-weight: 700;
+}
+
+.seqStep {
+  min-width: 48px;
+  font-size: 0.8rem;
+  color: #666;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.seqRowDone .seqStep {
+  color: #888;
+}
+
+.seqRowCurrent .seqStep {
+  color: var(--color-accent, #d4af37);
+}
+
+.seqPins {
+  flex: 1;
+}
+
+.seqCheck {
+  color: var(--color-accent, #d4af37);
+  font-weight: 700;
+  font-size: 1rem;
+}

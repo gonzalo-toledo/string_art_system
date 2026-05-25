@@ -26,13 +26,24 @@ export function CanvasRenderer({ sequence, totalPins, canvasSize, previewUrl, li
     if (!sequence || sequence.length <= 1) {
       sequenceIndexRef.current = 0;
       ctx.clearRect(0, 0, canvasSize, canvasSize);
+
+      // Draw white circular background first
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(canvasSize / 2, canvasSize / 2, canvasSize / 2, 0, Math.PI * 2);
+      ctx.fill();
       
       if (previewUrl) {
         const img = new Image();
         img.onload = () => {
-          ctx.globalAlpha = 0.15;
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(canvasSize / 2, canvasSize / 2, canvasSize / 2, 0, Math.PI * 2);
+          ctx.clip();
+          
+          ctx.globalAlpha = 1.0; // Draw full opacity so adjustments are clearly visible
           ctx.drawImage(img, 0, 0, canvasSize, canvasSize);
-          ctx.globalAlpha = 1.0;
+          ctx.restore();
         };
         img.src = previewUrl;
       }
@@ -47,6 +58,15 @@ export function CanvasRenderer({ sequence, totalPins, canvasSize, previewUrl, li
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+
+    sequenceIndexRef.current = 0;
+    ctx.clearRect(0, 0, canvasSize, canvasSize);
+
+    // Draw white circular background first
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(canvasSize / 2, canvasSize / 2, canvasSize / 2, 0, Math.PI * 2);
+    ctx.fill();
 
     const pins = generatePinCoordinates(totalPins, canvasSize, canvasSize);
     let animationFrameId: number;

@@ -24,6 +24,7 @@ export function GuidePage() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [playSpeed, setPlaySpeed] = useState(2000); // ms per step
   const [isVisualizerOpen, setIsVisualizerOpen] = useState(false);
+  const [isSequenceListOpen, setIsSequenceListOpen] = useState(false);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const touchStartX = useRef<number | null>(null);
@@ -102,48 +103,44 @@ export function GuidePage() {
     const size = canvas.width;
     ctx.clearRect(0, 0, size, size);
 
-    // Draw wood background
-    ctx.fillStyle = '#f8f1e5';
+    // Draw white board background (matches real product)
+    ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, size, size);
 
-    // Draw circle board border
     const boardRadius = size / 2 - 10;
     const centerX = size / 2;
     const centerY = size / 2;
 
     ctx.beginPath();
     ctx.arc(centerX, centerY, boardRadius, 0, Math.PI * 2);
-    ctx.strokeStyle = '#cda680';
-    ctx.lineWidth = 6;
+    ctx.strokeStyle = '#cccccc';
+    ctx.lineWidth = 2;
     ctx.stroke();
 
-    // Generate coordinates
     const pins = generatePinCoordinates(session.config.totalPins, size, size);
 
-    // Draw completed lines
-    ctx.beginPath();
-    ctx.strokeStyle = 'rgba(20, 20, 20, 0.2)';
-    ctx.lineWidth = 0.8;
+    // Draw completed lines — realistic sewing thread rendering:
+    // Ultra-thin lines with low opacity, image builds by ACCUMULATION
+    ctx.lineWidth = 0.3;
+    ctx.strokeStyle = 'rgba(10, 10, 10, 0.09)';
     for (let i = 0; i <= session.currentStep; i++) {
       if (i + 1 < session.sequence.length) {
-        const pStart = pins[session.sequence[i]];
-        const pEnd = pins[session.sequence[i + 1]];
-        if (i === 0) {
-          ctx.moveTo(pStart.x, pStart.y);
-        } else {
-          ctx.lineTo(pEnd.x, pEnd.y);
-        }
+        const pA = pins[session.sequence[i]];
+        const pB = pins[session.sequence[i + 1]];
+        ctx.beginPath();
+        ctx.moveTo(pA.x, pA.y);
+        ctx.lineTo(pB.x, pB.y);
+        ctx.stroke();
       }
     }
-    ctx.stroke();
 
     // Draw active line highlighted
     if (session.currentStep < session.totalSteps) {
       const pStart = pins[session.sequence[session.currentStep]];
       const pEnd = pins[session.sequence[session.currentStep + 1]];
       ctx.beginPath();
-      ctx.strokeStyle = '#d4af37'; // gold
-      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = '#d4af37';
+      ctx.lineWidth = 1.5;
       ctx.moveTo(pStart.x, pStart.y);
       ctx.lineTo(pEnd.x, pEnd.y);
       ctx.stroke();
@@ -151,24 +148,23 @@ export function GuidePage() {
 
     // Draw pins
     pins.forEach((p, idx) => {
-      // Highlight current active pins
       const isCurrentOrigin = idx === session.sequence[session.currentStep];
       const isCurrentTarget = idx === session.sequence[session.currentStep + 1];
 
       if (isCurrentTarget) {
-        ctx.fillStyle = '#ef4444'; // Red for target
+        ctx.fillStyle = '#ef4444';
         ctx.beginPath();
-        ctx.arc(p.x, p.y, 4.5, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
         ctx.fill();
       } else if (isCurrentOrigin) {
-        ctx.fillStyle = '#eab308'; // Yellow for origin
+        ctx.fillStyle = '#eab308';
         ctx.beginPath();
-        ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
         ctx.fill();
       } else {
-        ctx.fillStyle = '#666666';
+        ctx.fillStyle = '#999';
         ctx.beginPath();
-        ctx.arc(p.x, p.y, 1.2, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, 1, 0, Math.PI * 2);
         ctx.fill();
       }
     });
@@ -297,6 +293,14 @@ export function GuidePage() {
           >
             👁️
           </button>
+
+          <button 
+            className={styles.iconButton} 
+            onClick={() => setIsSequenceListOpen(true)}
+            title={t('sequenceList')}
+          >
+            📋
+          </button>
         </div>
       </div>
 
@@ -387,6 +391,39 @@ export function GuidePage() {
             <button 
               className={styles.modalCloseBtn} 
               onClick={() => setIsVisualizerOpen(false)}
+            >
+              {t('close')}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Sequence List Modal */}
+      {isSequenceListOpen && (
+        <div className={styles.overlay} onClick={() => setIsSequenceListOpen(false)}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()} style={{ maxHeight: '85vh' }}>
+            <h2 className={styles.modalTitle}>{t('sequenceList')}</h2>
+            <div className={styles.sequenceListContainer}>
+              {session.sequence.map((pin, idx) => {
+                if (idx === session.sequence.length - 1) return null;
+                const nextPin = session.sequence[idx + 1];
+                const isDone = idx < session.currentStep;
+                const isCurrent = idx === session.currentStep;
+                let rowClass = styles.seqRow;
+                if (isDone) rowClass += ' ' + styles.seqRowDone;
+                if (isCurrent) rowClass += ' ' + styles.seqRowCurrent;
+                return (
+                  <div key={idx} className={rowClass}>
+                    <span className={styles.seqStep}>{idx + 1}</span>
+                    <span className={styles.seqPins}>{pin} → {nextPin}</span>
+                    {isDone && <span className={styles.seqCheck}>✓</span>}
+                  </div>
+                );
+              })}
+            </div>
+            <button 
+              className={styles.modalCloseBtn} 
+              onClick={() => setIsSequenceListOpen(false)}
             >
               {t('close')}
             </button>

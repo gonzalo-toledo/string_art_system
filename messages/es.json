@@ -25,6 +25,7 @@
     "celebration": "¡Felicitaciones! Has completado tu obra de arte.",
     "startOver": "Volver a empezar",
     "backToEditor": "Volver al Editor",
-    "screenLockWarning": "Pantalla activa (Wake Lock habilitado)"
+    "screenLockWarning": "Pantalla activa (Wake Lock habilitado)",
+    "sequenceList": "Listado"
   }
 }
