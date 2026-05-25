@@ -4,10 +4,10 @@ describe('Bresenham Math', () => {
   it('should generate correct pin coordinates', () => {
     const pins = generatePinCoordinates(4, 100, 100);
     expect(pins.length).toBe(4);
-    // Pin 0 should be at top (12 o'clock). Center is 50, radius is 49.
-    // Top is y = 50 - 49 = 1.
-    expect(pins[0].x).toBe(50);
-    expect(pins[0].y).toBe(1); 
+    // Pin 0 should be at 3 o'clock (0 radians). Center is 50, radius is 49.
+    // Right is x = 50 + 49 = 99.
+    expect(pins[0].x).toBe(99);
+    expect(pins[0].y).toBe(50); 
   });
 
   it('should calculate a straight horizontal line correctly', () => {

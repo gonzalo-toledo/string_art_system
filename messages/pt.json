@@ -2,5 +2,29 @@
   "Index": {
     "title": "Gerador de String Art",
     "description": "Crie arte incrível a partir de suas fotos."
+  },
+  "Guide": {
+    "title": "Modo Guiado",
+    "step": "Passo {current} de {total}",
+    "fromPin": "do pino",
+    "toPin": "ir para o pino",
+    "prev": "Anterior",
+    "next": "Próximo",
+    "audio": "Áudio",
+    "play": "Auto",
+    "pause": "Pausar",
+    "speed": "Velocidade",
+    "visualize": "Ver progresso",
+    "close": "Fechar",
+    "noSession": "Nenhum projeto ativo encontrado. Redirecionando para o editor...",
+    "continueSession": "Continuar projeto atual",
+    "newSession": "Iniciar novo projeto",
+    "activeSessionFound": "Um projeto em andamento foi encontrado",
+    "progressSavedAt": "Salvo em",
+    "completed": "Projeto concluído!",
+    "celebration": "Parabéns! Você completou sua obra de arte.",
+    "startOver": "Começar de novo",
+    "backToEditor": "Voltar ao Editor",
+    "screenLockWarning": "Tela ativa (Wake Lock ativado)"
   }
 }

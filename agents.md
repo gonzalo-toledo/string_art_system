@@ -590,3 +590,33 @@ Todas las variables se leen desde `process.env` en las API routes.
 - Tres mercados objetivo: Argentina (ES), Brasil (PT), internacional (EN)
 - Competidores: farostringart.com (actual, sin audio ni PDF), stringar.com (open-source, sin audio)
 - Los diferenciadores clave son: audio guía, animación hilo por hilo, PDF, mobile-first, branding propio
+
+---
+
+## 16. Persistencia del Progreso (Resiliencia)
+
+Armar el cuadro lleva varios días (típicamente entre 2 y 5 días). Por ende, es MANDATORIO que el usuario pueda cerrar el navegador y continuar exactamente donde dejó.
+
+### Requisitos de persistencia:
+- **Datos a almacenar en LocalStorage/IndexedDB**:
+  - `sequence`: el array completo de pines generado (`number[]`).
+  - `currentStep`: el índice actual dentro de esa secuencia (`number`).
+  - `timestamp`: fecha de la última actualización.
+  - `metadata`: parámetros con los que se generó (ej. total de pines, metros estimados) para poder reconstruir la vista.
+- **Autosave**: Cada vez que el usuario avanza de pin en el modo guiado, se debe persistir el nuevo índice de forma automática.
+- **Carga de Estado**: Al ingresar al generador, si se detecta una sesión activa en progreso, se le debe ofrecer al usuario la opción de:
+  - **"Continuar cuadro actual"**: lo lleva directamente al modo guiado en el paso guardado.
+  - **"Iniciar nuevo cuadro"**: limpia la persistencia y le permite subir una nueva foto.
+
+---
+
+## 17. Requisitos UX Mobile-First
+
+El 90% de los usuarios va a usar la web en el celular mientras tiene el tablero físico sobre una mesa.
+
+### Lineamientos de interfaz:
+- **Uso con una sola mano**: Los controles clave del Modo Guiado (Play, Pause, Siguiente, Anterior, volumen) deben ser grandes y estar ubicados en la mitad inferior de la pantalla, al alcance del pulgar.
+- **Evitar desvanecimiento de pantalla (Wake Lock)**: Implementar la API de Wake Lock del browser (con fallback) para que la pantalla del celular no se apague sola mientras el usuario está colocando un hilo.
+- **Contraste y legibilidad**: En el celular, el número del pin actual debe ser GIGANTE (al menos `4rem` o `64px`), legible a 1 metro de distancia.
+- **Gestos**: Soportar gestos simples (como tap grande o swipe lateral) para pasar de paso si es cómodo.
+
