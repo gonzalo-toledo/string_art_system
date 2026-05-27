@@ -3,6 +3,7 @@ export interface Point {
   y: number;
 }
 
+// Genera las coordenadas de los pines en un circulo
 export function generatePinCoordinates(totalPins: number, width: number, height: number): Point[] {
   const pins: Point[] = [];
   const radius = Math.min(width, height) / 2 - 1; // 1px padding
@@ -21,6 +22,7 @@ export function generatePinCoordinates(totalPins: number, width: number, height:
   return pins;
 }
 
+// Algoritmo de Bresenham para calcular la línea entre dos pines
 export function calculateBresenhamLine(p0: Point, p1: Point): Uint16Array {
   let x0 = p0.x;
   let y0 = p0.y;
@@ -52,11 +54,12 @@ export function calculateBresenhamLine(p0: Point, p1: Point): Uint16Array {
   return new Uint16Array(coords);
 }
 
+// Clase para cachear las líneas
 export class BresenhamCache {
   private cache = new Map<string, Uint16Array>();
-  private CACHE_THRESHOLD = 150; // Cache lines longer than this many pixels
+  private CACHE_THRESHOLD = 150; // Cachea solo las líneas más largas para ahorrar RAM.
 
-  constructor(private pins: Point[]) {}
+  constructor(private pins: Point[]) { }
 
   private getHash(pinA: number, pinB: number): string {
     // Line A->B uses the same pixels as B->A
@@ -71,12 +74,12 @@ export class BresenhamCache {
     }
 
     const line = calculateBresenhamLine(this.pins[pinA], this.pins[pinB]);
-    
+
     // Only cache lines long enough to be worth it, saving RAM.
     if (line.length / 2 >= this.CACHE_THRESHOLD) {
       this.cache.set(hash, line);
     }
-    
+
     return line;
   }
 

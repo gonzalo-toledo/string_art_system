@@ -40,9 +40,9 @@ export interface WorkerErrorResponse {
   message: string;
 }
 
-export type WorkerResponse = 
-  | WorkerProgressResponse 
-  | WorkerCompleteResponse 
+export type WorkerResponse =
+  | WorkerProgressResponse
+  | WorkerCompleteResponse
   | WorkerErrorResponse;
 
 export interface GuidedSession {
