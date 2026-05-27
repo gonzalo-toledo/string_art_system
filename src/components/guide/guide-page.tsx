@@ -2,12 +2,26 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
-import { useGuidedSession } from '../../hooks/useGuidedSession';
-import { useWakeLock } from '../../hooks/useWakeLock';
-import { usePinSpeech } from '../../hooks/usePinSpeech';
+import { useGuidedSession } from '../../hooks/use-guided-session';
+import { useWakeLock } from '../../hooks/use-wake-lock';
+import { usePinSpeech } from '../../hooks/use-pin-speech';
 import { generatePinCoordinates } from '../../core/algorithm/bresenham';
 import styles from './guide.module.css';
 
+/**
+ * Pantalla del modo guiado (mobile-first).
+ *
+ * Guía al usuario paso a paso indicándole desde qué pin hasta qué pin
+ * debe ir con el hilo. Incluye:
+ * - Display grande del pin destino (táctil para repetir audio)
+ * - Navegación prev/next con botones + touch swipe
+ * - Autoplay con velocidad configurable
+ * - Modal visualizador con mini-canvas del progreso
+ * - Modal con listado completo de la secuencia
+ * - Wake lock para que no se apague la pantalla
+ * - Speech synthesis para decir el número del pin en voz alta
+ * - Selector de idioma en el header
+ */
 export function GuidePage() {
   const t = useTranslations('Guide');
   const router = useRouter();
@@ -17,19 +31,19 @@ export function GuidePage() {
   const { session, isLoaded, updateStep, clearSession } = useGuidedSession();
   const { request: requestWakeLock, release: releaseWakeLock, isActive: isWakeLockActive } = useWakeLock();
 
-  // Initialize Speech hook
+  // Inicializar hook de voz
   const { speak, isEnabled: isSpeechEnabled, toggleEnabled: toggleSpeech } = usePinSpeech(locale);
 
-  // Guided navigation state
+  // Estado de navegación del guiado
   const [isPlaying, setIsPlaying] = useState(false);
-  const [playSpeed, setPlaySpeed] = useState(2000); // ms per step
+  const [playSpeed, setPlaySpeed] = useState(2000); // ms por paso
   const [isVisualizerOpen, setIsVisualizerOpen] = useState(false);
   const [isSequenceListOpen, setIsSequenceListOpen] = useState(false);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const touchStartX = useRef<number | null>(null);
 
-  // Request wake lock when session is loaded and active
+  // Activar wake lock cuando la sesión está cargada
   useEffect(() => {
     if (isLoaded && session) {
       requestWakeLock();
@@ -39,7 +53,7 @@ export function GuidePage() {
     };
   }, [isLoaded, session, requestWakeLock, releaseWakeLock]);
 
-  // Handle auto speech when step changes
+  // Reproducir audio automáticamente cuando cambia el paso
   useEffect(() => {
     if (session && session.currentStep < session.totalSteps) {
       const targetPin = session.sequence[session.currentStep + 1];
@@ -47,7 +61,7 @@ export function GuidePage() {
     }
   }, [session?.currentStep, speak, session?.sequence, session?.totalSteps]);
 
-  // Autoplay functionality
+  // Funcionalidad de autoplay: avanza automáticamente cada N milisegundos
   useEffect(() => {
     if (!isPlaying || !session) return;
 
@@ -62,14 +76,14 @@ export function GuidePage() {
     return () => clearInterval(interval);
   }, [isPlaying, session, playSpeed, updateStep]);
 
-  // Handle locale change route redirect
+  // Redirigir al cambiar el idioma (reemplaza el locale en la URL)
   const handleLocaleChange = (newLocale: string) => {
-    // If route contains locale, replace it
     const currentPath = window.location.pathname;
     const newPath = currentPath.replace(/^\/[a-z]{2}/, `/${newLocale}`);
     router.push(newPath);
   };
 
+  // Avanzar al siguiente paso
   const handleNext = useCallback(() => {
     if (!session) return;
     if (session.currentStep < session.totalSteps) {
@@ -77,6 +91,7 @@ export function GuidePage() {
     }
   }, [session, updateStep]);
 
+  // Retroceder al paso anterior
   const handlePrev = useCallback(() => {
     if (!session) return;
     if (session.currentStep > 0) {
@@ -84,6 +99,7 @@ export function GuidePage() {
     }
   }, [session, updateStep]);
 
+  // Repetir el audio del pin actual
   const handleRepeatSpeech = () => {
     if (!session) return;
     const targetPin = session.sequence[session.currentStep + 1];
@@ -92,7 +108,7 @@ export function GuidePage() {
     }
   };
 
-  // Draw current preview onto canvas inside modal
+  // Dibujar el mini-canvas del visualizador (progreso de hilos)
   useEffect(() => {
     if (!isVisualizerOpen || !session || !canvasRef.current) return;
 
@@ -103,7 +119,7 @@ export function GuidePage() {
     const size = canvas.width;
     ctx.clearRect(0, 0, size, size);
 
-    // Draw white board background (matches real product)
+    // Fondo blanco del tablero (igual que el producto real)
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, size, size);
 
@@ -111,6 +127,7 @@ export function GuidePage() {
     const centerX = size / 2;
     const centerY = size / 2;
 
+    // Borde del tablero
     ctx.beginPath();
     ctx.arc(centerX, centerY, boardRadius, 0, Math.PI * 2);
     ctx.strokeStyle = '#cccccc';
@@ -119,8 +136,8 @@ export function GuidePage() {
 
     const pins = generatePinCoordinates(session.config.totalPins, size, size);
 
-    // Draw completed lines — realistic sewing thread rendering:
-    // Ultra-thin lines with low opacity, image builds by ACCUMULATION
+    // Dibujar hilos completados — rendering realista:
+    // Líneas ultra-finas con baja opacidad, la imagen se construye por ACUMULACIÓN
     ctx.lineWidth = 0.3;
     ctx.strokeStyle = 'rgba(10, 10, 10, 0.09)';
     for (let i = 0; i <= session.currentStep; i++) {
@@ -134,7 +151,7 @@ export function GuidePage() {
       }
     }
 
-    // Draw active line highlighted
+    // Dibujar la línea activa resaltada en dorado
     if (session.currentStep < session.totalSteps) {
       const pStart = pins[session.sequence[session.currentStep]];
       const pEnd = pins[session.sequence[session.currentStep + 1]];
@@ -146,22 +163,25 @@ export function GuidePage() {
       ctx.stroke();
     }
 
-    // Draw pins
+    // Dibujar pines (con colores especiales para origen y destino)
     pins.forEach((p, idx) => {
       const isCurrentOrigin = idx === session.sequence[session.currentStep];
       const isCurrentTarget = idx === session.sequence[session.currentStep + 1];
 
       if (isCurrentTarget) {
+        // Pin destino: rojo, más grande
         ctx.fillStyle = '#ef4444';
         ctx.beginPath();
         ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
         ctx.fill();
       } else if (isCurrentOrigin) {
+        // Pin origen: dorado
         ctx.fillStyle = '#eab308';
         ctx.beginPath();
         ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
         ctx.fill();
       } else {
+        // Pines normales: gris, pequeños
         ctx.fillStyle = '#999';
         ctx.beginPath();
         ctx.arc(p.x, p.y, 1, 0, Math.PI * 2);
@@ -170,7 +190,7 @@ export function GuidePage() {
     });
   }, [isVisualizerOpen, session]);
 
-  // Touch Swipe Handlers
+  // Manejo de gestos táctiles (swipe izquierda/derecha)
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
   };
@@ -180,7 +200,7 @@ export function GuidePage() {
     const touchEndX = e.changedTouches[0].clientX;
     const diffX = touchStartX.current - touchEndX;
 
-    // swipe left (next), swipe right (prev)
+    // Swipe izquierda = siguiente, swipe derecha = anterior
     if (diffX > 60) {
       handleNext();
     } else if (diffX < -60) {
@@ -188,6 +208,8 @@ export function GuidePage() {
     }
     touchStartX.current = null;
   };
+
+  // --- Estados de carga y vacío ---
 
   if (!isLoaded) {
     return (
@@ -204,8 +226,8 @@ export function GuidePage() {
       <div className={styles.container}>
         <div className={styles.emptyState}>
           <p>{t('noSession')}</p>
-          <button 
-            className={styles.modalCloseBtn} 
+          <button
+            className={styles.modalCloseBtn}
             onClick={() => router.push(`/${locale}/editor`)}
             style={{ maxWidth: '200px' }}
           >
@@ -216,10 +238,14 @@ export function GuidePage() {
     );
   }
 
+  // --- Cálculos para el render ---
+
   const isCompleted = session.currentStep >= session.totalSteps;
   const currentPin = session.sequence[session.currentStep];
   const targetPin = isCompleted ? null : session.sequence[session.currentStep + 1];
   const progressPercent = Math.round((session.currentStep / session.totalSteps) * 100);
+
+  // --- Pantalla de cuadro completado ---
 
   if (isCompleted) {
     return (
@@ -228,9 +254,9 @@ export function GuidePage() {
           <div className={styles.celebrationIcon}>🎉</div>
           <h1 className={styles.completedTitle}>{t('completed')}</h1>
           <p className={styles.completedDesc}>{t('celebration')}</p>
-          
-          <button 
-            className={styles.btn} 
+
+          <button
+            className={styles.btn}
             style={{ backgroundColor: 'var(--color-accent)', color: '#111', padding: '16px 32px', borderRadius: '12px', fontSize: '1.1rem', width: '100%', maxWidth: '300px' }}
             onClick={() => {
               updateStep(0);
@@ -239,8 +265,8 @@ export function GuidePage() {
             {t('startOver')}
           </button>
 
-          <button 
-            className={styles.btn} 
+          <button
+            className={styles.btn}
             style={{ backgroundColor: '#333', color: '#fff', padding: '16px 32px', borderRadius: '12px', fontSize: '1.1rem', width: '100%', maxWidth: '300px', marginTop: '12px' }}
             onClick={() => {
               clearSession();
@@ -254,22 +280,25 @@ export function GuidePage() {
     );
   }
 
+  // --- Pantalla principal del guiado ---
+
   return (
     <div className={styles.container}>
-      {/* Header section */}
+      {/* Header con navegación, idioma y controles */}
       <div className={styles.header}>
-        <button 
-          className={styles.iconButton} 
+        <button
+          className={styles.iconButton}
           onClick={() => router.push(`/${locale}/editor`)}
           aria-label="Back to Editor"
         >
           ⬅️
         </button>
         <h1 className={styles.headerTitle}>{t('title')}</h1>
-        
+
         <div className={styles.headerActions}>
-          <select 
-            value={locale} 
+          {/* Selector de idioma */}
+          <select
+            value={locale}
             onChange={(e) => handleLocaleChange(e.target.value)}
             className={styles.languageSelect}
           >
@@ -278,24 +307,27 @@ export function GuidePage() {
             <option value="pt">PT</option>
           </select>
 
-          <button 
-            className={`${styles.iconButton} ${isSpeechEnabled ? styles.iconButtonActive : ''}`} 
+          {/* Toggle de audio */}
+          <button
+            className={`${styles.iconButton} ${isSpeechEnabled ? styles.iconButtonActive : ''}`}
             onClick={toggleSpeech}
             title={t('audio')}
           >
             {isSpeechEnabled ? '🔊' : '🔇'}
           </button>
 
-          <button 
-            className={styles.iconButton} 
+          {/* Botón del visualizador */}
+          <button
+            className={styles.iconButton}
             onClick={() => setIsVisualizerOpen(true)}
             title={t('visualize')}
           >
             👁️
           </button>
 
-          <button 
-            className={styles.iconButton} 
+          {/* Botón del listado de secuencia */}
+          <button
+            className={styles.iconButton}
             onClick={() => setIsSequenceListOpen(true)}
             title={t('sequenceList')}
           >
@@ -304,22 +336,22 @@ export function GuidePage() {
         </div>
       </div>
 
-      {/* Progress display */}
+      {/* Barra de progreso */}
       <div className={styles.progressSection}>
         <div className={styles.progressText}>
           <span>{t('step', { current: session.currentStep + 1, total: session.totalSteps + 1 })}</span>
           <span>{progressPercent}%</span>
         </div>
         <div className={styles.progressBar}>
-          <div 
-            className={styles.progressFill} 
+          <div
+            className={styles.progressFill}
             style={{ width: `${progressPercent}%` }}
           ></div>
         </div>
       </div>
 
-      {/* Main Touch area */}
-      <div 
+      {/* Zona táctil principal (swipe para navegar) */}
+      <div
         className={styles.centerSection}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
@@ -333,7 +365,7 @@ export function GuidePage() {
         </div>
       </div>
 
-      {/* Footer controls */}
+      {/* Controles de navegación */}
       <div className={styles.controlsSection}>
         <div className={styles.navButtons}>
           <button className={`${styles.btn} ${styles.btnPrev}`} onClick={handlePrev}>
@@ -345,8 +377,9 @@ export function GuidePage() {
         </div>
 
         <div className={styles.subControls}>
+          {/* Autoplay: avanza automáticamente cada N segundos */}
           <div className={styles.autoplayGroup}>
-            <button 
+            <button
               className={`${styles.btnPlayPause} ${isPlaying ? styles.btnPlayPauseActive : ''}`}
               onClick={() => setIsPlaying(!isPlaying)}
             >
@@ -354,8 +387,8 @@ export function GuidePage() {
             </button>
 
             {isPlaying && (
-              <select 
-                value={playSpeed} 
+              <select
+                value={playSpeed}
                 onChange={(e) => setPlaySpeed(Number(e.target.value))}
                 className={styles.speedSelector}
               >
@@ -369,27 +402,28 @@ export function GuidePage() {
             )}
           </div>
 
+          {/* Indicador de Wake Lock */}
           <div className={`${styles.wakeLockIndicator} ${isWakeLockActive ? styles.wakeLockIndicatorActive : ''}`}>
             {isWakeLockActive ? '🟢 WakeLock' : '🔴 WakeLock'}
           </div>
         </div>
       </div>
 
-      {/* Visualizer Modal */}
+      {/* Modal: Visualizador de progreso (mini-canvas) */}
       {isVisualizerOpen && (
         <div className={styles.overlay} onClick={() => setIsVisualizerOpen(false)}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
             <h2 className={styles.modalTitle}>{t('visualize')}</h2>
             <div className={styles.modalCanvasContainer}>
-              <canvas 
-                ref={canvasRef} 
-                width={350} 
-                height={350} 
+              <canvas
+                ref={canvasRef}
+                width={350}
+                height={350}
                 className={styles.modalCanvas}
               />
             </div>
-            <button 
-              className={styles.modalCloseBtn} 
+            <button
+              className={styles.modalCloseBtn}
               onClick={() => setIsVisualizerOpen(false)}
             >
               {t('close')}
@@ -398,7 +432,7 @@ export function GuidePage() {
         </div>
       )}
 
-      {/* Sequence List Modal */}
+      {/* Modal: Listado completo de la secuencia */}
       {isSequenceListOpen && (
         <div className={styles.overlay} onClick={() => setIsSequenceListOpen(false)}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()} style={{ maxHeight: '85vh' }}>
@@ -421,8 +455,8 @@ export function GuidePage() {
                 );
               })}
             </div>
-            <button 
-              className={styles.modalCloseBtn} 
+            <button
+              className={styles.modalCloseBtn}
               onClick={() => setIsSequenceListOpen(false)}
             >
               {t('close')}

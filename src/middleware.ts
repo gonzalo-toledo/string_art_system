@@ -1,3 +1,5 @@
+// Middleware de next-intl para routing internacionalizado.
+// Redirige automáticamente al idioma detectado del browser.
 import createMiddleware from 'next-intl/middleware';
 
 export default createMiddleware({
@@ -6,6 +8,6 @@ export default createMiddleware({
 });
 
 export const config = {
-  // Match only internationalized pathnames
+  // Solo matchear rutas internacionalizadas
   matcher: ['/', '/(es|en|pt)/:path*']
 };

@@ -2,32 +2,33 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
-import { ImageUploader } from './ImageUploader';
-import { ConfigPanel } from './ConfigPanel';
-import { ImageAdjuster } from './ImageAdjuster';
-import { CanvasRenderer } from './CanvasRenderer';
-import { useStringArtWorker } from '../../hooks/useStringArtWorker';
-import { useGuidedSession } from '../../hooks/useGuidedSession';
-import { loadImage, processImage } from '../../utils/imageProcessor';
-import { ImageAdjustments, CropTransform, DEFAULT_ADJUSTMENTS, DEFAULT_CROP } from '../../utils/imageAdjustments';
+import { ImageUploader } from './image-uploader';
+import { ConfigPanel } from './config-panel';
+import { ImageAdjuster } from './image-adjuster';
+import { CanvasRenderer } from './canvas-renderer';
+import { useStringArtWorker } from '../../hooks/use-string-art-worker';
+import { useGuidedSession } from '../../hooks/use-guided-session';
+import { loadImage, processImage } from '../../utils/image-processor';
+import { ImageAdjustments, CropTransform, DEFAULT_ADJUSTMENTS, DEFAULT_CROP } from '../../utils/image-adjustments';
 import { AlgorithmParams } from '../../core/algorithm/types';
+import { CANVAS_SIZE, DEFAULT_PARAMS } from '../../core/kit-spec';
+import { exportPDFGuide } from '../../utils/pdf-generator';
 import styles from './editor.module.css';
 
-const CANVAS_SIZE = 500;
-
-const DEFAULT_PARAMS: AlgorithmParams = {
-  width: CANVAS_SIZE,
-  height: CANVAS_SIZE,
-  totalPins: 240,
-  maxIterations: 3000,
-  lineWeight: 25,
-  penaltyMultiplier: 2.0,
-  minPinDistance: 20,
-  boardRadius: 250
-};
-
+/**
+ * Página principal del editor.
+ * Orquesta todo el flujo: subir imagen → ajustar → configurar → generar.
+ *
+ * Flujo de datos:
+ * 1. El usuario sube una foto → se guarda en sourceImageRef
+ * 2. Se procesa con los ajustes actuales → genera pixelData (Float32Array) + previewUrl
+ * 3. Al modificar ajustes/crop → se reprocesa con debounce de 100ms
+ * 4. Al presionar "Generar" → se envía pixelData al Web Worker
+ * 5. El worker calcula y devuelve la secuencia de pines
+ * 6. La secuencia se puede enviar al Modo Guiado o copiar al portapapeles
+ */
 export function EditorPage() {
-  const t = useTranslations('Index');
+  const t = useTranslations('Editor');
   const router = useRouter();
   const paramsRoute = useParams();
   const locale = (paramsRoute.locale as string) || 'es';
@@ -38,15 +39,15 @@ export function EditorPage() {
   const [pixelData, setPixelData] = useState<Float32Array | null>(null);
   const [adjustments, setAdjustments] = useState<ImageAdjustments>(DEFAULT_ADJUSTMENTS);
   const [crop, setCrop] = useState<CropTransform>(DEFAULT_CROP);
-  
-  // Store the raw loaded image so we can reprocess on adjustment changes
+
+  // Referencia a la imagen original cargada (para reprocesar al cambiar ajustes)
   const sourceImageRef = useRef<HTMLImageElement | null>(null);
   const objectUrlRef = useRef<string | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  
+
   const worker = useStringArtWorker();
 
-  // Reprocess image when adjustments or crop change
+  // Reprocesar imagen cuando cambian ajustes o crop
   const reprocessImage = useCallback(() => {
     const img = sourceImageRef.current;
     if (!img) return;
@@ -56,7 +57,7 @@ export function EditorPage() {
     setPreviewUrl(previewUrl);
   }, [adjustments, crop]);
 
-  // Debounced reprocess on adjustment/crop changes
+  // Reprocesar con debounce para no saturar con cada movimiento del slider
   useEffect(() => {
     if (!sourceImageRef.current) return;
 
@@ -72,19 +73,19 @@ export function EditorPage() {
     };
   }, [reprocessImage]);
 
+  // Manejar la selección de una nueva imagen
   const handleImageSelected = async (file: File) => {
-    // Guard: warn user if there's an active session
+    // Advertir si hay una sesión guiada en progreso
     if (session) {
-      const confirmed = window.confirm(
-        'You have a project in progress. Uploading a new image will erase all your progress. Continue?'
-      );
+      const confirmed = window.confirm(t('confirmNewImage'));
       if (!confirmed) return;
       clearSession();
     }
 
     try {
       worker.reset();
-      
+
+      // Liberar URL anterior si existe
       if (objectUrlRef.current) {
         URL.revokeObjectURL(objectUrlRef.current);
       }
@@ -93,6 +94,7 @@ export function EditorPage() {
       sourceImageRef.current = img;
       objectUrlRef.current = objectUrl;
 
+      // Resetear ajustes a valores por defecto
       setAdjustments(DEFAULT_ADJUSTMENTS);
       setCrop(DEFAULT_CROP);
 
@@ -100,22 +102,24 @@ export function EditorPage() {
       setPixelData(result.imageData);
       setPreviewUrl(result.previewUrl);
     } catch (err) {
-      console.error("Failed to process image", err);
+      console.error("Error al procesar la imagen", err);
     }
   };
 
+  // Iniciar la generación del string art
   const handleGenerate = () => {
     if (pixelData) {
       worker.start(pixelData, params);
     }
   };
 
+  // Resetear todos los ajustes de imagen a valores por defecto
   const handleResetAdjustments = () => {
     setAdjustments(DEFAULT_ADJUSTMENTS);
     setCrop(DEFAULT_CROP);
   };
 
-  // Cleanup object URL on unmount
+  // Limpiar el object URL al desmontar el componente
   useEffect(() => {
     return () => {
       if (objectUrlRef.current) {
@@ -127,6 +131,7 @@ export function EditorPage() {
   return (
     <div className={styles.container}>
       <div className={styles.sidebar}>
+        {/* Banner de sesión activa */}
         {session && (
           <div className={styles.banner} style={{
             background: 'rgba(212, 175, 55, 0.12)',
@@ -139,9 +144,13 @@ export function EditorPage() {
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ flex: 1, paddingRight: '8px' }}>
-                <h4 style={{ margin: 0, color: '#fff', fontSize: '0.95rem' }}>Project in progress</h4>
+                <h4 style={{ margin: 0, color: '#fff', fontSize: '0.95rem' }}>{t('projectInProgress')}</h4>
                 <p style={{ margin: '4px 0 0 0', fontSize: '0.8rem', color: '#aaa' }}>
-                  Step {session.currentStep + 1} of {session.totalSteps + 1} ({Math.round((session.currentStep / session.totalSteps) * 100)}%)
+                  {t('stepProgress', {
+                    current: session.currentStep + 1,
+                    total: session.totalSteps + 1,
+                    percent: Math.round((session.currentStep / session.totalSteps) * 100)
+                  })}
                 </p>
               </div>
               <button
@@ -157,14 +166,12 @@ export function EditorPage() {
                   fontSize: '0.85rem'
                 }}
               >
-                Continue
+                {t('continue')}
               </button>
             </div>
             <button
               onClick={() => {
-                const confirmed = window.confirm(
-                  'This will erase all your progress. Are you sure?'
-                );
+                const confirmed = window.confirm(t('confirmCancel'));
                 if (confirmed) clearSession();
               }}
               style={{
@@ -178,20 +185,22 @@ export function EditorPage() {
                 textDecoration: 'underline'
               }}
             >
-              Cancel project
+              {t('cancelProject')}
             </button>
           </div>
         )}
 
-        <h2 className={styles.title}>{t('title')} Editor</h2>
-        
+        <h2 className={styles.title}>{t('title')}</h2>
+
+        {/* Paso 1: Subir imagen */}
         <div className={styles.stepOne}>
-          <ImageUploader 
-            onImageSelected={handleImageSelected} 
-            disabled={worker.isRunning} 
+          <ImageUploader
+            onImageSelected={handleImageSelected}
+            disabled={worker.isRunning}
           />
         </div>
 
+        {/* Panel de ajustes de imagen (solo visible después de subir foto) */}
         {sourceImageRef.current && (
           <div className={styles.adjuster}>
             <ImageAdjuster
@@ -204,29 +213,35 @@ export function EditorPage() {
             />
           </div>
         )}
-        
+
+        {/* Paso 2: Configuración del algoritmo */}
         <div className={styles.stepTwo}>
-          <ConfigPanel 
-            params={params} 
-            onChange={setParams} 
-            disabled={worker.isRunning} 
+          <ConfigPanel
+            params={params}
+            onChange={setParams}
+            disabled={worker.isRunning}
           />
         </div>
 
+        {/* Paso 3: Generar y resultados */}
         <div className={styles.stepThree}>
           <div className={styles.panel}>
-            <h3>3. Generate</h3>
-            <button 
-              className={styles.button} 
+            <h3>{t('generateTitle')}</h3>
+            <button
+              className={styles.button}
               onClick={handleGenerate}
               disabled={!pixelData || worker.isRunning}
             >
-              {worker.isRunning ? `Generating... (${worker.progress}/${worker.total})` : 'Start Generation'}
+              {worker.isRunning
+                ? t('generating', { progress: worker.progress, total: worker.total })
+                : t('startGeneration')
+              }
             </button>
-            
+
+            {/* Botones post-generación */}
             {worker.sequence && !worker.isRunning && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '10px' }}>
-                <button 
+                <button
                   className={styles.button}
                   style={{ backgroundColor: '#2196F3' }}
                   onClick={() => {
@@ -234,17 +249,32 @@ export function EditorPage() {
                     router.push(`/${locale}/guide`);
                   }}
                 >
-                  Modo Guiado 🚀
+                  {t('guidedMode')}
                 </button>
-                <button 
+                <button
                   className={styles.button}
                   style={{ backgroundColor: '#4CAF50' }}
                   onClick={() => {
                     navigator.clipboard.writeText(worker.sequence!.join(','));
-                    alert('Secuencia copiada al portapapeles!');
+                    alert(t('sequenceCopied'));
                   }}
                 >
-                  Copiar Secuencia
+                  {t('copySequence')}
+                </button>
+                <button
+                  className={styles.button}
+                  style={{ backgroundColor: '#795548' }}
+                  onClick={() => {
+                    exportPDFGuide({
+                      sequence: worker.sequence!,
+                      totalPins: params.totalPins,
+                      maxIterations: params.maxIterations,
+                      totalMeters: worker.totalMeters,
+                      locale: locale as 'es' | 'en' | 'pt'
+                    });
+                  }}
+                >
+                  {t('exportPDF')}
                 </button>
               </div>
             )}
@@ -254,10 +284,11 @@ export function EditorPage() {
         </div>
       </div>
 
-      <CanvasRenderer 
-        sequence={worker.sequence} 
-        totalPins={params.totalPins} 
-        canvasSize={CANVAS_SIZE} 
+      {/* Canvas de visualización */}
+      <CanvasRenderer
+        sequence={worker.sequence}
+        totalPins={params.totalPins}
+        canvasSize={CANVAS_SIZE}
         previewUrl={previewUrl}
       />
     </div>

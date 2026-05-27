@@ -1,6 +1,13 @@
 import { AlgorithmParams } from './types';
 import { BresenhamCache, generatePinCoordinates, Point } from './bresenham';
 
+/**
+ * Algoritmo greedy de String Art (basado en Petros Vrellis, 2013).
+ *
+ * Funciona sobre un "mapa de error" (errorMap) que representa cuánta oscuridad
+ * queda por cubrir en cada píxel. En cada iteración elige la línea que mejor
+ * reduce el error total, restando el peso de la línea de los píxeles que atraviesa.
+ */
 export class GreedyAlgorithm {
   private errorMap: Float32Array;
   private width: number;
@@ -8,7 +15,7 @@ export class GreedyAlgorithm {
   private cache: BresenhamCache;
   private sequence: number[] = [];
   private totalStringMeters: number = 0;
-  
+
   private lineWeight: number;
   private penaltyMultiplier: number;
   private minPinDistance: number;
@@ -16,7 +23,7 @@ export class GreedyAlgorithm {
   private boardRadius: number;
 
   constructor(initialData: Float32Array, params: AlgorithmParams) {
-    this.errorMap = new Float32Array(initialData); // Copy initial state
+    this.errorMap = new Float32Array(initialData); // Copia del estado inicial
     this.width = params.width;
     this.totalPins = params.totalPins;
     this.lineWeight = params.lineWeight;
@@ -26,40 +33,62 @@ export class GreedyAlgorithm {
 
     this.pins = generatePinCoordinates(this.totalPins, this.width, params.height);
     this.cache = new BresenhamCache(this.pins);
-    
-    // Start at pin 0 by default
+
+    // Comienza en el pin 0 por defecto
     this.sequence.push(0);
   }
 
+  /**
+   * Calcula la distancia circular entre dos pines (en cantidad de pines).
+   * Ejemplo: con 240 pines, la distancia entre pin 0 y pin 230 es 10 (no 230).
+   */
   private getPinDistance(pinA: number, pinB: number): number {
     const diff = Math.abs(pinA - pinB);
     return Math.min(diff, this.totalPins - diff);
   }
 
+  /**
+   * Calcula los metros de hilo entre dos pines usando la fórmula de cuerda:
+   * longitud = 2 * radio * sin(ángulo / 2)
+   */
   private calculateMeters(pinA: number, pinB: number): number {
     const distance = this.getPinDistance(pinA, pinB);
-    // Chord length: 2 * r * sin(theta / 2)
     const angle = (distance * 2 * Math.PI) / this.totalPins;
     const lengthMm = 2 * this.boardRadius * Math.sin(angle / 2);
     return lengthMm / 1000;
   }
 
+  /**
+   * Calcula la siguiente línea óptima.
+   *
+   * Para cada pin candidato:
+   * 1. Descarta si es el pin actual o el anterior (anti-reversa)
+   * 2. Descarta si está demasiado cerca (minPinDistance)
+   * 3. Recorre los píxeles de la línea calculando un score:
+   *    - Píxeles con error positivo (queda oscuridad) → recompensa
+   *    - Píxeles con error negativo (ya sobreoscurecido) → castigo
+   * 4. Normaliza el score por la longitud de la línea
+   * 5. Elige el pin con mayor score normalizado
+   * 6. "Dibuja" la línea ganadora restando lineWeight del errorMap
+   *
+   * Retorna null si no hay líneas válidas disponibles.
+   */
   public computeNextLine(): { nextPin: number, score: number } | null {
     const currentPin = this.sequence[this.sequence.length - 1];
     let bestScore = -Infinity;
     let bestPin = -1;
     let bestLinePixels: Uint16Array | null = null;
 
-    // Evaluate all possible targets
+    // Evaluar todos los pines candidatos
     for (let targetPin = 0; targetPin < this.totalPins; targetPin++) {
       if (targetPin === currentPin) continue;
 
-      // Prevent going back to the exact previous pin
+      // No volver al pin inmediatamente anterior (anti-reversa)
       if (this.sequence.length > 1 && targetPin === this.sequence[this.sequence.length - 2]) {
         continue;
       }
 
-      // Prevent very short lines
+      // No permitir líneas muy cortas
       if (this.getPinDistance(currentPin, targetPin) < this.minPinDistance) {
         continue;
       }
@@ -67,7 +96,7 @@ export class GreedyAlgorithm {
       const linePixels = this.cache.getLine(currentPin, targetPin);
       let score = 0;
 
-      // Calculate score with penalty
+      // Calcular score con penalización por overshoot
       for (let i = 0; i < linePixels.length; i += 2) {
         const x = linePixels[i];
         const y = linePixels[i + 1];
@@ -75,13 +104,13 @@ export class GreedyAlgorithm {
         const remaining = this.errorMap[idx];
 
         if (remaining > 0) {
-          score += Math.min(remaining, this.lineWeight); // Reward
+          score += Math.min(remaining, this.lineWeight); // Recompensa
         } else {
-          score -= Math.abs(remaining) * this.penaltyMultiplier; // Penalty for overshoot
+          score -= Math.abs(remaining) * this.penaltyMultiplier; // Castigo
         }
       }
 
-      // Normalize score by line length
+      // Normalizar score por longitud de línea (para no favorecer líneas largas)
       const length = linePixels.length / 2;
       const normalizedScore = score / length;
 
@@ -93,7 +122,7 @@ export class GreedyAlgorithm {
     }
 
     if (bestPin !== -1 && bestLinePixels) {
-      // Update error map by subtracting the line weight
+      // "Dibujar" la línea: restar el peso de cada píxel que atraviesa
       for (let i = 0; i < bestLinePixels.length; i += 2) {
         const x = bestLinePixels[i];
         const y = bestLinePixels[i + 1];
@@ -103,17 +132,19 @@ export class GreedyAlgorithm {
 
       this.totalStringMeters += this.calculateMeters(currentPin, bestPin);
       this.sequence.push(bestPin);
-      
+
       return { nextPin: bestPin, score: bestScore };
     }
 
-    return null; // No valid line found
+    return null; // No se encontró ninguna línea válida
   }
 
+  /** Retorna la secuencia de pines generada hasta el momento */
   public getSequence(): Uint16Array {
     return new Uint16Array(this.sequence);
   }
 
+  /** Retorna los metros totales de hilo consumidos */
   public getTotalMeters(): number {
     return this.totalStringMeters;
   }

@@ -1,3 +1,10 @@
+/**
+ * Hook para la síntesis de voz de pines.
+ *
+ * Usa la Web Speech API nativa del browser para decir en voz alta
+ * el número del pin al que el usuario debe ir. Soporta español,
+ * inglés y portugués. La preferencia on/off se persiste en localStorage.
+ */
 import { useState, useEffect, useCallback, useRef } from 'react';
 
 export function usePinSpeech(initialLocale: 'es' | 'en' | 'pt') {
@@ -5,12 +12,12 @@ export function usePinSpeech(initialLocale: 'es' | 'en' | 'pt') {
   const [locale, setLocale] = useState<'es' | 'en' | 'pt'>(initialLocale);
   const speechUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
-  // Sync locale state with initialLocale parameter
+  // Sincronizar locale cuando cambia el parámetro
   useEffect(() => {
     setLocale(initialLocale);
   }, [initialLocale]);
 
-  // Load persistence state
+  // Cargar preferencia de audio del localStorage
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('hacelo-art-speech-enabled');
@@ -20,6 +27,7 @@ export function usePinSpeech(initialLocale: 'es' | 'en' | 'pt') {
     }
   }, []);
 
+  // Guardar preferencia y actualizar estado
   const setEnabled = useCallback((val: boolean) => {
     setEnabledState(val);
     if (typeof window !== 'undefined') {
@@ -31,12 +39,14 @@ export function usePinSpeech(initialLocale: 'es' | 'en' | 'pt') {
     setEnabled(!isEnabled);
   }, [isEnabled, setEnabled]);
 
+  // Cancelar cualquier audio en curso
   const cancel = useCallback(() => {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       window.speechSynthesis.cancel();
     }
   }, []);
 
+  // Decir el número de pin en voz alta
   const speak = useCallback((pinNumber: number) => {
     if (!isEnabled || typeof window === 'undefined' || !('speechSynthesis' in window)) {
       return;
@@ -44,6 +54,7 @@ export function usePinSpeech(initialLocale: 'es' | 'en' | 'pt') {
 
     cancel();
 
+    // Construir texto localizado
     let text = '';
     let lang = 'es-ES';
 
@@ -61,7 +72,7 @@ export function usePinSpeech(initialLocale: 'es' | 'en' | 'pt') {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = lang;
 
-    // Apply voice if speech synthesis has loaded voices
+    // Intentar seleccionar una voz del idioma correspondiente
     const voices = window.speechSynthesis.getVoices();
     const voice = voices.find(v => v.lang.startsWith(lang.substring(0, 2)));
     if (voice) {
@@ -72,7 +83,7 @@ export function usePinSpeech(initialLocale: 'es' | 'en' | 'pt') {
     window.speechSynthesis.speak(utterance);
   }, [isEnabled, locale, cancel]);
 
-  // Clean up speech on unmount
+  // Limpiar audio pendiente al desmontar
   useEffect(() => {
     return () => {
       if (typeof window !== 'undefined' && 'speechSynthesis' in window) {

@@ -1,7 +1,15 @@
+/**
+ * Web Worker del algoritmo de String Art.
+ *
+ * Corre en un hilo separado para no bloquear la UI mientras calcula.
+ * Recibe la imagen procesada + parámetros, ejecuta el algoritmo greedy,
+ * y reporta progreso cada 100 iteraciones al hilo principal.
+ */
 import { WorkerMessage, WorkerResponse } from '../core/algorithm/types';
 import { GreedyAlgorithm } from '../core/algorithm/greedy';
 
-// Minimum score threshold to prevent drawing useless lines (diminishing returns)
+// Score mínimo para considerar una línea útil (no se usa actualmente,
+// pero queda documentado por si se necesita reactivar)
 const MIN_SCORE_THRESHOLD = 0.5;
 
 let isRunning = false;
@@ -30,19 +38,16 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
 
         if (!result) {
           keepGoing = false;
-          break; // No more valid lines
+          break; // No quedan líneas válidas
         }
 
-        // Removido: Corte temprano por score. Queremos que respete maxIterations estrictamente
-        // para que genere exactamente la cantidad de hilos solicitados, incluso si el score baja.
-        // if (result.score < MIN_SCORE_THRESHOLD) {
-        //   keepGoing = false;
-        //   break;
-        // }
+        // Removido: Corte temprano por score. Queremos que respete maxIterations
+        // estrictamente para que genere exactamente la cantidad de hilos solicitados,
+        // incluso si el score baja.
 
         iteration++;
 
-        // Report progress every 100 iterations to avoid flooding the main thread
+        // Reportar progreso cada 100 iteraciones para no saturar el hilo principal
         if (iteration % 100 === 0) {
           const progressMsg: WorkerResponse = {
             type: 'progress',
@@ -50,8 +55,7 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
             totalIterations: params.maxIterations,
             score: result.score
           };
-          // TypeScript environment in workers requires type casting for postMessage
-          (self as any).postMessage(progressMsg);
+          (self as unknown as { postMessage: (msg: WorkerResponse) => void }).postMessage(progressMsg);
         }
       }
 
@@ -63,13 +67,13 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
         timeMs: endTime - startTime
       };
 
-      (self as any).postMessage(completeMsg);
-    } catch (err: any) {
+      (self as unknown as { postMessage: (msg: WorkerResponse) => void }).postMessage(completeMsg);
+    } catch (err: unknown) {
       const errorMsg: WorkerResponse = {
         type: 'error',
-        message: err.message || 'Unknown error occurred in worker'
+        message: err instanceof Error ? err.message : 'Error desconocido en el worker'
       };
-      (self as any).postMessage(errorMsg);
+      (self as unknown as { postMessage: (msg: WorkerResponse) => void }).postMessage(errorMsg);
     } finally {
       isRunning = false;
     }

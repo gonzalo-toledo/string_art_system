@@ -1,6 +1,7 @@
 "use client";
 import React from 'react';
-import { ImageAdjustments, CropTransform } from '../../utils/imageAdjustments';
+import { useTranslations } from 'next-intl';
+import { ImageAdjustments, CropTransform } from '../../utils/image-adjustments';
 import styles from './editor.module.css';
 
 interface Props {
@@ -12,23 +13,33 @@ interface Props {
   disabled: boolean;
 }
 
+// Configuración de cada slider de ajuste (labelKey se resuelve con t())
 interface SliderConfig {
   key: keyof ImageAdjustments;
-  label: string;
+  labelKey: string;
   min: number;
   max: number;
   step: number;
 }
 
+// Definición de los sliders de ajuste tonal
 const SLIDERS: SliderConfig[] = [
-  { key: 'brightness',  label: 'Brillo',     min: -100, max: 100, step: 1 },
-  { key: 'contrast',    label: 'Contraste',  min: -100, max: 100, step: 1 },
-  { key: 'whites',      label: 'Blancos',    min: -100, max: 100, step: 1 },
-  { key: 'blacks',      label: 'Negros',     min: -100, max: 100, step: 1 },
-  { key: 'sharpness',   label: 'Nitidez',    min: 0,    max: 100, step: 1 },
+  { key: 'brightness',  labelKey: 'brightness',  min: -100, max: 100, step: 1 },
+  { key: 'contrast',    labelKey: 'contrast',    min: -100, max: 100, step: 1 },
+  { key: 'whites',      labelKey: 'whites',      min: -100, max: 100, step: 1 },
+  { key: 'blacks',      labelKey: 'blacks',      min: -100, max: 100, step: 1 },
+  { key: 'sharpness',   labelKey: 'sharpness',   min: 0,    max: 100, step: 1 },
 ];
 
+/**
+ * Panel de ajustes de imagen.
+ * Permite modificar brillo, contraste, blancos, negros, nitidez,
+ * zoom y posición (crop) de la imagen antes de procesarla.
+ * Los cambios se aplican en tiempo real con debounce de 100ms.
+ */
 export function ImageAdjuster({ adjustments, crop, onAdjustmentsChange, onCropChange, onReset, disabled }: Props) {
+  const t = useTranslations('Editor');
+
   const handleSliderChange = (key: keyof ImageAdjustments, value: number) => {
     onAdjustmentsChange({ ...adjustments, [key]: value });
   };
@@ -40,7 +51,7 @@ export function ImageAdjuster({ adjustments, crop, onAdjustmentsChange, onCropCh
   return (
     <div className={styles.panel}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-        <h3 style={{ margin: 0 }}>Ajustes de Imagen</h3>
+        <h3 style={{ margin: 0 }}>{t('adjustmentsTitle')}</h3>
         <button
           onClick={onReset}
           disabled={disabled}
@@ -54,14 +65,15 @@ export function ImageAdjuster({ adjustments, crop, onAdjustmentsChange, onCropCh
             color: '#666',
           }}
         >
-          Reset
+          {t('reset')}
         </button>
       </div>
 
-      {SLIDERS.map(({ key, label, min, max, step }) => (
+      {/* Sliders de ajuste tonal */}
+      {SLIDERS.map(({ key, labelKey, min, max, step }) => (
         <div key={key} className={styles.formGroup} style={{ marginBottom: '10px' }}>
           <label style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-            <span>{label}</span>
+            <span>{t(labelKey)}</span>
             <span style={{ fontFamily: 'monospace', color: '#888' }}>{adjustments[key]}</span>
           </label>
           <input
@@ -79,9 +91,10 @@ export function ImageAdjuster({ adjustments, crop, onAdjustmentsChange, onCropCh
 
       <hr style={{ border: 'none', borderTop: '1px solid #eee', margin: '12px 0' }} />
 
+      {/* Controles de crop: zoom y posición */}
       <div className={styles.formGroup} style={{ marginBottom: '10px' }}>
         <label style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-          <span>Zoom</span>
+          <span>{t('zoom')}</span>
           <span style={{ fontFamily: 'monospace', color: '#888' }}>{crop.zoom.toFixed(2)}x</span>
         </label>
         <input
@@ -98,7 +111,7 @@ export function ImageAdjuster({ adjustments, crop, onAdjustmentsChange, onCropCh
 
       <div className={styles.formGroup} style={{ marginBottom: '10px' }}>
         <label style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-          <span>Posición X</span>
+          <span>{t('positionX')}</span>
           <span style={{ fontFamily: 'monospace', color: '#888' }}>{crop.offsetX.toFixed(2)}</span>
         </label>
         <input
@@ -115,7 +128,7 @@ export function ImageAdjuster({ adjustments, crop, onAdjustmentsChange, onCropCh
 
       <div className={styles.formGroup} style={{ marginBottom: '10px' }}>
         <label style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-          <span>Posición Y</span>
+          <span>{t('positionY')}</span>
           <span style={{ fontFamily: 'monospace', color: '#888' }}>{crop.offsetY.toFixed(2)}</span>
         </label>
         <input
