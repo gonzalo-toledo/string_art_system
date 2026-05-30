@@ -138,7 +138,7 @@ export function GuidePage() {
 
     // Dibujar hilos completados — rendering realista:
     // Líneas ultra-finas con baja opacidad, la imagen se construye por ACUMULACIÓN
-    ctx.lineWidth = 0.3;
+    ctx.lineWidth = 1;
     ctx.strokeStyle = 'rgba(10, 10, 10, 0.09)';
     for (let i = 0; i <= session.currentStep; i++) {
       if (i + 1 < session.sequence.length) {
@@ -182,7 +182,7 @@ export function GuidePage() {
         ctx.fill();
       } else {
         // Pines normales: gris, pequeños
-        ctx.fillStyle = '#999';
+        ctx.fillStyle = '#000000';
         ctx.beginPath();
         ctx.arc(p.x, p.y, 1, 0, Math.PI * 2);
         ctx.fill();

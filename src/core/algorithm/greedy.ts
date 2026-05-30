@@ -21,6 +21,7 @@ export class GreedyAlgorithm {
   private minPinDistance: number;
   private totalPins: number;
   private boardRadius: number;
+  private pinUsage: Uint16Array;
 
   constructor(initialData: Float32Array, params: AlgorithmParams) {
     this.errorMap = new Float32Array(initialData); // Copia del estado inicial
@@ -33,6 +34,7 @@ export class GreedyAlgorithm {
 
     this.pins = generatePinCoordinates(this.totalPins, this.width, params.height);
     this.cache = new BresenhamCache(this.pins);
+    this.pinUsage = new Uint16Array(this.totalPins);
 
     // Comienza en el pin 0 por defecto
     this.sequence.push(0);
@@ -104,31 +106,53 @@ export class GreedyAlgorithm {
         const remaining = this.errorMap[idx];
 
         if (remaining > 0) {
-          score += Math.min(remaining, this.lineWeight); // Recompensa
+          // Ponderación por severidad: prioriza píxeles que más necesitan cobertura
+          const factor = 1 + (remaining / 255) * 0.5; // 1.0 a 1.5
+          score += Math.min(remaining, this.lineWeight) * factor;
         } else {
           score -= Math.abs(remaining) * this.penaltyMultiplier; // Castigo
         }
       }
 
-      // Normalizar score por longitud de línea (para no favorecer líneas largas)
+      // Normalizar por pow(longitud, 0.6) para favorecer líneas largas
+      // de forma moderada, sin sesgar a diámetros perfectos
       const length = linePixels.length / 2;
-      const normalizedScore = score / length;
+      const normalizedScore = score / Math.pow(length, 0.6);
 
-      if (normalizedScore > bestScore) {
-        bestScore = normalizedScore;
+      // Penalización proporcional al score: evita forzar líneas cortas
+      // en iteraciones tardías cuando el score baja
+      let maxUsage = 0;
+      for (let p = 0; p < this.totalPins; p++) {
+        if (this.pinUsage[p] > maxUsage) maxUsage = this.pinUsage[p];
+      }
+      const usageRatio = maxUsage > 0 ? this.pinUsage[targetPin] / maxUsage : 0;
+      const usagePenalty = normalizedScore * usageRatio * 0.1;
+      const finalScore = normalizedScore - usagePenalty;
+
+      if (finalScore > bestScore) {
+        bestScore = finalScore;
         bestPin = targetPin;
         bestLinePixels = linePixels;
       }
     }
 
     if (bestPin !== -1 && bestLinePixels) {
-      // "Dibujar" la línea: restar el peso de cada píxel que atraviesa
+      // "Dibujar" la línea: restar peso adaptativo para evitar overshoot
       for (let i = 0; i < bestLinePixels.length; i += 2) {
         const x = bestLinePixels[i];
         const y = bestLinePixels[i + 1];
         const idx = y * this.width + x;
-        this.errorMap[idx] -= this.lineWeight;
+        // Solo restar lo necesario para llegar a 0 (con margen 5)
+        const remaining = this.errorMap[idx];
+        const deduction = Math.min(this.lineWeight, Math.max(remaining + 5, 0));
+        this.errorMap[idx] -= deduction;
+        // Clampear para evitar "zonas muertas" con valores negativos extremos
+        if (this.errorMap[idx] < -this.lineWeight) {
+          this.errorMap[idx] = -this.lineWeight;
+        }
       }
+
+      this.pinUsage[bestPin]++;
 
       this.totalStringMeters += this.calculateMeters(currentPin, bestPin);
       this.sequence.push(bestPin);
