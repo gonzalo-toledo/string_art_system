@@ -1,6 +1,7 @@
 "use client";
 import React, { useRef } from 'react';
 import { useTranslations } from 'next-intl';
+import { CollapsiblePanel } from './collapsible-panel';
 import styles from './editor.module.css';
 
 interface Props {
@@ -10,8 +11,7 @@ interface Props {
 
 /**
  * Componente de carga de imagen.
- * Renderiza un botón que abre el selector de archivos del sistema.
- * Solo acepta PNG y JPEG.
+ * Envuelto en un componente colapsable para consistencia.
  */
 export function ImageUploader({ onImageSelected, disabled }: Props) {
   const t = useTranslations('Editor');
@@ -25,8 +25,7 @@ export function ImageUploader({ onImageSelected, disabled }: Props) {
   };
 
   return (
-    <div className={styles.panel}>
-      <h3>{t('uploadTitle')}</h3>
+    <CollapsiblePanel title={t('uploadTitle')} defaultOpen={true}>
       <input
         type="file"
         accept="image/png, image/jpeg"
@@ -41,6 +40,6 @@ export function ImageUploader({ onImageSelected, disabled }: Props) {
       >
         {t('selectImage')}
       </button>
-    </div>
+    </CollapsiblePanel>
   );
 }

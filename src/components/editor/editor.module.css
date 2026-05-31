@@ -8,9 +8,9 @@
   margin: 0 auto;
   min-height: 100vh;
   min-height: 100dvh;
-  background-color: #1a1a1a;
-  color: #f5f5f5;
-  font-family: var(--font-primary, sans-serif);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body, sans-serif);
   box-sizing: border-box;
 }
 
@@ -81,11 +81,11 @@
   justify-content: center;
   align-items: center;
   width: 100%;
-  background-color: #262626;
-  border-radius: 16px;
+  background-color: var(--color-surface);
+  border-radius: var(--border-radius-panel);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
   padding: 16px;
-  border: 1px solid #333;
+  border: 1px solid #292929;
 }
 
 .canvas {
@@ -94,14 +94,28 @@
   aspect-ratio: 1/1;
   border-radius: 50%;
   border: 1px solid #444;
+  touch-action: none;
 }
 
 .panel {
-  background: #222;
+  background: var(--color-surface);
   padding: 16px;
-  border-radius: 12px;
+  border-radius: var(--border-radius-panel);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  border: 1px solid #333;
+  border: 1px solid #292929;
+  transition: padding 0.2s ease;
+}
+
+.panelHeader:hover h3 span {
+  transform: scale(1.15) !important;
+}
+
+.panelHeader:hover h3 {
+  color: #fff !important;
+}
+
+.panelCollapsed {
+  padding: 12px 16px;
 }
 
 .panel h3 {
@@ -112,11 +126,11 @@
 }
 
 .button {
-  background-color: var(--color-accent, #d4af37);
-  color: #111;
+  background-color: var(--color-primary);
+  color: var(--color-text);
   border: none;
   padding: 14px 16px;
-  border-radius: 12px;
+  border-radius: var(--border-radius-btn);
   cursor: pointer;
   font-weight: 700;
   font-size: 1rem;
@@ -127,7 +141,7 @@
 }
 
 .button:hover {
-  background-color: #e6be43;
+  background-color: var(--color-primary-hover);
 }
 
 .button:active {
@@ -155,9 +169,9 @@
 
 .formGroup input,
 .formGroup select {
-  background-color: #2a2a2a;
-  border: 1px solid #444;
-  color: #fff;
+  background-color: var(--color-surface-elevated);
+  border: 1px solid #333;
+  color: var(--color-text);
   border-radius: 8px;
   padding: 8px 12px;
   font-size: 0.9rem;
@@ -190,4 +204,31 @@
   background: var(--color-accent, #d4af37);
   cursor: pointer;
   border: 2px solid #1a1a1a;
+}
+
+.buttonAccent {
+  background-color: var(--color-accent);
+  color: #111;
+}
+
+.buttonAccent:hover {
+  background-color: var(--color-accent-hover);
+}
+
+.buttonOutline {
+  background-color: transparent;
+  border: 1.5px solid var(--color-primary);
+  color: var(--color-text);
+}
+
+.buttonOutline:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: var(--color-primary-hover);
+}
+
+.buttonContent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }

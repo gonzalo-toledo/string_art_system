@@ -2,6 +2,7 @@
 import React from 'react';
 import { useTranslations } from 'next-intl';
 import { ImageAdjustments, CropTransform } from '../../utils/image-adjustments';
+import { CollapsiblePanel } from './collapsible-panel';
 import styles from './editor.module.css';
 
 interface Props {
@@ -35,7 +36,7 @@ const SLIDERS: SliderConfig[] = [
  * Panel de ajustes de imagen.
  * Permite modificar brillo, contraste, blancos, negros, nitidez,
  * zoom y posición (crop) de la imagen antes de procesarla.
- * Los cambios se aplican en tiempo real con debounce de 100ms.
+ * Envuelto en un componente colapsable.
  */
 export function ImageAdjuster({ adjustments, crop, onAdjustmentsChange, onCropChange, onReset, disabled }: Props) {
   const t = useTranslations('Editor');
@@ -49,26 +50,30 @@ export function ImageAdjuster({ adjustments, crop, onAdjustmentsChange, onCropCh
   };
 
   return (
-    <div className={styles.panel}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-        <h3 style={{ margin: 0 }}>{t('adjustmentsTitle')}</h3>
+    <CollapsiblePanel
+      title={t('adjustmentsTitle')}
+      defaultOpen={false}
+      headerRight={
         <button
           onClick={onReset}
           disabled={disabled}
           style={{
             background: 'none',
-            border: '1px solid #ccc',
-            borderRadius: '4px',
+            border: '1px solid #555',
+            borderRadius: '6px',
             padding: '4px 10px',
             cursor: disabled ? 'not-allowed' : 'pointer',
             fontSize: '0.8rem',
-            color: '#666',
+            color: '#aaa',
+            transition: 'border-color 0.2s, color 0.2s'
           }}
+          onMouseOver={(e) => { if (!disabled) { e.currentTarget.style.borderColor = '#d4af37'; e.currentTarget.style.color = '#fff'; } }}
+          onMouseOut={(e) => { e.currentTarget.style.borderColor = '#555'; e.currentTarget.style.color = '#aaa'; }}
         >
           {t('reset')}
         </button>
-      </div>
-
+      }
+    >
       {/* Sliders de ajuste tonal */}
       {SLIDERS.map(({ key, labelKey, min, max, step }) => (
         <div key={key} className={styles.formGroup} style={{ marginBottom: '10px' }}>
@@ -89,7 +94,7 @@ export function ImageAdjuster({ adjustments, crop, onAdjustmentsChange, onCropCh
         </div>
       ))}
 
-      <hr style={{ border: 'none', borderTop: '1px solid #eee', margin: '12px 0' }} />
+      <hr style={{ border: 'none', borderTop: '1px solid #333', margin: '12px 0' }} />
 
       {/* Controles de crop: zoom y posición */}
       <div className={styles.formGroup} style={{ marginBottom: '10px' }}>
@@ -142,6 +147,6 @@ export function ImageAdjuster({ adjustments, crop, onAdjustmentsChange, onCropCh
           style={{ width: '100%', accentColor: 'var(--color-primary)' }}
         />
       </div>
-    </div>
+    </CollapsiblePanel>
   );
 }

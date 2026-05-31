@@ -114,7 +114,9 @@ export function processImage(
   for (let y = 0; y < targetSize; y++) {
     for (let x = 0; x < targetSize; x++) {
       const idx = (y * targetSize + x) * 4;
-      const distToCenter = Math.sqrt(Math.pow(x - radius, 2) + Math.pow(y - radius, 2));
+      const dx = (x + 0.5) - radius;
+      const dy = (y + 0.5) - radius;
+      const distToCenter = Math.sqrt(dx * dx + dy * dy);
 
       if (distToCenter > radius) {
         // Fuera del círculo → blanco, sin hilos

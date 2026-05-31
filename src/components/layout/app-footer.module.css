@@ -1,0 +1,33 @@
+.footer {
+  background-color: var(--color-bg);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding: var(--spacing-md) 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: auto;
+  width: 100%;
+}
+
+.footerContent {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.credits {
+  color: var(--color-text-muted);
+  font-family: var(--font-body);
+  font-size: 13px;
+  margin: 0;
+  letter-spacing: 0.03em;
+}
+
+.logo {
+  transition: transform 0.3s ease;
+  display: block;
+}
+
+.logo:hover {
+  transform: scale(1.1) rotate(5deg);
+}
