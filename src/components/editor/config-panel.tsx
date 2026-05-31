@@ -2,6 +2,7 @@
 import React from 'react';
 import { useTranslations } from 'next-intl';
 import { AlgorithmParams } from '../../core/algorithm/types';
+import { CollapsiblePanel } from './collapsible-panel';
 import styles from './editor.module.css';
 
 interface Props {
@@ -12,8 +13,8 @@ interface Props {
 
 /**
  * Panel de configuración del algoritmo.
- * Expone sliders para ajustar la cantidad de líneas (detalle)
- * y la cantidad de pines (por defecto 240, configurable).
+ * Expone sliders para ajustar la cantidad de líneas y pines.
+ * Envuelto en un componente colapsable.
  */
 export function ConfigPanel({ params, onChange, disabled }: Props) {
   const t = useTranslations('Editor');
@@ -27,11 +28,9 @@ export function ConfigPanel({ params, onChange, disabled }: Props) {
   };
 
   return (
-    <div className={styles.panel}>
-      <h3>{t('settingsTitle')}</h3>
-
+    <CollapsiblePanel title={t('settingsTitle')} defaultOpen={true}>
       <div className={styles.formGroup}>
-        <label>{t('lines')}: {params.maxIterations}</label>
+        <label style={{ fontSize: '0.85rem', color: '#aaa' }}>{t('lines')}: {params.maxIterations}</label>
         <input
           type="range" name="maxIterations"
           min="1000" max="5000" step="100"
@@ -40,15 +39,15 @@ export function ConfigPanel({ params, onChange, disabled }: Props) {
         />
       </div>
 
-      <div className={styles.formGroup}>
-        <label>{t('pins')}: {params.totalPins}</label>
-        <input
-          type="range" name="totalPins"
-          min="150" max="300" step="10"
-          value={params.totalPins} onChange={handleChange}
-          disabled={disabled}
-        />
+      <div className={styles.formGroup} style={{ marginTop: '12px' }}>
+        <label style={{ fontSize: '0.85rem', color: '#aaa', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span>{t('pins')}</span>
+          <span style={{ fontWeight: 'bold', color: 'var(--color-accent, #d4af37)' }}>{params.totalPins}</span>
+        </label>
+        <p style={{ fontSize: '0.75rem', color: '#666', marginTop: '4px', margin: 0, lineHeight: '1.3' }}>
+          {t('fixedPinsDesc')}
+        </p>
       </div>
-    </div>
+    </CollapsiblePanel>
   );
 }

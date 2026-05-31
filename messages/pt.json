@@ -20,10 +20,12 @@
     "settingsTitle": "2. Configuração",
     "lines": "Linhas",
     "pins": "Pinos",
+    "fixedPins": "Fixo",
+    "fixedPinsDesc": "A quantidade de pinos está fixada em 240 para coincidir exatamente com o Kit físico HÁGALO.",
     "generateTitle": "3. Gerar",
     "startGeneration": "Iniciar geração",
     "generating": "Gerando... ({progress}/{total})",
-    "guidedMode": "Modo Guiado 🚀",
+    "guidedMode": "Modo Guiado",
     "copySequence": "Copiar sequência",
     "exportPDF": "Baixar Guia PDF",
     "sequenceCopied": "Sequência copiada para a área de transferência!",
@@ -58,5 +60,16 @@
     "backToEditor": "Voltar ao Editor",
     "screenLockWarning": "Tela ativa (Wake Lock ativado)",
     "sequenceList": "Sequência"
+  },
+  "Header": {
+    "title": "HÁGALO",
+    "editor": "Editor",
+    "guide": "Guia"
+  },
+  "Splash": {
+    "skip": "Ir para o editor"
+  },
+  "Footer": {
+    "credits": "Desenvolvido por"
   }
 }

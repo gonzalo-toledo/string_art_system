@@ -1,0 +1,66 @@
+.header {
+  background-color: var(--color-primary);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  padding: 0 var(--spacing-md);
+  box-sizing: border-box;
+}
+
+.headerContainer {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.logoLink {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  height: 100%;
+}
+
+.logoImage {
+  height: 50px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.languageSelect {
+  background-color: transparent;
+  color: var(--color-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: var(--font-primary);
+  font-size: 14px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.languageSelect:hover,
+.languageSelect:focus {
+  border-color: var(--color-accent);
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.languageSelect option {
+  background-color: var(--color-primary);
+  color: var(--color-secondary);
+}

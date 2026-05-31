@@ -7,6 +7,20 @@ import { useWakeLock } from '../../hooks/use-wake-lock';
 import { usePinSpeech } from '../../hooks/use-pin-speech';
 import { generatePinCoordinates } from '../../core/algorithm/bresenham';
 import styles from './guide.module.css';
+import {
+  ArrowLeft,
+  Volume2,
+  VolumeX,
+  Eye,
+  List,
+  ChevronLeft,
+  ChevronRight,
+  Play,
+  Pause,
+  Check,
+  Trophy
+} from '../shared/icons';
+
 
 /**
  * Pantalla del modo guiado (mobile-first).
@@ -76,12 +90,7 @@ export function GuidePage() {
     return () => clearInterval(interval);
   }, [isPlaying, session, playSpeed, updateStep]);
 
-  // Redirigir al cambiar el idioma (reemplaza el locale en la URL)
-  const handleLocaleChange = (newLocale: string) => {
-    const currentPath = window.location.pathname;
-    const newPath = currentPath.replace(/^\/[a-z]{2}/, `/${newLocale}`);
-    router.push(newPath);
-  };
+
 
   // Avanzar al siguiente paso
   const handleNext = useCallback(() => {
@@ -251,7 +260,9 @@ export function GuidePage() {
     return (
       <div className={styles.container}>
         <div className={styles.completedOverlay}>
-          <div className={styles.celebrationIcon}>🎉</div>
+          <div className={styles.celebrationIcon}>
+            <Trophy size={48} strokeWidth={1.5} style={{ color: 'var(--color-accent)' }} />
+          </div>
           <h1 className={styles.completedTitle}>{t('completed')}</h1>
           <p className={styles.completedDesc}>{t('celebration')}</p>
 
@@ -290,30 +301,23 @@ export function GuidePage() {
           className={styles.iconButton}
           onClick={() => router.push(`/${locale}/editor`)}
           aria-label="Back to Editor"
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
         >
-          ⬅️
+          <ArrowLeft size={20} />
         </button>
         <h1 className={styles.headerTitle}>{t('title')}</h1>
 
         <div className={styles.headerActions}>
-          {/* Selector de idioma */}
-          <select
-            value={locale}
-            onChange={(e) => handleLocaleChange(e.target.value)}
-            className={styles.languageSelect}
-          >
-            <option value="es">ES</option>
-            <option value="en">EN</option>
-            <option value="pt">PT</option>
-          </select>
+
 
           {/* Toggle de audio */}
           <button
             className={`${styles.iconButton} ${isSpeechEnabled ? styles.iconButtonActive : ''}`}
             onClick={toggleSpeech}
             title={t('audio')}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           >
-            {isSpeechEnabled ? '🔊' : '🔇'}
+            {isSpeechEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
           </button>
 
           {/* Botón del visualizador */}
@@ -321,8 +325,9 @@ export function GuidePage() {
             className={styles.iconButton}
             onClick={() => setIsVisualizerOpen(true)}
             title={t('visualize')}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           >
-            👁️
+            <Eye size={20} />
           </button>
 
           {/* Botón del listado de secuencia */}
@@ -330,8 +335,9 @@ export function GuidePage() {
             className={styles.iconButton}
             onClick={() => setIsSequenceListOpen(true)}
             title={t('sequenceList')}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           >
-            📋
+            <List size={20} />
           </button>
         </div>
       </div>
@@ -368,11 +374,19 @@ export function GuidePage() {
       {/* Controles de navegación */}
       <div className={styles.controlsSection}>
         <div className={styles.navButtons}>
-          <button className={`${styles.btn} ${styles.btnPrev}`} onClick={handlePrev}>
-            ◀️ {t('prev')}
+          <button
+            className={`${styles.btn} ${styles.btnPrev}`}
+            onClick={handlePrev}
+            style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+          >
+            <ChevronLeft size={16} /> {t('prev')}
           </button>
-          <button className={`${styles.btn} ${styles.btnNext}`} onClick={handleNext}>
-            {t('next')} ▶️
+          <button
+            className={`${styles.btn} ${styles.btnNext}`}
+            onClick={handleNext}
+            style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+          >
+            {t('next')} <ChevronRight size={16} />
           </button>
         </div>
 
@@ -382,8 +396,9 @@ export function GuidePage() {
             <button
               className={`${styles.btnPlayPause} ${isPlaying ? styles.btnPlayPauseActive : ''}`}
               onClick={() => setIsPlaying(!isPlaying)}
+              style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
             >
-              {isPlaying ? '⏸️' : '▶️'} {t('play')}
+              {isPlaying ? <Pause size={16} /> : <Play size={16} />} {t('play')}
             </button>
 
             {isPlaying && (
@@ -403,8 +418,21 @@ export function GuidePage() {
           </div>
 
           {/* Indicador de Wake Lock */}
-          <div className={`${styles.wakeLockIndicator} ${isWakeLockActive ? styles.wakeLockIndicatorActive : ''}`}>
-            {isWakeLockActive ? '🟢 WakeLock' : '🔴 WakeLock'}
+          <div
+            className={`${styles.wakeLockIndicator} ${isWakeLockActive ? styles.wakeLockIndicatorActive : ''}`}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+          >
+            <span
+              style={{
+                display: 'inline-block',
+                width: '8px',
+                height: '8px',
+                borderRadius: '50%',
+                backgroundColor: isWakeLockActive ? '#4caf50' : '#f44336',
+                boxShadow: isWakeLockActive ? '0 0 8px #4caf50' : 'none'
+              }}
+            />
+            WakeLock
           </div>
         </div>
       </div>
@@ -450,7 +478,11 @@ export function GuidePage() {
                   <div key={idx} className={rowClass}>
                     <span className={styles.seqStep}>{idx + 1}</span>
                     <span className={styles.seqPins}>{pin} → {nextPin}</span>
-                    {isDone && <span className={styles.seqCheck}>✓</span>}
+                    {isDone && (
+                      <span className={styles.seqCheck} style={{ display: 'inline-flex', alignItems: 'center' }}>
+                        <Check size={14} strokeWidth={3} />
+                      </span>
+                    )}
                   </div>
                 );
               })}

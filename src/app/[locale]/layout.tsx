@@ -1,5 +1,7 @@
 import {NextIntlClientProvider} from 'next-intl';
 import {getMessages} from 'next-intl/server';
+import AppHeader from '@/components/layout/app-header';
+import AppFooter from '@/components/layout/app-footer';
 import '../globals.css';
 
 export default async function LocaleLayout({
@@ -13,9 +15,20 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale}>
-      <body>
+      <body style={{
+        margin: 0,
+        padding: 0,
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        backgroundColor: '#111111'
+      }}>
         <NextIntlClientProvider messages={messages}>
-          {children}
+          <AppHeader locale={locale} />
+          <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+            {children}
+          </main>
+          <AppFooter />
         </NextIntlClientProvider>
       </body>
     </html>

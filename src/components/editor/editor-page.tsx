@@ -6,6 +6,7 @@ import { ImageUploader } from './image-uploader';
 import { ConfigPanel } from './config-panel';
 import { ImageAdjuster } from './image-adjuster';
 import { CanvasRenderer } from './canvas-renderer';
+import { CollapsiblePanel } from './collapsible-panel';
 import { useStringArtWorker } from '../../hooks/use-string-art-worker';
 import { useGuidedSession } from '../../hooks/use-guided-session';
 import { loadImage, processImage } from '../../utils/image-processor';
@@ -13,6 +14,7 @@ import { ImageAdjustments, CropTransform, DEFAULT_ADJUSTMENTS, DEFAULT_CROP } fr
 import { AlgorithmParams } from '../../core/algorithm/types';
 import { CANVAS_SIZE, DEFAULT_PARAMS } from '../../core/kit-spec';
 import { exportPDFGuide } from '../../utils/pdf-generator';
+import { Play, Copy, Download } from '../shared/icons';
 import styles from './editor.module.css';
 
 /**
@@ -225,8 +227,7 @@ export function EditorPage() {
 
         {/* Paso 3: Generar y resultados */}
         <div className={styles.stepThree}>
-          <div className={styles.panel}>
-            <h3>{t('generateTitle')}</h3>
+          <CollapsiblePanel title={t('generateTitle')} defaultOpen={true}>
             <button
               className={styles.button}
               onClick={handleGenerate}
@@ -240,30 +241,33 @@ export function EditorPage() {
 
             {/* Botones post-generación */}
             {worker.sequence && !worker.isRunning && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '10px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '12px' }}>
                 <button
-                  className={styles.button}
-                  style={{ backgroundColor: '#2196F3' }}
+                  className={`${styles.button} ${styles.buttonAccent}`}
                   onClick={() => {
                     startSession(Array.from(worker.sequence!), params.totalPins, params.maxIterations);
                     router.push(`/${locale}/guide`);
                   }}
                 >
-                  {t('guidedMode')}
+                  <div className={styles.buttonContent}>
+                    <Play size={18} fill="currentColor" />
+                    <span>{t('guidedMode')}</span>
+                  </div>
                 </button>
                 <button
-                  className={styles.button}
-                  style={{ backgroundColor: '#4CAF50' }}
+                  className={`${styles.button} ${styles.buttonOutline}`}
                   onClick={() => {
                     navigator.clipboard.writeText(worker.sequence!.join(','));
                     alert(t('sequenceCopied'));
                   }}
                 >
-                  {t('copySequence')}
+                  <div className={styles.buttonContent}>
+                    <Copy size={18} />
+                    <span>{t('copySequence')}</span>
+                  </div>
                 </button>
                 <button
-                  className={styles.button}
-                  style={{ backgroundColor: '#795548' }}
+                  className={`${styles.button} ${styles.buttonOutline}`}
                   onClick={() => {
                     exportPDFGuide({
                       sequence: worker.sequence!,
@@ -274,13 +278,16 @@ export function EditorPage() {
                     });
                   }}
                 >
-                  {t('exportPDF')}
+                  <div className={styles.buttonContent}>
+                    <Download size={18} />
+                    <span>{t('exportPDF')}</span>
+                  </div>
                 </button>
               </div>
             )}
 
             {worker.error && <p style={{ color: 'red', marginTop: '8px' }}>{worker.error}</p>}
-          </div>
+          </CollapsiblePanel>
         </div>
       </div>
 
@@ -290,6 +297,9 @@ export function EditorPage() {
         totalPins={params.totalPins}
         canvasSize={CANVAS_SIZE}
         previewUrl={previewUrl}
+        crop={crop}
+        onCropChange={setCrop}
+        disabled={worker.isRunning || !!worker.sequence}
       />
     </div>
   );

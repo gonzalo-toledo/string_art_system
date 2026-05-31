@@ -3,9 +3,9 @@
   flex-direction: column;
   height: 100vh;
   height: 100dvh; /* dynamic viewport height for mobile browsers */
-  background-color: #1a1a1a;
-  color: #f5f5f5;
-  font-family: var(--font-primary, sans-serif);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body, sans-serif);
   padding: 16px;
   box-sizing: border-box;
   justify-content: space-between;
@@ -109,7 +109,7 @@
 }
 
 .targetPinContainer {
-  background-color: #262626;
+  background-color: var(--color-surface);
   border-radius: 24px;
   width: min(70vw, 240px);
   aspect-ratio: 1 / 1;
@@ -117,7 +117,7 @@
   justify-content: center;
   align-items: center;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-  border: 2px solid #3a3a3a;
+  border: 2px solid #292929;
   margin: 16px 0;
   transition: transform 0.1s ease;
 }
@@ -168,7 +168,7 @@
   font-family: inherit;
   font-weight: 700;
   border: none;
-  border-radius: 16px;
+  border-radius: var(--border-radius-btn);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -183,27 +183,28 @@
 
 .btnPrev {
   flex: 2;
-  background-color: #333;
-  color: #fff;
+  background-color: var(--color-surface-elevated);
+  color: var(--color-text);
   font-size: 1.1rem;
   padding: 18px 0;
+  border: 1px solid #333;
 }
 
 .btnPrev:hover {
-  background-color: #444;
+  background-color: #333;
 }
 
 .btnNext {
   flex: 3;
-  background-color: var(--color-accent, #d4af37);
-  color: #111;
+  background-color: var(--color-primary);
+  color: var(--color-text);
   font-size: 1.25rem;
   padding: 18px 0;
-  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2);
+  box-shadow: 0 4px 12px rgba(42, 61, 71, 0.2);
 }
 
 .btnNext:hover {
-  background-color: #e6be43;
+  background-color: var(--color-primary-hover);
 }
 
 .subControls {
@@ -279,8 +280,8 @@
 }
 
 .modal {
-  background-color: #222;
-  border-radius: 20px;
+  background-color: var(--color-surface);
+  border-radius: var(--border-radius-panel);
   padding: 20px;
   width: 100%;
   max-width: 450px;
@@ -289,7 +290,7 @@
   align-items: center;
   gap: 16px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-  border: 1px solid #333;
+  border: 1px solid #292929;
 }
 
 .modalTitle {
