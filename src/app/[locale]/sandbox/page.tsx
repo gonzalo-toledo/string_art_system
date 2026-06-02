@@ -7,7 +7,7 @@ const INITIAL_SEQUENCE = "0,160,35,162,37,165,41,168,42,170,43,172,45,173,44,174
 
 export default function SandboxPage() {
   const [sequenceStr, setSequenceStr] = useState<string>(INITIAL_SEQUENCE);
-  const [opacity, setOpacity] = useState<number>(0.15);
+  const [opacity, setOpacity] = useState<number>(0.3);
   const [width, setWidth] = useState<number>(1);
   const [totalPins, setTotalPins] = useState<number>(240);
 

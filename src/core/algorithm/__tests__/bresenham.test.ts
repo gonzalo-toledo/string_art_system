@@ -1,4 +1,4 @@
-import { calculateBresenhamLine, BresenhamCache, generatePinCoordinates, Point } from '../bresenham';
+import { calculateBresenhamLine, calculateAntiAliasedLine, BresenhamCache, generatePinCoordinates, Point } from '../bresenham';
 
 describe('Bresenham Math', () => {
   it('should generate correct pin coordinates', () => {
@@ -24,10 +24,10 @@ describe('Bresenham Math', () => {
   });
 
   it('should cache long lines but not short ones', () => {
-    const pins = generatePinCoordinates(240, 500, 500);
+    const pins = generatePinCoordinates(240, 800, 800);
     const cache = new BresenhamCache(pins);
     
-    // Line from pin 0 to pin 120 (opposite side, very long, crosses diameter ~500px)
+    // Line from pin 0 to pin 120 (opposite side, very long, crosses diameter ~800px)
     cache.getLine(0, 120);
     expect(cache.getCacheSize()).toBe(1);
 
@@ -35,5 +35,57 @@ describe('Bresenham Math', () => {
     cache.getLine(0, 1);
     // Should still be 1 because it's below the CACHE_THRESHOLD (150px)
     expect(cache.getCacheSize()).toBe(1);
+  });
+
+  it('should calculate anti-aliased line with weights', () => {
+    const p0: Point = { x: 0, y: 0 };
+    const p1: Point = { x: 10, y: 0 };
+    const line = calculateAntiAliasedLine(p0, p1);
+
+    // Should have coords and weights arrays of equal length
+    expect(line.coords.length).toBe(line.weights.length * 2);
+    expect(line.length).toBeCloseTo(10, 0);
+
+    // Weights are NOT normalized to 1.0 — they sum to approximately
+    // the geometric length of the line, which keeps the greedy algorithm
+    // working correctly with its existing length^0.6 score normalization.
+    let totalWeight = 0;
+    for (let i = 0; i < line.weights.length; i++) totalWeight += line.weights[i];
+    expect(totalWeight).toBeGreaterThan(5);  // ~8-10 for a 10px line
+
+    // Should cover all pixels from x=0 to x=10 along y=0
+    for (let i = 0; i < line.coords.length; i += 2) {
+      expect(line.coords[i + 1]).toBe(0); // y should be 0
+    }
+  });
+
+  it('should calculate anti-aliased diagonal line with correct coverage', () => {
+    const p0: Point = { x: 0, y: 0 };
+    const p1: Point = { x: 5, y: 5 };
+    const line = calculateAntiAliasedLine(p0, p1);
+
+    // Diagonal line should have pixels near the main diagonal
+    let foundDiagonalPixels = 0;
+    for (let i = 0; i < line.coords.length; i += 2) {
+      const x = line.coords[i];
+      const y = line.coords[i + 1];
+      if (Math.abs(x - y) <= 1) foundDiagonalPixels++;
+    }
+    expect(foundDiagonalPixels).toBeGreaterThan(line.coords.length / 4);
+
+    // Weights sum to approximately the geometric length, not 1.0
+    let totalWeight = 0;
+    for (let i = 0; i < line.weights.length; i++) totalWeight += line.weights[i];
+    expect(totalWeight).toBeGreaterThan(3); // ~4-6 for a 5px diagonal line
+  });
+
+  it('should return anti-aliased data from cache', () => {
+    const pins = generatePinCoordinates(240, 800, 800);
+    const cache = new BresenhamCache(pins);
+    
+    const line = cache.getLine(0, 120);
+    expect(line.coords.length).toBeGreaterThan(0);
+    expect(line.weights.length).toBe(line.coords.length / 2);
+    expect(line.length).toBeGreaterThan(150);
   });
 });

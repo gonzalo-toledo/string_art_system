@@ -28,7 +28,7 @@ export function CanvasRenderer({
   totalPins,
   canvasSize,
   previewUrl,
-  lineOpacity = 0.15,
+  lineOpacity = 0.35,
   lineWidth = 1,
   crop,
   onCropChange,
@@ -172,8 +172,9 @@ export function CanvasRenderer({
     const drawLines = () => {
       if (sequenceIndexRef.current >= sequence.length - 1) return;
 
-      // Estilo de los hilos: negro semi-transparente para efecto de acumulación
-      ctx.strokeStyle = `rgba(10, 10, 10, ${lineOpacity})`;
+          // Estilo de los hilos: negro puro semi-transparente para máximo realismo
+      // Coincide con el renderizado de referencia
+      ctx.strokeStyle = `rgba(0, 0, 0, ${lineOpacity})`;
       ctx.lineWidth = lineWidth;
       ctx.beginPath();
 
