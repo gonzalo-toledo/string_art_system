@@ -58,8 +58,8 @@ export function VisualizerModal({ onClose, session }: VisualizerModalProps) {
     const pins = generatePinCoordinates(session.config.totalPins, size, size);
 
     // Dibujar hilos completados con un renderizado realista (acumulación)
-    ctx.lineWidth = 1; // Grosor del hilo (sincronizar en Fase B.4)
-    ctx.strokeStyle = 'rgba(10, 10, 10, 0.09)'; // Opacidad del hilo (sincronizar en Fase B.4)
+    ctx.lineWidth = 1; // Grosor del hilo (sincronizado con CanvasRenderer)
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.35)'; // Opacidad del hilo (sincronizado con CanvasRenderer)
     
     for (let i = 0; i <= session.currentStep; i++) {
       if (i + 1 < session.sequence.length) {

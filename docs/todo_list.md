@@ -77,10 +77,10 @@ graph TD
   - [x] `SequenceListModal.tsx` (modal con el listado completo indexado).
 
 ### 4. Sincronización del Renderizado del Canvas (Fidelidad Visual)
-- [ ] **Unificar Rendering en Editor y Guía**:
-  - Actualmente, el Editor dibuja hilos con grosor `1.0` y opacidad `0.15` en `canvas-renderer.tsx`.
+- [x] **Unificar Rendering en Editor y Guía**:
+  - Actualmente, el Editor dibuja hilos con grosor `1.0` y opacidad `0.15` en `canvas-renderer.tsx`. (Nota: tras validación del usuario, se decidió mantener la fidelidad y opacidad 0.35 del Editor).
   - El visualizador de la guía dibuja con grosor `0.3` y opacidad `0.09` en `guide-page.tsx`.
-  - **Acción**: Sincronizar ambos renderizadores para que el resultado en pantalla sea idéntico y represente fielmente el tejido real (se sugiere grosor `0.4` a `0.5` con opacidad `0.10`).
+  - **Acción**: Sincronizar ambos renderizadores para que el resultado en pantalla sea idéntico y represente fielmente el tejido real (se adoptaron los valores del Editor: grosor `1.0` y opacidad `0.35` con negro puro).
 
 ### 5. Migración Completa a CSS Variables de HÁGALO (Design Tokens)
 - [x] **Implementar Tokens en CSS**: Modificar `design-tokens.css` para incorporar las variables y fuentes oficiales de HÁGALO.
