@@ -1,0 +1,103 @@
+"use client";
+import React from 'react';
+import { useTranslations } from 'next-intl';
+import { ChevronLeft, ChevronRight, Play, Pause } from '../shared/icons';
+import styles from './guide.module.css';
+
+// Definición de las propiedades (props) para el componente GuideControls
+interface GuideControlsProps {
+  isPlaying: boolean;                          // Estado de la reproducción automática (autoplay)
+  onTogglePlay: () => void;                    // Acción para iniciar/pausar la reproducción automática
+  playSpeed: number;                           // Velocidad de reproducción automática en milisegundos
+  onChangePlaySpeed: (speed: number) => void;  // Acción para cambiar la velocidad de reproducción
+  isWakeLockActive: boolean;                   // Estado del Wake Lock (pantalla siempre activa)
+  onPrev: () => void;                          // Acción para volver al paso anterior
+  onNext: () => void;                          // Acción para avanzar al siguiente paso
+}
+
+/**
+ * Panel de navegación y controles del modo guiado.
+ * Permite avanzar, retroceder, activar el autoplay y ver el estado de bloqueo de pantalla.
+ */
+export function GuideControls({
+  isPlaying,
+  onTogglePlay,
+  playSpeed,
+  onChangePlaySpeed,
+  isWakeLockActive,
+  onPrev,
+  onNext
+}: GuideControlsProps) {
+  // Hook de traducción de Next-intl
+  const t = useTranslations('Guide');
+
+  return (
+    <div className={styles.controlsSection}>
+      {/* Botones principales de navegación (Anterior y Siguiente) */}
+      <div className={styles.navButtons}>
+        <button
+          className={`${styles.btn} ${styles.btnPrev}`}
+          onClick={onPrev}
+          style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+        >
+          <ChevronLeft size={16} /> {t('prev')}
+        </button>
+        <button
+          className={`${styles.btn} ${styles.btnNext}`}
+          onClick={onNext}
+          style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+        >
+          {t('next')} <ChevronRight size={16} />
+        </button>
+      </div>
+
+      {/* Controles secundarios (Autoplay e indicador de WakeLock) */}
+      <div className={styles.subControls}>
+        {/* Grupo de controles de reproducción automática */}
+        <div className={styles.autoplayGroup}>
+          <button
+            className={`${styles.btnPlayPause} ${isPlaying ? styles.btnPlayPauseActive : ''}`}
+            onClick={onTogglePlay}
+            style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+          >
+            {isPlaying ? <Pause size={16} /> : <Play size={16} />} {t('play')}
+          </button>
+
+          {/* Selector de velocidad, visible solo cuando autoplay está activo */}
+          {isPlaying && (
+            <select
+              value={playSpeed}
+              onChange={(e) => onChangePlaySpeed(Number(e.target.value))}
+              className={styles.speedSelector}
+            >
+              <option value={1000}>1.0s</option>
+              <option value={1500}>1.5s</option>
+              <option value={2000}>2.0s</option>
+              <option value={3000}>3.0s</option>
+              <option value={4000}>4.0s</option>
+              <option value={5000}>5.0s</option>
+            </select>
+          )}
+        </div>
+
+        {/* Indicador de Wake Lock (evita que el dispositivo se apague) */}
+        <div
+          className={`${styles.wakeLockIndicator} ${isWakeLockActive ? styles.wakeLockIndicatorActive : ''}`}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+        >
+          <span
+            style={{
+              display: 'inline-block',
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              backgroundColor: isWakeLockActive ? '#4caf50' : '#f44336',
+              boxShadow: isWakeLockActive ? '0 0 8px #4caf50' : 'none'
+            }}
+          />
+          WakeLock
+        </div>
+      </div>
+    </div>
+  );
+}

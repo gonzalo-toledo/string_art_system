@@ -5,59 +5,46 @@ import { useParams, useRouter } from 'next/navigation';
 import { useGuidedSession } from '../../hooks/use-guided-session';
 import { useWakeLock } from '../../hooks/use-wake-lock';
 import { usePinSpeech } from '../../hooks/use-pin-speech';
-import { generatePinCoordinates } from '../../core/algorithm/bresenham';
 import styles from './guide.module.css';
-import {
-  ArrowLeft,
-  Volume2,
-  VolumeX,
-  Eye,
-  List,
-  ChevronLeft,
-  ChevronRight,
-  Play,
-  Pause,
-  Check,
-  Trophy
-} from '../shared/icons';
 
+// Importación de iconos compartidos
+import { Trophy } from '../shared/icons';
+
+// Importación de los subcomponentes atomizados
+import { GuideHeader } from './guide-header';
+import { ProgressBar } from './progress-bar';
+import { PinDisplay } from './pin-display';
+import { GuideControls } from './guide-controls';
+import { VisualizerModal } from './visualizer-modal';
+import { SequenceListModal } from './sequence-list-modal';
 
 /**
- * Pantalla del modo guiado (mobile-first).
- *
- * Guía al usuario paso a paso indicándole desde qué pin hasta qué pin
- * debe ir con el hilo. Incluye:
- * - Display grande del pin destino (táctil para repetir audio)
- * - Navegación prev/next con botones + touch swipe
- * - Autoplay con velocidad configurable
- * - Modal visualizador con mini-canvas del progreso
- * - Modal con listado completo de la secuencia
- * - Wake lock para que no se apague la pantalla
- * - Speech synthesis para decir el número del pin en voz alta
- * - Selector de idioma en el header
+ * Pantalla principal del modo guiado (mobile-first).
+ * Orquesta el estado del tejido, la síntesis de voz, wake lock y gestos,
+ * delegando la interfaz en subcomponentes modulares.
  */
 export function GuidePage() {
+  // Hooks de traducción, navegación e i18n
   const t = useTranslations('Guide');
   const router = useRouter();
   const params = useParams();
   const locale = (params.locale as 'es' | 'en' | 'pt') || 'es';
 
+  // Hooks personalizados de negocio
   const { session, isLoaded, updateStep, clearSession } = useGuidedSession();
   const { request: requestWakeLock, release: releaseWakeLock, isActive: isWakeLockActive } = useWakeLock();
-
-  // Inicializar hook de voz
   const { speak, isEnabled: isSpeechEnabled, toggleEnabled: toggleSpeech } = usePinSpeech(locale);
 
-  // Estado de navegación del guiado
+  // Estados locales para la reproducción automática y modales
   const [isPlaying, setIsPlaying] = useState(false);
   const [playSpeed, setPlaySpeed] = useState(2000); // ms por paso
   const [isVisualizerOpen, setIsVisualizerOpen] = useState(false);
   const [isSequenceListOpen, setIsSequenceListOpen] = useState(false);
 
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  // Referencia para detectar el inicio de gestos táctiles (swipe)
   const touchStartX = useRef<number | null>(null);
 
-  // Activar wake lock cuando la sesión está cargada
+  // Activar wake lock para prevenir suspensión de pantalla durante el tejido
   useEffect(() => {
     if (isLoaded && session) {
       requestWakeLock();
@@ -67,7 +54,7 @@ export function GuidePage() {
     };
   }, [isLoaded, session, requestWakeLock, releaseWakeLock]);
 
-  // Reproducir audio automáticamente cuando cambia el paso
+  // Reproducir por voz automáticamente cuando el paso actual cambia
   useEffect(() => {
     if (session && session.currentStep < session.totalSteps) {
       const targetPin = session.sequence[session.currentStep + 1];
@@ -75,7 +62,7 @@ export function GuidePage() {
     }
   }, [session?.currentStep, speak, session?.sequence, session?.totalSteps]);
 
-  // Funcionalidad de autoplay: avanza automáticamente cada N milisegundos
+  // Manejo del intervalo para la reproducción automática (autoplay)
   useEffect(() => {
     if (!isPlaying || !session) return;
 
@@ -90,9 +77,7 @@ export function GuidePage() {
     return () => clearInterval(interval);
   }, [isPlaying, session, playSpeed, updateStep]);
 
-
-
-  // Avanzar al siguiente paso
+  // Avanzar al siguiente paso del tejido
   const handleNext = useCallback(() => {
     if (!session) return;
     if (session.currentStep < session.totalSteps) {
@@ -100,7 +85,7 @@ export function GuidePage() {
     }
   }, [session, updateStep]);
 
-  // Retroceder al paso anterior
+  // Retroceder al paso anterior del tejido
   const handlePrev = useCallback(() => {
     if (!session) return;
     if (session.currentStep > 0) {
@@ -108,7 +93,7 @@ export function GuidePage() {
     }
   }, [session, updateStep]);
 
-  // Repetir el audio del pin actual
+  // Repetir la locución por voz del pin de destino
   const handleRepeatSpeech = () => {
     if (!session) return;
     const targetPin = session.sequence[session.currentStep + 1];
@@ -117,89 +102,7 @@ export function GuidePage() {
     }
   };
 
-  // Dibujar el mini-canvas del visualizador (progreso de hilos)
-  useEffect(() => {
-    if (!isVisualizerOpen || !session || !canvasRef.current) return;
-
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const size = canvas.width;
-    ctx.clearRect(0, 0, size, size);
-
-    // Fondo blanco del tablero (igual que el producto real)
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, size, size);
-
-    const boardRadius = size / 2 - 10;
-    const centerX = size / 2;
-    const centerY = size / 2;
-
-    // Borde del tablero
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, boardRadius, 0, Math.PI * 2);
-    ctx.strokeStyle = '#cccccc';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    const pins = generatePinCoordinates(session.config.totalPins, size, size);
-
-    // Dibujar hilos completados — rendering realista:
-    // Líneas ultra-finas con baja opacidad, la imagen se construye por ACUMULACIÓN
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = 'rgba(10, 10, 10, 0.09)';
-    for (let i = 0; i <= session.currentStep; i++) {
-      if (i + 1 < session.sequence.length) {
-        const pA = pins[session.sequence[i]];
-        const pB = pins[session.sequence[i + 1]];
-        ctx.beginPath();
-        ctx.moveTo(pA.x, pA.y);
-        ctx.lineTo(pB.x, pB.y);
-        ctx.stroke();
-      }
-    }
-
-    // Dibujar la línea activa resaltada en dorado
-    if (session.currentStep < session.totalSteps) {
-      const pStart = pins[session.sequence[session.currentStep]];
-      const pEnd = pins[session.sequence[session.currentStep + 1]];
-      ctx.beginPath();
-      ctx.strokeStyle = '#d4af37';
-      ctx.lineWidth = 1.5;
-      ctx.moveTo(pStart.x, pStart.y);
-      ctx.lineTo(pEnd.x, pEnd.y);
-      ctx.stroke();
-    }
-
-    // Dibujar pines (con colores especiales para origen y destino)
-    pins.forEach((p, idx) => {
-      const isCurrentOrigin = idx === session.sequence[session.currentStep];
-      const isCurrentTarget = idx === session.sequence[session.currentStep + 1];
-
-      if (isCurrentTarget) {
-        // Pin destino: rojo, más grande
-        ctx.fillStyle = '#ef4444';
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (isCurrentOrigin) {
-        // Pin origen: dorado
-        ctx.fillStyle = '#eab308';
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
-        ctx.fill();
-      } else {
-        // Pines normales: gris, pequeños
-        ctx.fillStyle = '#000000';
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 1, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    });
-  }, [isVisualizerOpen, session]);
-
-  // Manejo de gestos táctiles (swipe izquierda/derecha)
+  // Manejadores de gestos táctiles para dispositivos móviles (swipe izquierdo/derecho)
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
   };
@@ -209,7 +112,8 @@ export function GuidePage() {
     const touchEndX = e.changedTouches[0].clientX;
     const diffX = touchStartX.current - touchEndX;
 
-    // Swipe izquierda = siguiente, swipe derecha = anterior
+    // Umbral de 60px para el gesto
+    // Swipe izquierda = siguiente paso, swipe derecha = paso anterior
     if (diffX > 60) {
       handleNext();
     } else if (diffX < -60) {
@@ -218,8 +122,9 @@ export function GuidePage() {
     touchStartX.current = null;
   };
 
-  // --- Estados de carga y vacío ---
+  // --- Renderizado de estados especiales ---
 
+  // Estado de carga inicial
   if (!isLoaded) {
     return (
       <div className={styles.container}>
@@ -230,6 +135,7 @@ export function GuidePage() {
     );
   }
 
+  // Estado sin sesión activa cargada
   if (!session) {
     return (
       <div className={styles.container}>
@@ -247,15 +153,13 @@ export function GuidePage() {
     );
   }
 
-  // --- Cálculos para el render ---
-
+  // Variables calculadas a partir de la sesión actual
   const isCompleted = session.currentStep >= session.totalSteps;
   const currentPin = session.sequence[session.currentStep];
   const targetPin = isCompleted ? null : session.sequence[session.currentStep + 1];
   const progressPercent = Math.round((session.currentStep / session.totalSteps) * 100);
 
-  // --- Pantalla de cuadro completado ---
-
+  // Pantalla de celebración / cuadro finalizado
   if (isCompleted) {
     return (
       <div className={styles.container}>
@@ -291,210 +195,59 @@ export function GuidePage() {
     );
   }
 
-  // --- Pantalla principal del guiado ---
-
+  // --- Renderizado de la pantalla de guiado estándar ---
   return (
     <div className={styles.container}>
-      {/* Header con navegación, idioma y controles */}
-      <div className={styles.header}>
-        <button
-          className={styles.iconButton}
-          onClick={() => router.push(`/${locale}/editor`)}
-          aria-label="Back to Editor"
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-        >
-          <ArrowLeft size={20} />
-        </button>
-        <h1 className={styles.headerTitle}>{t('title')}</h1>
+      {/* 1. Encabezado de la página */}
+      <GuideHeader
+        onBack={() => router.push(`/${locale}/editor`)}
+        isSpeechEnabled={isSpeechEnabled}
+        onToggleSpeech={toggleSpeech}
+        onOpenVisualizer={() => setIsVisualizerOpen(true)}
+        onOpenSequenceList={() => setIsSequenceListOpen(true)}
+      />
 
-        <div className={styles.headerActions}>
+      {/* 2. Barra de progreso */}
+      <ProgressBar
+        currentStep={session.currentStep}
+        totalSteps={session.totalSteps}
+        progressPercent={progressPercent}
+      />
 
-
-          {/* Toggle de audio */}
-          <button
-            className={`${styles.iconButton} ${isSpeechEnabled ? styles.iconButtonActive : ''}`}
-            onClick={toggleSpeech}
-            title={t('audio')}
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-          >
-            {isSpeechEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
-          </button>
-
-          {/* Botón del visualizador */}
-          <button
-            className={styles.iconButton}
-            onClick={() => setIsVisualizerOpen(true)}
-            title={t('visualize')}
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-          >
-            <Eye size={20} />
-          </button>
-
-          {/* Botón del listado de secuencia */}
-          <button
-            className={styles.iconButton}
-            onClick={() => setIsSequenceListOpen(true)}
-            title={t('sequenceList')}
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-          >
-            <List size={20} />
-          </button>
-        </div>
-      </div>
-
-      {/* Barra de progreso */}
-      <div className={styles.progressSection}>
-        <div className={styles.progressText}>
-          <span>{t('step', { current: session.currentStep + 1, total: session.totalSteps + 1 })}</span>
-          <span>{progressPercent}%</span>
-        </div>
-        <div className={styles.progressBar}>
-          <div
-            className={styles.progressFill}
-            style={{ width: `${progressPercent}%` }}
-          ></div>
-        </div>
-      </div>
-
-      {/* Zona táctil principal (swipe para navegar) */}
-      <div
-        className={styles.centerSection}
+      {/* 3. Zona táctil con pines origen/destino */}
+      <PinDisplay
+        currentPin={currentPin}
+        targetPin={targetPin}
+        onRepeatSpeech={handleRepeatSpeech}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
-      >
-        <span className={styles.label}>{t('toPin')}</span>
-        <div className={styles.targetPinContainer} onClick={handleRepeatSpeech}>
-          <span className={styles.targetPinNumber}>{targetPin}</span>
-        </div>
-        <div className={styles.originPin}>
-          {t('fromPin')}: <span className={styles.originPinHighlight}>{currentPin}</span>
-        </div>
-      </div>
+      />
 
-      {/* Controles de navegación */}
-      <div className={styles.controlsSection}>
-        <div className={styles.navButtons}>
-          <button
-            className={`${styles.btn} ${styles.btnPrev}`}
-            onClick={handlePrev}
-            style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
-          >
-            <ChevronLeft size={16} /> {t('prev')}
-          </button>
-          <button
-            className={`${styles.btn} ${styles.btnNext}`}
-            onClick={handleNext}
-            style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
-          >
-            {t('next')} <ChevronRight size={16} />
-          </button>
-        </div>
+      {/* 4. Controles de navegación y autoplay */}
+      <GuideControls
+        isPlaying={isPlaying}
+        onTogglePlay={() => setIsPlaying(!isPlaying)}
+        playSpeed={playSpeed}
+        onChangePlaySpeed={setPlaySpeed}
+        isWakeLockActive={isWakeLockActive}
+        onPrev={handlePrev}
+        onNext={handleNext}
+      />
 
-        <div className={styles.subControls}>
-          {/* Autoplay: avanza automáticamente cada N segundos */}
-          <div className={styles.autoplayGroup}>
-            <button
-              className={`${styles.btnPlayPause} ${isPlaying ? styles.btnPlayPauseActive : ''}`}
-              onClick={() => setIsPlaying(!isPlaying)}
-              style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
-            >
-              {isPlaying ? <Pause size={16} /> : <Play size={16} />} {t('play')}
-            </button>
-
-            {isPlaying && (
-              <select
-                value={playSpeed}
-                onChange={(e) => setPlaySpeed(Number(e.target.value))}
-                className={styles.speedSelector}
-              >
-                <option value={1000}>1.0s</option>
-                <option value={1500}>1.5s</option>
-                <option value={2000}>2.0s</option>
-                <option value={3000}>3.0s</option>
-                <option value={4000}>4.0s</option>
-                <option value={5000}>5.0s</option>
-              </select>
-            )}
-          </div>
-
-          {/* Indicador de Wake Lock */}
-          <div
-            className={`${styles.wakeLockIndicator} ${isWakeLockActive ? styles.wakeLockIndicatorActive : ''}`}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
-          >
-            <span
-              style={{
-                display: 'inline-block',
-                width: '8px',
-                height: '8px',
-                borderRadius: '50%',
-                backgroundColor: isWakeLockActive ? '#4caf50' : '#f44336',
-                boxShadow: isWakeLockActive ? '0 0 8px #4caf50' : 'none'
-              }}
-            />
-            WakeLock
-          </div>
-        </div>
-      </div>
-
-      {/* Modal: Visualizador de progreso (mini-canvas) */}
+      {/* 5. Modal del visualizador de progreso (Mini-canvas) */}
       {isVisualizerOpen && (
-        <div className={styles.overlay} onClick={() => setIsVisualizerOpen(false)}>
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <h2 className={styles.modalTitle}>{t('visualize')}</h2>
-            <div className={styles.modalCanvasContainer}>
-              <canvas
-                ref={canvasRef}
-                width={350}
-                height={350}
-                className={styles.modalCanvas}
-              />
-            </div>
-            <button
-              className={styles.modalCloseBtn}
-              onClick={() => setIsVisualizerOpen(false)}
-            >
-              {t('close')}
-            </button>
-          </div>
-        </div>
+        <VisualizerModal
+          onClose={() => setIsVisualizerOpen(false)}
+          session={session}
+        />
       )}
 
-      {/* Modal: Listado completo de la secuencia */}
+      {/* 6. Modal de listado completo de secuencias */}
       {isSequenceListOpen && (
-        <div className={styles.overlay} onClick={() => setIsSequenceListOpen(false)}>
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()} style={{ maxHeight: '85vh' }}>
-            <h2 className={styles.modalTitle}>{t('sequenceList')}</h2>
-            <div className={styles.sequenceListContainer}>
-              {session.sequence.map((pin, idx) => {
-                if (idx === session.sequence.length - 1) return null;
-                const nextPin = session.sequence[idx + 1];
-                const isDone = idx < session.currentStep;
-                const isCurrent = idx === session.currentStep;
-                let rowClass = styles.seqRow;
-                if (isDone) rowClass += ' ' + styles.seqRowDone;
-                if (isCurrent) rowClass += ' ' + styles.seqRowCurrent;
-                return (
-                  <div key={idx} className={rowClass}>
-                    <span className={styles.seqStep}>{idx + 1}</span>
-                    <span className={styles.seqPins}>{pin} → {nextPin}</span>
-                    {isDone && (
-                      <span className={styles.seqCheck} style={{ display: 'inline-flex', alignItems: 'center' }}>
-                        <Check size={14} strokeWidth={3} />
-                      </span>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-            <button
-              className={styles.modalCloseBtn}
-              onClick={() => setIsSequenceListOpen(false)}
-            >
-              {t('close')}
-            </button>
-          </div>
-        </div>
+        <SequenceListModal
+          onClose={() => setIsSequenceListOpen(false)}
+          session={session}
+        />
       )}
     </div>
   );
