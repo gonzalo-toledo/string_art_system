@@ -2,10 +2,10 @@ import { AlgorithmParams } from './algorithm/types';
 
 /**
  * Resolución interna del canvas para el cálculo del algoritmo (en píxeles).
- * Un tamaño de 500x500 píxeles ofrece un excelente balance entre
- * precisión del trazo del hilo y rendimiento de ejecución en el navegador.
+ * 800x800 ofrece mayor definición para rostros y detalles finos
+ * manteniendo un rendimiento aceptable en el navegador.
  */
-export const CANVAS_SIZE = 500;
+export const CANVAS_SIZE = 800;
 
 /**
  * Parámetros de configuración por defecto del algoritmo String Art.

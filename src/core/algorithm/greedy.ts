@@ -1,5 +1,5 @@
 import { AlgorithmParams } from './types';
-import { BresenhamCache, generatePinCoordinates, Point } from './bresenham';
+import { BresenhamCache, generatePinCoordinates, Point, LineData } from './bresenham';
 
 /**
  * Algoritmo greedy de String Art (basado en Petros Vrellis, 2013).
@@ -23,6 +23,11 @@ export class GreedyAlgorithm {
   private boardRadius: number;
   private pinUsage: Uint16Array;
 
+  // Para el radial weight boost (centro más importante que bordes)
+  private centerX: number;
+  private centerY: number;
+  private canvasRadius: number;
+
   constructor(initialData: Float32Array, params: AlgorithmParams) {
     this.errorMap = new Float32Array(initialData); // Copia del estado inicial
     this.width = params.width;
@@ -36,8 +41,28 @@ export class GreedyAlgorithm {
     this.cache = new BresenhamCache(this.pins);
     this.pinUsage = new Uint16Array(this.totalPins);
 
+    // Centro y radio del canvas para radial boost
+    this.centerX = this.width / 2;
+    this.centerY = params.height / 2;
+    this.canvasRadius = Math.min(this.width, params.height) / 2;
+
     // Comienza en el pin 0 por defecto
     this.sequence.push(0);
+  }
+
+  /**
+   * Factor radial: prioriza muy suavemente el centro sobre los bordes.
+   * El centro del cuadro recibe un boost de 1.1x, mientras que
+   * los bordes bajan a 0.9x. La diferencia es apenas perceptible
+   * pero suficiente para darle prioridad al sujeto central.
+   */
+  private getRadialFactor(x: number, y: number): number {
+    const dx = x - this.centerX;
+    const dy = y - this.centerY;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const normalizedDist = Math.min(dist / this.canvasRadius, 1.0);
+    // 1.1 en el centro → 0.9 en el borde (±10%, muy sutil)
+    return 1.1 - normalizedDist * 0.2;
   }
 
   /**
@@ -66,12 +91,13 @@ export class GreedyAlgorithm {
    * Para cada pin candidato:
    * 1. Descarta si es el pin actual o el anterior (anti-reversa)
    * 2. Descarta si está demasiado cerca (minPinDistance)
-   * 3. Recorre los píxeles de la línea calculando un score:
-   *    - Píxeles con error positivo (queda oscuridad) → recompensa
-   *    - Píxeles con error negativo (ya sobreoscurecido) → castigo
+   * 3. Recorre los píxeles de la línea calculando un score ponderado
+   *    por cobertura fraccionaria (anti-aliased):
+   *    - Píxeles con error positivo (queda oscuridad) → recompensa proporcional al peso
+   *    - Píxeles con error negativo (ya sobreoscurecido) → castigo proporcional al peso
    * 4. Normaliza el score por la longitud de la línea
    * 5. Elige el pin con mayor score normalizado
-   * 6. "Dibuja" la línea ganadora restando lineWeight del errorMap
+   * 6. "Dibuja" la línea ganadora restando lineWeight * peso del errorMap
    *
    * Retorna null si no hay líneas válidas disponibles.
    */
@@ -79,7 +105,7 @@ export class GreedyAlgorithm {
     const currentPin = this.sequence[this.sequence.length - 1];
     let bestScore = -Infinity;
     let bestPin = -1;
-    let bestLinePixels: Uint16Array | null = null;
+    let bestLine: LineData | null = null;
 
     // Evaluar todos los pines candidatos
     for (let targetPin = 0; targetPin < this.totalPins; targetPin++) {
@@ -95,29 +121,32 @@ export class GreedyAlgorithm {
         continue;
       }
 
-      const linePixels = this.cache.getLine(currentPin, targetPin);
+      const line = this.cache.getLine(currentPin, targetPin);
       let score = 0;
 
-      // Calcular score con penalización por overshoot
-      for (let i = 0; i < linePixels.length; i += 2) {
-        const x = linePixels[i];
-        const y = linePixels[i + 1];
+      // Calcular score con cobertura fraccionaria (anti-aliased) + radial boost
+      for (let i = 0; i < line.coords.length; i += 2) {
+        const x = line.coords[i];
+        const y = line.coords[i + 1];
+        const weight = line.weights[i / 2];
         const idx = y * this.width + x;
         const remaining = this.errorMap[idx];
 
+        // Radial boost: el centro del cuadro es más importante que los bordes
+        const radialFactor = this.getRadialFactor(x, y);
+
         if (remaining > 0) {
           // Ponderación por severidad: prioriza píxeles que más necesitan cobertura
-          const factor = 1 + (remaining / 255) * 0.5; // 1.0 a 1.5
-          score += Math.min(remaining, this.lineWeight) * factor;
+          const severityFactor = 1 + (remaining / 255) * 0.5; // 1.0 a 1.5
+          score += Math.min(remaining, this.lineWeight) * severityFactor * weight * radialFactor;
         } else {
-          score -= Math.abs(remaining) * this.penaltyMultiplier; // Castigo
+          score -= Math.abs(remaining) * this.penaltyMultiplier * weight * radialFactor; // Castigo
         }
       }
 
       // Normalizar por pow(longitud, 0.6) para favorecer líneas largas
       // de forma moderada, sin sesgar a diámetros perfectos
-      const length = linePixels.length / 2;
-      const normalizedScore = score / Math.pow(length, 0.6);
+      const normalizedScore = score / Math.pow(line.length, 0.6);
 
       // Penalización proporcional al score: evita forzar líneas cortas
       // en iteraciones tardías cuando el score baja
@@ -132,19 +161,20 @@ export class GreedyAlgorithm {
       if (finalScore > bestScore) {
         bestScore = finalScore;
         bestPin = targetPin;
-        bestLinePixels = linePixels;
+        bestLine = line;
       }
     }
 
-    if (bestPin !== -1 && bestLinePixels) {
-      // "Dibujar" la línea: restar peso adaptativo para evitar overshoot
-      for (let i = 0; i < bestLinePixels.length; i += 2) {
-        const x = bestLinePixels[i];
-        const y = bestLinePixels[i + 1];
+    if (bestPin !== -1 && bestLine) {
+      // "Dibujar" la línea: restar peso adaptativo ponderado para evitar overshoot
+      for (let i = 0; i < bestLine.coords.length; i += 2) {
+        const x = bestLine.coords[i];
+        const y = bestLine.coords[i + 1];
+        const weight = bestLine.weights[i / 2];
         const idx = y * this.width + x;
         // Solo restar lo necesario para llegar a 0 (con margen 5)
         const remaining = this.errorMap[idx];
-        const deduction = Math.min(this.lineWeight, Math.max(remaining + 5, 0));
+        const deduction = Math.min(this.lineWeight * weight, Math.max(remaining + 5, 0));
         this.errorMap[idx] -= deduction;
         // Clampear para evitar "zonas muertas" con valores negativos extremos
         if (this.errorMap[idx] < -this.lineWeight) {
