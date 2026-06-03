@@ -32,17 +32,24 @@ export function PinDisplay({
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
     >
+      {/* Indicadores visuales discretos de gesto de deslizamiento lateral (Swipe) */}
+      <div className={styles.swipeHintLeft} aria-hidden="true">‹</div>
+      <div className={styles.swipeHintRight} aria-hidden="true">›</div>
+
       {/* Etiqueta superior del pin de destino */}
       <span className={styles.label}>{t('toPin')}</span>
-      
-      {/* Contenedor principal del pin de destino (táctil para repetir la voz) */}
-      <div className={styles.targetPinContainer} onClick={onRepeatSpeech}>
-        <span className={styles.targetPinNumber}>{targetPin}</span>
+
+      <div
+        className={styles.targetPinContainer}
+        onClick={onRepeatSpeech}
+        title={t('repeatVoice')}
+      >
+        <span className={styles.targetPinNumber}>{targetPin !== null ? targetPin : '-'}</span>
       </div>
-      
-      {/* Indicador del pin de origen */}
+
       <div className={styles.originPin}>
-        {t('fromPin')}: <span className={styles.originPinHighlight}>{currentPin}</span>
+        {t('fromPin')}
+        <span className={styles.originPinHighlight}>{currentPin}</span>
       </div>
     </div>
   );
