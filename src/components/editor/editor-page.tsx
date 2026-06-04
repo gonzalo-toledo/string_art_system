@@ -160,10 +160,13 @@ export function EditorPage() {
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
-      <div className={styles.sidebar}>
-        {/* Banner de sesión activa */}
-        {session && (
-          <div className={styles.banner} style={{
+      <h2 className={styles.pageTitle}>{t('title')}</h2>
+
+      <div className={styles.editorContent}>
+        <div className={styles.sidebar}>
+          {/* Banner de sesión activa */}
+          {session && (
+            <div className={styles.banner} style={{
             background: 'rgba(212, 175, 55, 0.12)',
             border: '1px solid #d4af37',
             borderRadius: '8px',
@@ -219,8 +222,6 @@ export function EditorPage() {
             </button>
           </div>
         )}
-
-        <h2 className={styles.title}>{t('title')}</h2>
 
         {/* Paso 1: Subir imagen */}
         <div className={styles.stepOne}>
@@ -345,20 +346,21 @@ export function EditorPage() {
             {worker.error && <p style={{ color: 'red', marginTop: '8px' }}>{worker.error}</p>}
           </CollapsiblePanel>
         </div>
-      </div>
+        </div>
 
-      {/* Canvas de visualización */}
-      <CanvasRenderer
-        sequence={worker.sequence}
-        totalPins={params.totalPins}
-        canvasSize={CANVAS_SIZE}
-        previewUrl={previewUrl}
-        sourceImage={sourceImage}
-        adjustments={adjustments}
-        crop={crop}
-        onCropChange={setCrop}
-        disabled={worker.isRunning || !!worker.sequence}
-      />
+        {/* Canvas de visualización */}
+        <CanvasRenderer
+          sequence={worker.sequence}
+          totalPins={params.totalPins}
+          canvasSize={CANVAS_SIZE}
+          previewUrl={previewUrl}
+          sourceImage={sourceImage}
+          adjustments={adjustments}
+          crop={crop}
+          onCropChange={setCrop}
+          disabled={worker.isRunning || !!worker.sequence}
+        />
+      </div>
 
       {/* Overlay de drag & drop (solo desktop) */}
       {isDragging && (

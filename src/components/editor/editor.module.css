@@ -14,11 +14,33 @@
   box-sizing: border-box;
 }
 
+.pageTitle {
+  font-family: var(--font-heading);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  text-align: center;
+  width: 100%;
+}
+
+.editorContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 16px;
+}
+
 @media (min-width: 768px) {
   .container {
+    padding: var(--spacing-lg, 32px);
+    gap: var(--spacing-lg, 32px);
+  }
+
+  .editorContent {
     flex-direction: row;
     align-items: flex-start;
-    padding: var(--spacing-lg, 32px);
     gap: var(--spacing-lg, 32px);
   }
 }
@@ -41,11 +63,6 @@
     order: 1;
     width: 100%;
   }
-  .title {
-    order: 2;
-    width: 100%;
-    text-align: center;
-  }
   .stepOne {
     order: 3;
     width: 100%;
@@ -66,13 +83,6 @@
     order: 7;
     width: 100%;
   }
-}
-
-.sidebar h2 {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #fff;
-  margin: 0;
 }
 
 .canvasContainer {
