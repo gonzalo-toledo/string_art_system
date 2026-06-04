@@ -23,18 +23,20 @@ describe('Bresenham Math', () => {
     expect(line[9]).toBe(10); // y4
   });
 
-  it('should cache long lines but not short ones', () => {
+  it('should precalculate and cache all lines', () => {
     const pins = generatePinCoordinates(240, 800, 800);
     const cache = new BresenhamCache(pins);
     
     // Line from pin 0 to pin 120 (opposite side, very long, crosses diameter ~800px)
-    cache.getLine(0, 120);
-    expect(cache.getCacheSize()).toBe(1);
+    const line1 = cache.getLine(0, 120);
+    expect(line1).toBeDefined();
 
     // Line from pin 0 to pin 1 (adjacent, very short)
-    cache.getLine(0, 1);
-    // Should still be 1 because it's below the CACHE_THRESHOLD (150px)
-    expect(cache.getCacheSize()).toBe(1);
+    const line2 = cache.getLine(0, 1);
+    expect(line2).toBeDefined();
+
+    // El tamaño del array plano debe ser N * N
+    expect(cache.getCacheSize()).toBe(240 * 240);
   });
 
   it('should calculate anti-aliased line with weights', () => {

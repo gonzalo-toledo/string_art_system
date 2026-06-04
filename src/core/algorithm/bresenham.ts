@@ -133,36 +133,32 @@ export function calculateAntiAliasedLine(p0: Point, p1: Point): LineData {
   return { coords, weights, length };
 }
 
-// Clase para cachear las líneas
+// Clase para precalcular y cachear todas las líneas en un array plano
 export class BresenhamCache {
-  private cache = new Map<string, LineData>();
-  private CACHE_THRESHOLD = 150; // Cachea solo las líneas más largas para ahorrar RAM.
+  private lines: LineData[];
+  private totalPins: number;
 
-  constructor(private pins: Point[]) { }
+  constructor(private pins: Point[]) {
+    this.totalPins = pins.length;
+    // Creamos un array plano de tamaño totalPins * totalPins para guardar todas las combinaciones posibles
+    this.lines = new Array(this.totalPins * this.totalPins);
 
-  private getHash(pinA: number, pinB: number): string {
-    // La línea A→B tiene los mismos píxeles que B→A
-    return pinA < pinB ? `${pinA}-${pinB}` : `${pinB}-${pinA}`;
+    // Precalculamos todas las líneas posibles de forma bidireccional.
+    // Como la línea A->B es igual a B->A en contenido, apuntamos ambas entradas al mismo objeto en memoria.
+    for (let i = 0; i < this.totalPins; i++) {
+      for (let j = i + 1; j < this.totalPins; j++) {
+        const line = calculateAntiAliasedLine(this.pins[i], this.pins[j]);
+        this.lines[i * this.totalPins + j] = line;
+        this.lines[j * this.totalPins + i] = line;
+      }
+    }
   }
 
   public getLine(pinA: number, pinB: number): LineData {
-    const hash = this.getHash(pinA, pinB);
-    const cached = this.cache.get(hash);
-    if (cached) {
-      return cached;
-    }
-
-    const line = calculateAntiAliasedLine(this.pins[pinA], this.pins[pinB]);
-
-    // Solo cachear líneas lo suficientemente largas para que valga la pena
-    if (line.length >= this.CACHE_THRESHOLD) {
-      this.cache.set(hash, line);
-    }
-
-    return line;
+    return this.lines[pinA * this.totalPins + pinB];
   }
 
   public getCacheSize(): number {
-    return this.cache.size;
+    return this.lines.length;
   }
 }
