@@ -25,6 +25,7 @@
     "fixedPinsDesc": "A quantidade de pinos está fixada em 240 para coincidir exatamente com o Kit físico HÁGALO.",
     "generateTitle": "3. Gerar",
     "startGeneration": "Iniciar geração",
+    "regenerate": "Gerar novamente",
     "generating": "Gerando... ({progress}/{total})",
     "guidedMode": "Modo Guiado",
     "copySequence": "Copiar sequência",
@@ -64,7 +65,8 @@
     "startOver": "Começar de novo",
     "backToEditor": "Voltar ao Editor",
     "screenLockWarning": "Tela ativa (Wake Lock ativado)",
-    "sequenceList": "Sequência"
+    "sequenceList": "Sequência",
+    "repeatVoice": "Repetir instrução"
   },
   "Header": {
     "title": "HÁGALO",

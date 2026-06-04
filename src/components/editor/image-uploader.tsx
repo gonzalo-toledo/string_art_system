@@ -53,7 +53,7 @@ export function ImageUploader({ onImageSelected, disabled }: Props) {
     <CollapsiblePanel title={t('uploadTitle')} defaultOpen={true}>
       <input
         type="file"
-        accept="image/png, image/jpeg"
+        accept="image/*"
         onChange={handleFileChange}
         ref={fileInputRef}
         style={{ display: 'none' }}

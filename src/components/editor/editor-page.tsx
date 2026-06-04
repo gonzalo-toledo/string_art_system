@@ -292,7 +292,9 @@ export function EditorPage() {
             >
               {worker.isRunning
                 ? t('generating', { progress: worker.progress, total: worker.total })
-                : t('startGeneration')
+                : worker.sequence
+                  ? t('regenerate')
+                  : t('startGeneration')
               }
             </button>
 
@@ -309,18 +311,6 @@ export function EditorPage() {
                   <div className={styles.buttonContent}>
                     <Play size={18} fill="currentColor" />
                     <span>{t('guidedMode')}</span>
-                  </div>
-                </button>
-                <button
-                  className={`${styles.button} ${styles.buttonOutline}`}
-                  onClick={() => {
-                    navigator.clipboard.writeText(worker.sequence!.join(','));
-                    alert(t('sequenceCopied'));
-                  }}
-                >
-                  <div className={styles.buttonContent}>
-                    <Copy size={18} />
-                    <span>{t('copySequence')}</span>
                   </div>
                 </button>
                 <button

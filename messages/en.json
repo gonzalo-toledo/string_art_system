@@ -25,6 +25,7 @@
     "fixedPinsDesc": "The number of pins is fixed at 240 to match the physical HÁGALO Kit exactly.",
     "generateTitle": "3. Generate",
     "startGeneration": "Start Generation",
+    "regenerate": "Regenerate",
     "generating": "Generating... ({progress}/{total})",
     "guidedMode": "Guided Mode",
     "copySequence": "Copy Sequence",
@@ -64,7 +65,8 @@
     "startOver": "Start over",
     "backToEditor": "Back to Editor",
     "screenLockWarning": "Screen active (Wake Lock enabled)",
-    "sequenceList": "Sequence"
+    "sequenceList": "Sequence",
+    "repeatVoice": "Repeat instruction"
   },
   "Header": {
     "title": "HÁGALO",
