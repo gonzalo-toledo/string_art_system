@@ -12,6 +12,7 @@ export default function SplashScreen() {
   const locale = (params.locale as string) || 'es';
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const logoRef = useRef<HTMLImageElement | null>(null);
   const [isReady, setIsReady] = useState(false);
   const [skipped, setSkipped] = useState(false);
 
@@ -71,12 +72,12 @@ export default function SplashScreen() {
           }
         }
 
-        // 2. Precalcular la secuencia de hilos (150 iteraciones es perfecto para que no tape el logo)
+        // 2. Precalcular la secuencia de hilos (90 iteraciones para evitar hilos cruzados tardíos)
         const algoParams = {
           width: TARGET_SIZE,
           height: TARGET_SIZE,
           totalPins: 180,
-          maxIterations: 150,
+          maxIterations: 90,
           lineWeight: 28,
           penaltyMultiplier: 1.5,
           minPinDistance: 15,
@@ -87,7 +88,7 @@ export default function SplashScreen() {
         const pins = generatePinCoordinates(180, TARGET_SIZE, TARGET_SIZE);
 
         const sequence: number[] = [0];
-        for (let i = 0; i < 150; i++) {
+        for (let i = 0; i < 90; i++) {
           const result = algo.computeNextLine();
           if (!result) break;
           sequence.push(result.nextPin);
@@ -102,8 +103,12 @@ export default function SplashScreen() {
         if (!ctx) return;
 
         const startTime = performance.now();
-        const TOTAL_DURATION = 3000; // Exactamente 3 segundos
-        const HALF_CYCLE = 1500;    // 1.5s por ciclo completo (coser + descoser)
+        const TOTAL_DURATION = 3000; // 3 segundos de transición/espera
+        const WEAVE_DURATION = 2200; // 2.2 segundos tejiendo, 0.8s estático para apreciar el resultado
+
+        const easeInOutCubic = (x: number) => {
+          return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+        };
 
         const animate = (currentTime: number) => {
           if (!active) return;
@@ -119,16 +124,13 @@ export default function SplashScreen() {
             return;
           }
 
-          // Calcular en qué parte del ciclo de 1.5 segundos estamos
-          const cycleElapsed = elapsed % HALF_CYCLE;
-          let progress = 0;
+          // Calcular progreso suavizado de tejido (0 a 1)
+          const rawProgress = Math.min(1.0, elapsed / WEAVE_DURATION);
+          const progress = easeInOutCubic(rawProgress);
 
-          if (cycleElapsed < HALF_CYCLE / 2) {
-            // Cociendo (0 a 750ms): de 0 a 100% de hilos
-            progress = cycleElapsed / (HALF_CYCLE / 2);
-          } else {
-            // Descosiendo (750 a 1500ms): de 100% a 0 de hilos
-            progress = 1 - (cycleElapsed - HALF_CYCLE / 2) / (HALF_CYCLE / 2);
+          // Controlar la opacidad del logotipo de fondo en base al progreso
+          if (logoRef.current) {
+            logoRef.current.style.opacity = (0.05 + progress * 0.9).toString();
           }
 
           // Cantidad de hilos a dibujar
@@ -137,12 +139,12 @@ export default function SplashScreen() {
           // Limpiar lienzo
           ctx.clearRect(0, 0, TARGET_SIZE, TARGET_SIZE);
 
-          // Dibujar líneas
-          ctx.strokeStyle = 'rgba(212, 175, 55, 0.65)'; // Hilo dorado premium
+          // 1. Dibujar hilos normales con dorado sutil y elegante
+          const normalLinesCount = Math.max(0, linesToDraw - 8);
+          ctx.strokeStyle = 'rgba(212, 175, 55, 0.4)';
           ctx.lineWidth = 1.0;
           ctx.beginPath();
-
-          for (let i = 0; i < linesToDraw; i++) {
+          for (let i = 0; i < normalLinesCount; i++) {
             const p0 = pins[sequence[i]];
             const p1 = pins[sequence[i + 1]];
             ctx.moveTo(p0.x, p0.y);
@@ -150,20 +152,45 @@ export default function SplashScreen() {
           }
           ctx.stroke();
 
-          // Dibujar la aguja dorada en la posición del último pin
+          // 2. Dibujar la cola de hilos "calientes" activos (últimos 8 hilos de forma fluida y brillante)
+          if (linesToDraw > normalLinesCount) {
+            ctx.save();
+            ctx.strokeStyle = 'rgba(212, 175, 55, 0.85)';
+            ctx.lineWidth = 1.5;
+            ctx.shadowColor = '#d4af37';
+            ctx.shadowBlur = 6;
+            ctx.beginPath();
+            for (let i = normalLinesCount; i < linesToDraw; i++) {
+              const p0 = pins[sequence[i]];
+              const p1 = pins[sequence[i + 1]];
+              ctx.moveTo(p0.x, p0.y);
+              ctx.lineTo(p1.x, p1.y);
+            }
+            ctx.stroke();
+            ctx.restore();
+          }
+
+          // 3. Dibujar la aguja dorada brillante (el punto en movimiento con pulso de luz)
           if (linesToDraw > 0) {
             const lastPinIdx = sequence[linesToDraw];
             const needlePos = pins[lastPinIdx];
 
-            ctx.fillStyle = '#d4af37';
-            ctx.shadowColor = '#d4af37';
-            ctx.shadowBlur = 8;
-            ctx.beginPath();
-            ctx.arc(needlePos.x, needlePos.y, 3.5, 0, 2 * Math.PI);
-            ctx.fill();
+            ctx.save();
+            // Efecto de pulso de brillo
+            const pulse = elapsed > WEAVE_DURATION
+              ? 12 + Math.sin((elapsed - WEAVE_DURATION) * 0.015) * 3
+              : 8;
 
-            // Reset de sombra para performance
-            ctx.shadowBlur = 0;
+            ctx.shadowColor = '#d4af37';
+            ctx.shadowBlur = pulse;
+            ctx.fillStyle = '#ffffff'; // Centro blanco de alta intensidad lumínica
+            ctx.strokeStyle = '#d4af37'; // Contorno dorado
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.arc(needlePos.x, needlePos.y, 4, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.stroke();
+            ctx.restore();
           }
 
           animationId = requestAnimationFrame(animate);
@@ -197,7 +224,7 @@ export default function SplashScreen() {
       ` }} />
 
       <div className={styles.logoContainer}>
-        <img src="/hagalo-logo.png" alt="HÁGALO" className={styles.logoImage} />
+        <img ref={logoRef} src="/hagalo-logo.png" alt="HÁGALO" className={styles.logoImage} />
         <canvas
           ref={canvasRef}
           width={512}

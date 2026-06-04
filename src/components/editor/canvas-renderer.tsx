@@ -258,14 +258,29 @@ export function CanvasRenderer({
         ctx.arc(canvasSize / 2, canvasSize / 2, canvasSize / 2 - 1, 0, Math.PI * 2);
         ctx.stroke();
 
-        // Marca de agua del logotipo de HÁGALO difuso en el centro
+        // Marca de agua del logotipo de HÁGALO difuso en el centro con relación de aspecto correcta
         if (logoImage) {
           ctx.save();
           ctx.globalAlpha = 0.08;
-          const logoSize = canvasSize * 0.45;
-          const logoX = (canvasSize - logoSize) / 2;
-          const logoY = (canvasSize - logoSize) / 2;
-          ctx.drawImage(logoImage, logoX, logoY, logoSize, logoSize);
+          
+          const maxLogoSize = canvasSize * 0.45;
+          const logoAspect = logoImage.width / logoImage.height;
+          
+          let logoW = maxLogoSize;
+          let logoH = maxLogoSize;
+          
+          if (logoAspect > 1) {
+            // Ancho > Alto: ajustar altura en base al ancho
+            logoH = maxLogoSize / logoAspect;
+          } else {
+            // Alto >= Ancho: ajustar ancho en base a la altura
+            logoW = maxLogoSize * logoAspect;
+          }
+          
+          const logoX = (canvasSize - logoW) / 2;
+          const logoY = (canvasSize - logoH) / 2;
+          
+          ctx.drawImage(logoImage, logoX, logoY, logoW, logoH);
           ctx.restore();
         }
       }
