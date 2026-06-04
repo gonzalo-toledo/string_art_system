@@ -93,13 +93,13 @@ export function VisualizerModal({ onClose, session }: VisualizerModalProps) {
         // Pin de destino: Rojo y de mayor tamaño
         ctx.fillStyle = '#ef4444';
         ctx.beginPath();
-        ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, 4.5, 0, Math.PI * 2);
         ctx.fill();
       } else if (isCurrentOrigin) {
         // Pin de origen: Dorado
         ctx.fillStyle = '#eab308';
         ctx.beginPath();
-        ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
         ctx.fill();
       } else {
         // Pines estándar: Pequeños puntos negros
@@ -110,6 +110,10 @@ export function VisualizerModal({ onClose, session }: VisualizerModalProps) {
       }
     });
   }, [session]);
+
+  const isCompleted = session.currentStep >= session.totalSteps;
+  const currentPin = session.sequence[session.currentStep];
+  const targetPin = isCompleted ? null : session.sequence[session.currentStep + 1];
 
   return (
     <div className={styles.overlay} onClick={onClose}>
@@ -125,6 +129,17 @@ export function VisualizerModal({ onClose, session }: VisualizerModalProps) {
             height={350}
             className={styles.modalCanvas}
           />
+        </div>
+
+        {/* Indicador numérico actual entre el render y el botón cerrar */}
+        <div className={styles.modalPinDisplay}>
+          <span className={styles.modalPinLabel}>{t('toPin')}</span>
+          <div className={styles.modalTargetPinNumber}>
+            {targetPin !== null ? targetPin : '-'}
+          </div>
+          <div className={styles.modalOriginPin}>
+            {t('fromPin')} <span className={styles.modalOriginHighlight}>{currentPin}</span>
+          </div>
         </div>
 
         {/* Botón para cerrar */}
