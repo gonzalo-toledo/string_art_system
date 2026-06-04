@@ -133,8 +133,8 @@ export default function SplashScreen() {
             logoRef.current.style.opacity = (0.05 + progress * 0.9).toString();
           }
 
-          // Cantidad de hilos a dibujar
-          const linesToDraw = Math.floor(progress * (sequence.length - 1));
+          // Cantidad de hilos a dibujar (omitimos el último hilo para evitar líneas cruzadas no estéticas)
+          const linesToDraw = Math.floor(progress * (sequence.length - 2));
 
           // Limpiar lienzo
           ctx.clearRect(0, 0, TARGET_SIZE, TARGET_SIZE);
