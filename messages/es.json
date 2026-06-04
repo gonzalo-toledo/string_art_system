@@ -7,6 +7,7 @@
     "title": "Editor",
     "uploadTitle": "1. Subí tu foto",
     "selectImage": "Seleccionar imagen",
+    "dropOrSelectImage": "Arrastrá tu foto aquí o tocá para seleccionar",
     "adjustmentsTitle": "Ajustes de imagen",
     "reset": "Resetear",
     "brightness": "Brillo",
@@ -24,6 +25,7 @@
     "fixedPinsDesc": "La cantidad de pines está fijada a 240 para coincidir exactamente con el Kit físico HÁGALO.",
     "generateTitle": "3. Generar",
     "startGeneration": "Iniciar generación",
+    "regenerate": "Volver a generar",
     "generating": "Generando... ({progress}/{total})",
     "guidedMode": "Modo Guiado",
     "copySequence": "Copiar secuencia",
@@ -37,7 +39,8 @@
     "confirmCancel": "Esto borrará todo tu progreso. ¿Estás seguro?",
     "gestureHint": "Usá dos dedos para mover y agrandar la foto",
     "sequenceGeneratedLock": "La secuencia ya fue generada. Para modificar los ajustes de la imagen, debés volver a editar.",
-    "backToEdit": "Volver a editar imagen"
+    "backToEdit": "Volver a editar imagen",
+    "dropImageHere": "Soltá la imagen aquí"
   },
   "Guide": {
     "title": "Modo Guiado",
@@ -62,7 +65,8 @@
     "startOver": "Volver a empezar",
     "backToEditor": "Volver al Editor",
     "screenLockWarning": "Pantalla activa (Wake Lock habilitado)",
-    "sequenceList": "Listado"
+    "sequenceList": "Listado",
+    "repeatVoice": "Repetir instrucción"
   },
   "Header": {
     "title": "HÁGALO",

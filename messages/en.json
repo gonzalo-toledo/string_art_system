@@ -7,6 +7,7 @@
     "title": "Editor",
     "uploadTitle": "1. Upload Photo",
     "selectImage": "Select Image",
+    "dropOrSelectImage": "Drag your photo here or click to select",
     "adjustmentsTitle": "Image Adjustments",
     "reset": "Reset",
     "brightness": "Brightness",
@@ -24,6 +25,7 @@
     "fixedPinsDesc": "The number of pins is fixed at 240 to match the physical HÁGALO Kit exactly.",
     "generateTitle": "3. Generate",
     "startGeneration": "Start Generation",
+    "regenerate": "Regenerate",
     "generating": "Generating... ({progress}/{total})",
     "guidedMode": "Guided Mode",
     "copySequence": "Copy Sequence",
@@ -37,7 +39,8 @@
     "confirmCancel": "This will erase all your progress. Are you sure?",
     "gestureHint": "Use two fingers to move and zoom the photo",
     "sequenceGeneratedLock": "The sequence has already been generated. To modify image adjustments, you must go back to editing.",
-    "backToEdit": "Back to editing image"
+    "backToEdit": "Back to editing image",
+    "dropImageHere": "Drop image here"
   },
   "Guide": {
     "title": "Guided Mode",
@@ -62,7 +65,8 @@
     "startOver": "Start over",
     "backToEditor": "Back to Editor",
     "screenLockWarning": "Screen active (Wake Lock enabled)",
-    "sequenceList": "Sequence"
+    "sequenceList": "Sequence",
+    "repeatVoice": "Repeat instruction"
   },
   "Header": {
     "title": "HÁGALO",

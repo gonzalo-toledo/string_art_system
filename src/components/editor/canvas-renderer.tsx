@@ -163,61 +163,7 @@ export function CanvasRenderer({
       sequenceIndexRef.current = 0;
       ctx.clearRect(0, 0, canvasSize, canvasSize);
 
-      if (sourceImage) {
-        // Calcular escala base (modo cover)
-        const baseScale = Math.max(canvasSize / sourceImage.width, canvasSize / sourceImage.height);
-        const scale = baseScale * (crop?.zoom ?? 1);
-
-        // Dimensiones escaladas
-        const scaledW = sourceImage.width * scale;
-        const scaledH = sourceImage.height * scale;
-
-        // Centrar por defecto, luego aplicar offset
-        const maxOffsetX = (scaledW - canvasSize) / 2;
-        const maxOffsetY = (scaledH - canvasSize) / 2;
-
-        const drawX = (canvasSize - scaledW) / 2 - (crop?.offsetX ?? 0) * maxOffsetX;
-        const drawY = (canvasSize - scaledH) / 2 - (crop?.offsetY ?? 0) * maxOffsetY;
-
-        // 1. Dibujar fondo negro sólido para el canvas cuadrado exterior
-        ctx.fillStyle = '#161616';
-        ctx.fillRect(0, 0, canvasSize, canvasSize);
-
-        // 2. Dibujar la imagen de fondo borrosa (fuera del círculo)
-        ctx.save();
-        let baseFilter = 'grayscale(100%)';
-        if (adjustments) {
-          baseFilter += ` brightness(${100 + adjustments.brightness}%) contrast(${100 + adjustments.contrast}%)`;
-        }
-        ctx.filter = baseFilter + ' blur(8px) opacity(0.35)';
-        ctx.drawImage(sourceImage, drawX, drawY, scaledW, scaledH);
-        ctx.restore();
-
-        // 3. Dibujar el círculo de recorte nítido
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(canvasSize / 2, canvasSize / 2, canvasSize / 2 - 2, 0, Math.PI * 2);
-        ctx.clip();
-
-        // Fondo blanco dentro del círculo
-        ctx.fillStyle = '#ffffff';
-        ctx.fill();
-
-        // Dibujar la imagen nítida dentro de la máscara circular
-        ctx.save();
-        ctx.filter = baseFilter;
-        ctx.drawImage(sourceImage, drawX, drawY, scaledW, scaledH);
-        ctx.restore();
-
-        ctx.restore(); // restaurar clip circular
-
-        // 4. Borde del bastidor dorado/elegante
-        ctx.strokeStyle = 'rgba(212, 175, 55, 0.6)';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.arc(canvasSize / 2, canvasSize / 2, canvasSize / 2 - 2, 0, Math.PI * 2);
-        ctx.stroke();
-      } else if (previewUrl) {
+      if (previewUrl) {
         const img = new Image();
         img.onload = () => {
           if (sequence && sequence.length > 1) return;
@@ -285,7 +231,7 @@ export function CanvasRenderer({
         }
       }
     }
-  }, [sourceImage, logoImage, crop, adjustments, canvasSize, sequence]);
+  }, [previewUrl, logoImage, canvasSize, sequence]);
 
   // Dibuja la secuencia de hilos progresivos
   useEffect(() => {
@@ -353,7 +299,7 @@ export function CanvasRenderer({
         onTouchCancel={handleTouchEnd}
       />
       {showGestureHint && (
-        <div className={styles.gestureHint}>
+        <div className={`${styles.gestureHint} ${styles.mobileOnly}`}>
           {t('gestureHint')}
         </div>
       )}

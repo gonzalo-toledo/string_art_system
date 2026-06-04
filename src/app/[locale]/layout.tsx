@@ -1,7 +1,16 @@
 import {NextIntlClientProvider} from 'next-intl';
 import {getMessages} from 'next-intl/server';
-import LayoutWrapper from '@/components/layout/layout-wrapper';
+import {Metadata} from 'next';
+import MainLayout from '@/components/layout/main-layout';
 import '../globals.css';
+
+export const metadata: Metadata = {
+  title: 'HÁGALO — String Art Generator',
+  description: 'Crea arte asombroso a partir de tus fotos con el Kit HÁGALO.',
+  icons: {
+    icon: '/hagalo-logo.png',
+  },
+};
 
 export default async function LocaleLayout({
   children,
@@ -23,9 +32,9 @@ export default async function LocaleLayout({
         backgroundColor: '#111111'
       }}>
         <NextIntlClientProvider messages={messages}>
-          <LayoutWrapper locale={locale}>
+          <MainLayout locale={locale}>
             {children}
-          </LayoutWrapper>
+          </MainLayout>
         </NextIntlClientProvider>
       </body>
     </html>

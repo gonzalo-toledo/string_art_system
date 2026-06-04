@@ -42,6 +42,7 @@ export function EditorPage() {
   const [adjustments, setAdjustments] = useState<ImageAdjustments>(DEFAULT_ADJUSTMENTS);
   const [crop, setCrop] = useState<CropTransform>(DEFAULT_CROP);
   const [sourceImage, setSourceImage] = useState<HTMLImageElement | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   // Referencia a la imagen original cargada (para reprocesar al cambiar ajustes)
   const sourceImageRef = useRef<HTMLImageElement | null>(null);
@@ -123,6 +124,26 @@ export function EditorPage() {
     setCrop(DEFAULT_CROP);
   };
 
+  // Drag & drop handlers (solo desktop)
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      handleImageSelected(file);
+    }
+  };
+
   // Limpiar el object URL al desmontar el componente
   useEffect(() => {
     return () => {
@@ -133,11 +154,19 @@ export function EditorPage() {
   }, []);
 
   return (
-    <div className={styles.container}>
-      <div className={styles.sidebar}>
-        {/* Banner de sesión activa */}
-        {session && (
-          <div className={styles.banner} style={{
+    <div
+      className={styles.container}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
+      <h2 className={styles.pageTitle}>{t('title')}</h2>
+
+      <div className={styles.editorContent}>
+        <div className={styles.sidebar}>
+          {/* Banner de sesión activa */}
+          {session && (
+            <div className={styles.banner} style={{
             background: 'rgba(212, 175, 55, 0.12)',
             border: '1px solid #d4af37',
             borderRadius: '8px',
@@ -193,8 +222,6 @@ export function EditorPage() {
             </button>
           </div>
         )}
-
-        <h2 className={styles.title}>{t('title')}</h2>
 
         {/* Paso 1: Subir imagen */}
         <div className={styles.stepOne}>
@@ -265,7 +292,9 @@ export function EditorPage() {
             >
               {worker.isRunning
                 ? t('generating', { progress: worker.progress, total: worker.total })
-                : t('startGeneration')
+                : worker.sequence
+                  ? t('regenerate')
+                  : t('startGeneration')
               }
             </button>
 
@@ -282,18 +311,6 @@ export function EditorPage() {
                   <div className={styles.buttonContent}>
                     <Play size={18} fill="currentColor" />
                     <span>{t('guidedMode')}</span>
-                  </div>
-                </button>
-                <button
-                  className={`${styles.button} ${styles.buttonOutline}`}
-                  onClick={() => {
-                    navigator.clipboard.writeText(worker.sequence!.join(','));
-                    alert(t('sequenceCopied'));
-                  }}
-                >
-                  <div className={styles.buttonContent}>
-                    <Copy size={18} />
-                    <span>{t('copySequence')}</span>
                   </div>
                 </button>
                 <button
@@ -319,20 +336,28 @@ export function EditorPage() {
             {worker.error && <p style={{ color: 'red', marginTop: '8px' }}>{worker.error}</p>}
           </CollapsiblePanel>
         </div>
+        </div>
+
+        {/* Canvas de visualización */}
+        <CanvasRenderer
+          sequence={worker.sequence}
+          totalPins={params.totalPins}
+          canvasSize={CANVAS_SIZE}
+          previewUrl={previewUrl}
+          sourceImage={sourceImage}
+          adjustments={adjustments}
+          crop={crop}
+          onCropChange={setCrop}
+          disabled={worker.isRunning || !!worker.sequence}
+        />
       </div>
 
-      {/* Canvas de visualización */}
-      <CanvasRenderer
-        sequence={worker.sequence}
-        totalPins={params.totalPins}
-        canvasSize={CANVAS_SIZE}
-        previewUrl={previewUrl}
-        sourceImage={sourceImage}
-        adjustments={adjustments}
-        crop={crop}
-        onCropChange={setCrop}
-        disabled={worker.isRunning || !!worker.sequence}
-      />
+      {/* Overlay de drag & drop (solo desktop) */}
+      {isDragging && (
+        <div className={`${styles.dragOverlay} ${styles.desktopOnly}`}>
+          <span>{t('dropImageHere')}</span>
+        </div>
+      )}
     </div>
   );
 }
