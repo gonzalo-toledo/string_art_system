@@ -34,7 +34,10 @@
     "continue": "Continue",
     "cancelProject": "Cancel project",
     "confirmNewImage": "You have a project in progress. Uploading a new image will erase all your progress. Continue?",
-    "confirmCancel": "This will erase all your progress. Are you sure?"
+    "confirmCancel": "This will erase all your progress. Are you sure?",
+    "gestureHint": "Use two fingers to move and zoom the photo",
+    "sequenceGeneratedLock": "The sequence has already been generated. To modify image adjustments, you must go back to editing.",
+    "backToEdit": "Back to editing image"
   },
   "Guide": {
     "title": "Guided Mode",

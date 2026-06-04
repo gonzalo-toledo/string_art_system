@@ -34,7 +34,10 @@
     "continue": "Continuar",
     "cancelProject": "Cancelar projeto",
     "confirmNewImage": "Você tem um projeto em andamento. Enviar uma nova imagem apagará todo o seu progresso. Continuar?",
-    "confirmCancel": "Isso apagará todo o seu progresso. Tem certeza?"
+    "confirmCancel": "Isso apagará todo o seu progresso. Tem certeza?",
+    "gestureHint": "Use dois dedos para mover e ampliar a foto",
+    "sequenceGeneratedLock": "A sequência já foi gerada. Para modificar os ajustes da imagem, você deve voltar a editar.",
+    "backToEdit": "Voltar a editar imagem"
   },
   "Guide": {
     "title": "Modo Guiado",

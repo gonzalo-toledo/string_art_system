@@ -34,7 +34,10 @@
     "continue": "Continuar",
     "cancelProject": "Cancelar proyecto",
     "confirmNewImage": "Tenés un proyecto en curso. Subir una nueva imagen borrará todo tu progreso. ¿Continuar?",
-    "confirmCancel": "Esto borrará todo tu progreso. ¿Estás seguro?"
+    "confirmCancel": "Esto borrará todo tu progreso. ¿Estás seguro?",
+    "gestureHint": "Usá dos dedos para mover y agrandar la foto",
+    "sequenceGeneratedLock": "La secuencia ya fue generada. Para modificar los ajustes de la imagen, debés volver a editar.",
+    "backToEdit": "Volver a editar imagen"
   },
   "Guide": {
     "title": "Modo Guiado",

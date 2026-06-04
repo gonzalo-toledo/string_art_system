@@ -1,7 +1,8 @@
 "use client";
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { generatePinCoordinates } from '../../core/algorithm/bresenham';
-import { CropTransform } from '../../utils/image-adjustments';
+import { CropTransform, ImageAdjustments } from '../../utils/image-adjustments';
 import styles from './editor.module.css';
 
 interface Props {
@@ -9,6 +10,8 @@ interface Props {
   totalPins: number;
   canvasSize: number;
   previewUrl: string | null;
+  sourceImage?: HTMLImageElement | null;
+  adjustments?: ImageAdjustments;
   lineOpacity?: number;
   lineWidth?: number;
   crop?: CropTransform;
@@ -20,7 +23,8 @@ interface Props {
  * Renderizador del canvas de string art.
  *
  * Soporta dos modos:
- * 1. Sin secuencia: muestra la preview de la imagen procesada con controles gestuales multitáctiles.
+ * 1. Sin secuencia: muestra la preview de la imagen original en tiempo real con
+ *    filtros CSS acelerados por GPU, máscara de desenfoque exterior, y control multitáctil.
  * 2. Con secuencia: dibuja la animación progresiva de los hilos.
  */
 export function CanvasRenderer({
@@ -28,6 +32,8 @@ export function CanvasRenderer({
   totalPins,
   canvasSize,
   previewUrl,
+  sourceImage,
+  adjustments,
   lineOpacity = 0.35,
   lineWidth = 1,
   crop,
@@ -36,14 +42,47 @@ export function CanvasRenderer({
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sequenceIndexRef = useRef(0);
+  const t = useTranslations('Editor');
+
+  const [logoImage, setLogoImage] = useState<HTMLImageElement | null>(null);
+  const [showGestureHint, setShowGestureHint] = useState(false);
 
   // Referencias para control gestual multitáctil (pinch-to-zoom y pan con dos dedos)
   const initialDistanceRef = useRef<number | null>(null);
   const initialCenterRef = useRef<{ x: number; y: number } | null>(null);
   const initialCropRef = useRef<CropTransform | null>(null);
 
+  // Cargar logotipo de HÁGALO para marca de agua en vacío
+  useEffect(() => {
+    const img = new Image();
+    img.src = '/hagalo-logo.png';
+    img.onload = () => {
+      setLogoImage(img);
+    };
+  }, []);
+
+  // Controlar visibilidad del tooltip gestual
+  useEffect(() => {
+    if (sourceImage) {
+      const hasSeenHint = localStorage.getItem('has_seen_gesture_hint');
+      if (!hasSeenHint) {
+        setShowGestureHint(true);
+      }
+    } else {
+      setShowGestureHint(false);
+    }
+  }, [sourceImage]);
+
+  const dismissGestureHint = () => {
+    if (showGestureHint) {
+      setShowGestureHint(false);
+      localStorage.setItem('has_seen_gesture_hint', 'true');
+    }
+  };
+
   const handleTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
     if (disabled || !crop || !onCropChange) return;
+    dismissGestureHint();
 
     if (e.touches.length === 2) {
       const touch1 = e.touches[0];
@@ -113,7 +152,7 @@ export function CanvasRenderer({
     initialCropRef.current = null;
   };
 
-  // Dibuja el estado inicial: fondo blanco circular + preview de imagen
+  // Dibuja el estado inicial (preview/imagen) o vacío
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -124,31 +163,116 @@ export function CanvasRenderer({
       sequenceIndexRef.current = 0;
       ctx.clearRect(0, 0, canvasSize, canvasSize);
 
-      // Fondo blanco circular (simula el tablero real)
-      ctx.fillStyle = '#ffffff';
-      ctx.beginPath();
-      ctx.arc(canvasSize / 2, canvasSize / 2, canvasSize / 2 - 1, 0, Math.PI * 2);
-      ctx.fill();
+      if (sourceImage) {
+        // Calcular escala base (modo cover)
+        const baseScale = Math.max(canvasSize / sourceImage.width, canvasSize / sourceImage.height);
+        const scale = baseScale * (crop?.zoom ?? 1);
 
-      // Si hay preview, dibujarla a opacidad completa para ver los ajustes
-      if (previewUrl) {
+        // Dimensiones escaladas
+        const scaledW = sourceImage.width * scale;
+        const scaledH = sourceImage.height * scale;
+
+        // Centrar por defecto, luego aplicar offset
+        const maxOffsetX = (scaledW - canvasSize) / 2;
+        const maxOffsetY = (scaledH - canvasSize) / 2;
+
+        const drawX = (canvasSize - scaledW) / 2 - (crop?.offsetX ?? 0) * maxOffsetX;
+        const drawY = (canvasSize - scaledH) / 2 - (crop?.offsetY ?? 0) * maxOffsetY;
+
+        // 1. Dibujar fondo negro sólido para el canvas cuadrado exterior
+        ctx.fillStyle = '#161616';
+        ctx.fillRect(0, 0, canvasSize, canvasSize);
+
+        // 2. Dibujar la imagen de fondo borrosa (fuera del círculo)
+        ctx.save();
+        let baseFilter = 'grayscale(100%)';
+        if (adjustments) {
+          baseFilter += ` brightness(${100 + adjustments.brightness}%) contrast(${100 + adjustments.contrast}%)`;
+        }
+        ctx.filter = baseFilter + ' blur(8px) opacity(0.35)';
+        ctx.drawImage(sourceImage, drawX, drawY, scaledW, scaledH);
+        ctx.restore();
+
+        // 3. Dibujar el círculo de recorte nítido
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(canvasSize / 2, canvasSize / 2, canvasSize / 2 - 2, 0, Math.PI * 2);
+        ctx.clip();
+
+        // Fondo blanco dentro del círculo
+        ctx.fillStyle = '#ffffff';
+        ctx.fill();
+
+        // Dibujar la imagen nítida dentro de la máscara circular
+        ctx.save();
+        ctx.filter = baseFilter;
+        ctx.drawImage(sourceImage, drawX, drawY, scaledW, scaledH);
+        ctx.restore();
+
+        ctx.restore(); // restaurar clip circular
+
+        // 4. Borde del bastidor dorado/elegante
+        ctx.strokeStyle = 'rgba(212, 175, 55, 0.6)';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(canvasSize / 2, canvasSize / 2, canvasSize / 2 - 2, 0, Math.PI * 2);
+        ctx.stroke();
+      } else if (previewUrl) {
         const img = new Image();
         img.onload = () => {
+          if (sequence && sequence.length > 1) return;
           ctx.save();
-          ctx.beginPath();
-          ctx.arc(canvasSize / 2, canvasSize / 2, canvasSize / 2 - 1, 0, Math.PI * 2);
-          ctx.clip();
+          // Limpiar y dibujar fondo de recorte exterior
+          ctx.clearRect(0, 0, canvasSize, canvasSize);
+          ctx.fillStyle = '#161616';
+          ctx.fillRect(0, 0, canvasSize, canvasSize);
 
-          ctx.globalAlpha = 1.0; // Opacidad completa para que los ajustes sean visibles
+          ctx.beginPath();
+          ctx.arc(canvasSize / 2, canvasSize / 2, canvasSize / 2 - 2, 0, Math.PI * 2);
+          ctx.clip();
+          ctx.fillStyle = '#ffffff';
+          ctx.fill();
+          ctx.globalAlpha = 1.0;
           ctx.drawImage(img, 0, 0, canvasSize, canvasSize);
           ctx.restore();
+
+          // Borde del bastidor
+          ctx.strokeStyle = 'rgba(212, 175, 55, 0.6)';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(canvasSize / 2, canvasSize / 2, canvasSize / 2 - 2, 0, Math.PI * 2);
+          ctx.stroke();
         };
         img.src = previewUrl;
+      } else {
+        // Fondo blanco circular cuando no hay imagen
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(canvasSize / 2, canvasSize / 2, canvasSize / 2 - 1, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Borde del bastidor gris elegante
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(canvasSize / 2, canvasSize / 2, canvasSize / 2 - 1, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Marca de agua del logotipo de HÁGALO difuso en el centro
+        if (logoImage) {
+          ctx.save();
+          ctx.globalAlpha = 0.08;
+          const logoSize = canvasSize * 0.45;
+          const logoX = (canvasSize - logoSize) / 2;
+          const logoY = (canvasSize - logoSize) / 2;
+          ctx.drawImage(logoImage, logoX, logoY, logoSize, logoSize);
+          ctx.restore();
+        }
       }
     }
-  }, [previewUrl, canvasSize, sequence]);
+  }, [sourceImage, logoImage, crop, adjustments, canvasSize, sequence]);
 
-  // Dibuja la animación progresiva de hilos cuando hay secuencia
+  // Dibuja la secuencia de hilos progresivos
   useEffect(() => {
     if (!sequence || sequence.length <= 1) return;
 
@@ -172,8 +296,6 @@ export function CanvasRenderer({
     const drawLines = () => {
       if (sequenceIndexRef.current >= sequence.length - 1) return;
 
-          // Estilo de los hilos: negro puro semi-transparente para máximo realismo
-      // Coincide con el renderizado de referencia
       ctx.strokeStyle = `rgba(0, 0, 0, ${lineOpacity})`;
       ctx.lineWidth = lineWidth;
       ctx.beginPath();
@@ -193,7 +315,6 @@ export function CanvasRenderer({
 
       ctx.stroke();
 
-      // Continuar animación si quedan líneas por dibujar
       if (sequenceIndexRef.current < sequence.length - 1) {
         animationFrameId = requestAnimationFrame(drawLines);
       }
@@ -216,6 +337,11 @@ export function CanvasRenderer({
         onTouchEnd={handleTouchEnd}
         onTouchCancel={handleTouchEnd}
       />
+      {showGestureHint && (
+        <div className={styles.gestureHint}>
+          {t('gestureHint')}
+        </div>
+      )}
     </div>
   );
 }

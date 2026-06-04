@@ -116,6 +116,13 @@
   display: block;
 }
 
+@media (min-width: 768px) {
+  .swipeHintLeft,
+  .swipeHintRight {
+    display: none;
+  }
+}
+
 .swipeHintLeft {
   left: 0px;
 }
