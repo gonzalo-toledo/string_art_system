@@ -353,7 +353,7 @@ export function CanvasRenderer({
         onTouchCancel={handleTouchEnd}
       />
       {showGestureHint && (
-        <div className={styles.gestureHint}>
+        <div className={`${styles.gestureHint} ${styles.mobileOnly}`}>
           {t('gestureHint')}
         </div>
       )}

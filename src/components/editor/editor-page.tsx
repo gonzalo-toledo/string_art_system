@@ -42,6 +42,7 @@ export function EditorPage() {
   const [adjustments, setAdjustments] = useState<ImageAdjustments>(DEFAULT_ADJUSTMENTS);
   const [crop, setCrop] = useState<CropTransform>(DEFAULT_CROP);
   const [sourceImage, setSourceImage] = useState<HTMLImageElement | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   // Referencia a la imagen original cargada (para reprocesar al cambiar ajustes)
   const sourceImageRef = useRef<HTMLImageElement | null>(null);
@@ -123,6 +124,26 @@ export function EditorPage() {
     setCrop(DEFAULT_CROP);
   };
 
+  // Drag & drop handlers (solo desktop)
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      handleImageSelected(file);
+    }
+  };
+
   // Limpiar el object URL al desmontar el componente
   useEffect(() => {
     return () => {
@@ -133,7 +154,12 @@ export function EditorPage() {
   }, []);
 
   return (
-    <div className={styles.container}>
+    <div
+      className={styles.container}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
       <div className={styles.sidebar}>
         {/* Banner de sesión activa */}
         {session && (
@@ -333,6 +359,13 @@ export function EditorPage() {
         onCropChange={setCrop}
         disabled={worker.isRunning || !!worker.sequence}
       />
+
+      {/* Overlay de drag & drop (solo desktop) */}
+      {isDragging && (
+        <div className={`${styles.dragOverlay} ${styles.desktopOnly}`}>
+          <span>{t('dropImageHere')}</span>
+        </div>
+      )}
     </div>
   );
 }

@@ -245,8 +245,21 @@
   display: block;
 }
 
+.mobileOnly {
+  display: none;
+}
+
 @media (max-width: 767px) {
   .desktopOnly {
+    display: none !important;
+  }
+  .mobileOnly {
+    display: block;
+  }
+}
+
+@media (min-width: 768px) {
+  .mobileOnly {
     display: none !important;
   }
 }
@@ -283,4 +296,66 @@
   10% { opacity: 1; transform: translate(-50%, -50%); }
   90% { opacity: 1; transform: translate(-50%, -50%); }
   100% { opacity: 0; transform: translate(-50%, -55%); }
+}
+
+.dragOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(212, 175, 55, 0.12);
+  border: 3px dashed var(--color-accent, #d4af37);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  pointer-events: none;
+  animation: fadeIn 0.2s ease;
+}
+
+.dragOverlay span {
+  background: var(--color-bg, #111);
+  padding: 24px 48px;
+  border-radius: var(--border-radius-panel, 12px);
+  color: var(--color-accent, #d4af37);
+  font-size: 1.25rem;
+  font-weight: 600;
+  border: 2px solid var(--color-accent, #d4af37);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.dropZone {
+  display: none;
+  border: 2px dashed var(--color-accent, #d4af37);
+  border-radius: var(--border-radius-panel, 12px);
+  padding: 40px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: rgba(212, 175, 55, 0.05);
+  color: var(--color-text-muted, #888);
+  font-size: 0.9rem;
+}
+
+.dropZone:hover {
+  background: rgba(212, 175, 55, 0.1);
+  border-color: var(--color-accent-hover, #c9a42e);
+}
+
+.dropZone.dragActive {
+  background: rgba(212, 175, 55, 0.15);
+  border-color: var(--color-accent-hover, #c9a42e);
+  border-style: solid;
+}
+
+@media (min-width: 768px) {
+  .dropZone {
+    display: block;
+  }
 }

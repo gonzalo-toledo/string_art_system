@@ -7,6 +7,7 @@
     "title": "Editor",
     "uploadTitle": "1. Upload Photo",
     "selectImage": "Select Image",
+    "dropOrSelectImage": "Drag your photo here or click to select",
     "adjustmentsTitle": "Image Adjustments",
     "reset": "Reset",
     "brightness": "Brightness",
@@ -37,7 +38,8 @@
     "confirmCancel": "This will erase all your progress. Are you sure?",
     "gestureHint": "Use two fingers to move and zoom the photo",
     "sequenceGeneratedLock": "The sequence has already been generated. To modify image adjustments, you must go back to editing.",
-    "backToEdit": "Back to editing image"
+    "backToEdit": "Back to editing image",
+    "dropImageHere": "Drop image here"
   },
   "Guide": {
     "title": "Guided Mode",

@@ -7,6 +7,7 @@
     "title": "Editor",
     "uploadTitle": "1. Subí tu foto",
     "selectImage": "Seleccionar imagen",
+    "dropOrSelectImage": "Arrastrá tu foto aquí o tocá para seleccionar",
     "adjustmentsTitle": "Ajustes de imagen",
     "reset": "Resetear",
     "brightness": "Brillo",
@@ -37,7 +38,8 @@
     "confirmCancel": "Esto borrará todo tu progreso. ¿Estás seguro?",
     "gestureHint": "Usá dos dedos para mover y agrandar la foto",
     "sequenceGeneratedLock": "La secuencia ya fue generada. Para modificar los ajustes de la imagen, debés volver a editar.",
-    "backToEdit": "Volver a editar imagen"
+    "backToEdit": "Volver a editar imagen",
+    "dropImageHere": "Soltá la imagen aquí"
   },
   "Guide": {
     "title": "Modo Guiado",
