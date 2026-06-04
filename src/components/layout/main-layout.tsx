@@ -3,27 +3,32 @@ import React from 'react';
 import { usePathname } from 'next/navigation';
 import AppHeader from './app-header';
 import AppFooter from './app-footer';
+import styles from './main-layout.module.css';
 
-interface LayoutWrapperProps {
+interface MainLayoutProps {
   children: React.ReactNode;
   locale: string;
 }
 
-export default function LayoutWrapper({ children, locale }: LayoutWrapperProps) {
+/**
+ * Layout principal de la aplicación.
+ * Envuelve todas las páginas con el mismo header (logo + idioma) y footer (CODEVA).
+ * Solo oculta navbar/footer en el splash screen (/es, /en, /pt o /).
+ * Editor y Modo Guiado comparten exactamente el mismo marco visual.
+ */
+export default function MainLayout({ children, locale }: MainLayoutProps) {
   const pathname = usePathname();
 
-  // Ocultar cabecera y pie de página solo en la intro / splash screen
   const isSplash = pathname === `/${locale}` || pathname === '/' || pathname === `/${locale}/`;
-  
   const showHeaderFooter = !isSplash;
 
   return (
-    <>
+    <div className={styles.layout}>
       {showHeaderFooter && <AppHeader locale={locale} />}
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <main className={styles.main}>
         {children}
       </main>
       {showHeaderFooter && <AppFooter />}
-    </>
+    </div>
   );
 }

@@ -79,24 +79,6 @@ export function GuideControls({
             </select>
           )}
         </div>
-
-        {/* Indicador de Wake Lock (evita que el dispositivo se apague) */}
-        <div
-          className={`${styles.wakeLockIndicator} ${isWakeLockActive ? styles.wakeLockIndicatorActive : ''}`}
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
-        >
-          <span
-            style={{
-              display: 'inline-block',
-              width: '8px',
-              height: '8px',
-              borderRadius: '50%',
-              backgroundColor: isWakeLockActive ? '#4caf50' : '#f44336',
-              boxShadow: isWakeLockActive ? '0 0 8px #4caf50' : 'none'
-            }}
-          />
-          WakeLock
-        </div>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 import {NextIntlClientProvider} from 'next-intl';
 import {getMessages} from 'next-intl/server';
-import LayoutWrapper from '@/components/layout/layout-wrapper';
+import MainLayout from '@/components/layout/main-layout';
 import '../globals.css';
 
 export default async function LocaleLayout({
@@ -23,9 +23,9 @@ export default async function LocaleLayout({
         backgroundColor: '#111111'
       }}>
         <NextIntlClientProvider messages={messages}>
-          <LayoutWrapper locale={locale}>
+          <MainLayout locale={locale}>
             {children}
-          </LayoutWrapper>
+          </MainLayout>
         </NextIntlClientProvider>
       </body>
     </html>
