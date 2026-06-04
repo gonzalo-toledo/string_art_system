@@ -18,14 +18,14 @@ export default function SplashScreen() {
   useEffect(() => {
     let active = true;
     let animationId: number;
-    
+
     const TARGET_SIZE = 512; // Mayor resolución para hilos más definidos
     const img = new Image();
     img.src = '/hagalo-logo.png';
-    
+
     img.onload = () => {
       if (!active) return;
-      
+
       try {
         // 1. Dibujar el logo en un canvas temporal (contain mode con margen)
         const canvasObj = document.createElement('canvas');
@@ -85,7 +85,7 @@ export default function SplashScreen() {
 
         const algo = new GreedyAlgorithm(floatData, algoParams);
         const pins = generatePinCoordinates(180, TARGET_SIZE, TARGET_SIZE);
-        
+
         const sequence: number[] = [0];
         for (let i = 0; i < 150; i++) {
           const result = algo.computeNextLine();
@@ -97,7 +97,7 @@ export default function SplashScreen() {
 
         const canvas = canvasRef.current;
         if (!canvas) return;
-        
+
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
@@ -141,7 +141,7 @@ export default function SplashScreen() {
           ctx.strokeStyle = 'rgba(212, 175, 55, 0.65)'; // Hilo dorado premium
           ctx.lineWidth = 1.0;
           ctx.beginPath();
-          
+
           for (let i = 0; i < linesToDraw; i++) {
             const p0 = pins[sequence[i]];
             const p1 = pins[sequence[i + 1]];
@@ -154,14 +154,14 @@ export default function SplashScreen() {
           if (linesToDraw > 0) {
             const lastPinIdx = sequence[linesToDraw];
             const needlePos = pins[lastPinIdx];
-            
+
             ctx.fillStyle = '#d4af37';
             ctx.shadowColor = '#d4af37';
             ctx.shadowBlur = 8;
             ctx.beginPath();
             ctx.arc(needlePos.x, needlePos.y, 3.5, 0, 2 * Math.PI);
             ctx.fill();
-            
+
             // Reset de sombra para performance
             ctx.shadowBlur = 0;
           }
@@ -189,7 +189,8 @@ export default function SplashScreen() {
 
   return (
     <div className={styles.splashContainer}>
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         header, footer {
           display: none !important;
         }

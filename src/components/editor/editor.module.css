@@ -92,8 +92,7 @@
   max-width: 100%;
   height: auto;
   aspect-ratio: 1/1;
-  border-radius: 50%;
-  border: 1px solid #444;
+  border-radius: 8px;
   touch-action: none;
 }
 
@@ -104,6 +103,11 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   border: 1px solid #292929;
   transition: padding 0.2s ease;
+}
+
+.panelHeader {
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
 }
 
 .panelHeader:hover h3 span {
@@ -134,10 +138,13 @@
   cursor: pointer;
   font-weight: 700;
   font-size: 1rem;
-  transition: background-color 0.2s, transform 0.1s;
+  transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
+              transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   width: 100%;
   margin-top: 8px;
   font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
 }
 
 .button:hover {
@@ -145,7 +152,7 @@
 }
 
 .button:active {
-  transform: scale(0.98);
+  transform: scale(0.96);
 }
 
 .button:disabled {
@@ -177,6 +184,7 @@
   font-size: 0.9rem;
   outline: none;
   font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .formGroup input:focus,
@@ -231,4 +239,48 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
+}
+
+.desktopOnly {
+  display: block;
+}
+
+@media (max-width: 767px) {
+  .desktopOnly {
+    display: none !important;
+  }
+}
+
+.canvasContainer {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.gestureHint {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(22, 22, 22, 0.9);
+  color: #ffffff;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  pointer-events: none;
+  z-index: 10;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  animation: fadeInOut 5s forwards;
+  white-space: nowrap;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translate(-50%, -45%); }
+  10% { opacity: 1; transform: translate(-50%, -50%); }
+  90% { opacity: 1; transform: translate(-50%, -50%); }
+  100% { opacity: 0; transform: translate(-50%, -55%); }
 }

@@ -41,6 +41,7 @@ export function EditorPage() {
   const [pixelData, setPixelData] = useState<Float32Array | null>(null);
   const [adjustments, setAdjustments] = useState<ImageAdjustments>(DEFAULT_ADJUSTMENTS);
   const [crop, setCrop] = useState<CropTransform>(DEFAULT_CROP);
+  const [sourceImage, setSourceImage] = useState<HTMLImageElement | null>(null);
 
   // Referencia a la imagen original cargada (para reprocesar al cambiar ajustes)
   const sourceImageRef = useRef<HTMLImageElement | null>(null);
@@ -94,6 +95,7 @@ export function EditorPage() {
 
       const { img, objectUrl } = await loadImage(file);
       sourceImageRef.current = img;
+      setSourceImage(img);
       objectUrlRef.current = objectUrl;
 
       // Resetear ajustes a valores por defecto
@@ -203,16 +205,44 @@ export function EditorPage() {
         </div>
 
         {/* Panel de ajustes de imagen (solo visible después de subir foto) */}
-        {sourceImageRef.current && (
+        {sourceImage && (
           <div className={styles.adjuster}>
-            <ImageAdjuster
-              adjustments={adjustments}
-              crop={crop}
-              onAdjustmentsChange={setAdjustments}
-              onCropChange={setCrop}
-              onReset={handleResetAdjustments}
-              disabled={worker.isRunning}
-            />
+            {worker.sequence ? (
+              <div 
+                style={{ 
+                  background: 'rgba(255, 255, 255, 0.03)', 
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '12px',
+                  padding: '16px',
+                  textAlign: 'center',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px'
+                }}
+              >
+                <span style={{ fontSize: '0.85rem', color: '#aaa', lineHeight: '1.4' }}>
+                  {t('sequenceGeneratedLock')}
+                </span>
+                <button
+                  className={`${styles.button} ${styles.buttonOutline}`}
+                  onClick={() => {
+                    worker.reset();
+                  }}
+                  style={{ width: '100%', padding: '8px 12px', fontSize: '0.85rem' }}
+                >
+                  {t('backToEdit')}
+                </button>
+              </div>
+            ) : (
+              <ImageAdjuster
+                adjustments={adjustments}
+                crop={crop}
+                onAdjustmentsChange={setAdjustments}
+                onCropChange={setCrop}
+                onReset={handleResetAdjustments}
+                disabled={worker.isRunning}
+              />
+            )}
           </div>
         )}
 
@@ -297,6 +327,8 @@ export function EditorPage() {
         totalPins={params.totalPins}
         canvasSize={CANVAS_SIZE}
         previewUrl={previewUrl}
+        sourceImage={sourceImage}
+        adjustments={adjustments}
         crop={crop}
         onCropChange={setCrop}
         disabled={worker.isRunning || !!worker.sequence}

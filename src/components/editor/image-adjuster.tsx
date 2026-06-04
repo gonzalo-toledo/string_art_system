@@ -94,58 +94,60 @@ export function ImageAdjuster({ adjustments, crop, onAdjustmentsChange, onCropCh
         </div>
       ))}
 
-      <hr style={{ border: 'none', borderTop: '1px solid #333', margin: '12px 0' }} />
+      <div className={styles.desktopOnly}>
+        <hr style={{ border: 'none', borderTop: '1px solid #333', margin: '12px 0' }} />
 
-      {/* Controles de crop: zoom y posición */}
-      <div className={styles.formGroup} style={{ marginBottom: '10px' }}>
-        <label style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-          <span>{t('zoom')}</span>
-          <span style={{ fontFamily: 'monospace', color: '#888' }}>{crop.zoom.toFixed(2)}x</span>
-        </label>
-        <input
-          type="range"
-          min={1}
-          max={3}
-          step={0.05}
-          value={crop.zoom}
-          onChange={(e) => handleCropChange('zoom', parseFloat(e.target.value))}
-          disabled={disabled}
-          style={{ width: '100%', accentColor: 'var(--color-primary)' }}
-        />
-      </div>
+        {/* Controles de crop: zoom y posición */}
+        <div className={styles.formGroup} style={{ marginBottom: '10px' }}>
+          <label style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+            <span>{t('zoom')}</span>
+            <span style={{ fontFamily: 'monospace', color: '#888' }}>{crop.zoom.toFixed(2)}x</span>
+          </label>
+          <input
+            type="range"
+            min={1}
+            max={3}
+            step={0.05}
+            value={crop.zoom}
+            onChange={(e) => handleCropChange('zoom', parseFloat(e.target.value))}
+            disabled={disabled}
+            style={{ width: '100%', accentColor: 'var(--color-primary)' }}
+          />
+        </div>
 
-      <div className={styles.formGroup} style={{ marginBottom: '10px' }}>
-        <label style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-          <span>{t('positionX')}</span>
-          <span style={{ fontFamily: 'monospace', color: '#888' }}>{crop.offsetX.toFixed(2)}</span>
-        </label>
-        <input
-          type="range"
-          min={-1}
-          max={1}
-          step={0.02}
-          value={crop.offsetX}
-          onChange={(e) => handleCropChange('offsetX', parseFloat(e.target.value))}
-          disabled={disabled}
-          style={{ width: '100%', accentColor: 'var(--color-primary)' }}
-        />
-      </div>
+        <div className={styles.formGroup} style={{ marginBottom: '10px' }}>
+          <label style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+            <span>{t('positionX')}</span>
+            <span style={{ fontFamily: 'monospace', color: '#888' }}>{crop.offsetX.toFixed(2)}</span>
+          </label>
+          <input
+            type="range"
+            min={-1}
+            max={1}
+            step={0.02}
+            value={crop.offsetX}
+            onChange={(e) => handleCropChange('offsetX', parseFloat(e.target.value))}
+            disabled={disabled}
+            style={{ width: '100%', accentColor: 'var(--color-primary)' }}
+          />
+        </div>
 
-      <div className={styles.formGroup} style={{ marginBottom: '10px' }}>
-        <label style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-          <span>{t('positionY')}</span>
-          <span style={{ fontFamily: 'monospace', color: '#888' }}>{crop.offsetY.toFixed(2)}</span>
-        </label>
-        <input
-          type="range"
-          min={-1}
-          max={1}
-          step={0.02}
-          value={crop.offsetY}
-          onChange={(e) => handleCropChange('offsetY', parseFloat(e.target.value))}
-          disabled={disabled}
-          style={{ width: '100%', accentColor: 'var(--color-primary)' }}
-        />
+        <div className={styles.formGroup} style={{ marginBottom: '10px' }}>
+          <label style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+            <span>{t('positionY')}</span>
+            <span style={{ fontFamily: 'monospace', color: '#888' }}>{crop.offsetY.toFixed(2)}</span>
+          </label>
+          <input
+            type="range"
+            min={-1}
+            max={1}
+            step={0.02}
+            value={crop.offsetY}
+            onChange={(e) => handleCropChange('offsetY', parseFloat(e.target.value))}
+            disabled={disabled}
+            style={{ width: '100%', accentColor: 'var(--color-primary)' }}
+          />
+        </div>
       </div>
     </CollapsiblePanel>
   );

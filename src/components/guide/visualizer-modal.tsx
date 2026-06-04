@@ -24,7 +24,7 @@ interface VisualizerModalProps {
 export function VisualizerModal({ onClose, session }: VisualizerModalProps) {
   // Hook de traducción de Next-intl
   const t = useTranslations('Guide');
-  
+
   // Referencia al elemento canvas del DOM
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -59,8 +59,8 @@ export function VisualizerModal({ onClose, session }: VisualizerModalProps) {
 
     // Dibujar hilos completados con un renderizado realista (acumulación)
     ctx.lineWidth = 1; // Grosor del hilo (sincronizado con CanvasRenderer)
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.35)'; // Opacidad del hilo (sincronizado con CanvasRenderer)
-    
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)'; // Opacidad del hilo (CanvasRenderer es 0.35)
+
     for (let i = 0; i <= session.currentStep; i++) {
       if (i + 1 < session.sequence.length) {
         const pA = pins[session.sequence[i]];
@@ -116,7 +116,7 @@ export function VisualizerModal({ onClose, session }: VisualizerModalProps) {
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         {/* Título del modal */}
         <h2 className={styles.modalTitle}>{t('visualize')}</h2>
-        
+
         {/* Contenedor y canvas */}
         <div className={styles.modalCanvasContainer}>
           <canvas
@@ -126,7 +126,7 @@ export function VisualizerModal({ onClose, session }: VisualizerModalProps) {
             className={styles.modalCanvas}
           />
         </div>
-        
+
         {/* Botón para cerrar */}
         <button
           className={styles.modalCloseBtn}

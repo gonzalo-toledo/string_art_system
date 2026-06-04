@@ -23,11 +23,15 @@
   letter-spacing: 0.03em;
 }
 
+.logoLink {
+  display: block;
+}
+
 .logo {
-  transition: transform 0.3s ease;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: block;
 }
 
 .logo:hover {
-  transform: scale(1.1) rotate(5deg);
+  transform: scale(1.08);
 }

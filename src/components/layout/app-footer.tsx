@@ -8,7 +8,9 @@ export default function AppFooter() {
     <footer className={styles.footer}>
       <div className={styles.footerContent}>
         <span className={styles.credits}>{t('credits')}</span>
-        <LogoCodeva height={13} className={styles.logo} />
+        <a href="https://www.codeva.com.ar" target="_blank" rel="noopener noreferrer" className={styles.logoLink}>
+          <LogoCodeva height={13} className={styles.logo} />
+        </a>
       </div>
     </footer>
   );
