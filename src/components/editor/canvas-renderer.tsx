@@ -46,11 +46,38 @@ export function CanvasRenderer({
 
   const [logoImage, setLogoImage] = useState<HTMLImageElement | null>(null);
   const [showGestureHint, setShowGestureHint] = useState(false);
+  const [supportsNativeFilter, setSupportsNativeFilter] = useState(true);
 
   // Referencias para control gestual multitáctil (pinch-to-zoom y pan con dos dedos)
   const initialDistanceRef = useRef<number | null>(null);
   const initialCenterRef = useRef<{ x: number; y: number } | null>(null);
   const initialCropRef = useRef<CropTransform | null>(null);
+
+  // Detectar Safari/iOS (donde ctx.filter no funciona correctamente)
+  useEffect(() => {
+    const isSafariOrIOS = typeof navigator !== 'undefined' && (
+      /iPad|iPhone|iPod/.test(navigator.platform) ||
+      (navigator.userAgent.includes("Mac") && "ontouchend" in document) ||
+      /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
+    );
+    const hasFilterSupport = typeof CanvasRenderingContext2D !== 'undefined' && 
+      'filter' in CanvasRenderingContext2D.prototype && 
+      !isSafariOrIOS;
+    setSupportsNativeFilter(hasFilterSupport);
+  }, []);
+
+  // Determinar si estamos en modo preview (sin secuencia, con imagen)
+  const isPreviewMode = (!sequence || sequence.length <= 1) && !!sourceImage;
+
+  // Filtro CSS para Safari/iOS (se aplica al elemento canvas completo)
+  const cssFilter = (() => {
+    if (supportsNativeFilter || !isPreviewMode) return 'none';
+    let filter = 'grayscale(100%)';
+    if (adjustments) {
+      filter += ` brightness(${100 + adjustments.brightness}%) contrast(${100 + adjustments.contrast}%)`;
+    }
+    return filter;
+  })();
 
   // Cargar logotipo de HÁGALO para marca de agua en vacío
   useEffect(() => {
@@ -185,12 +212,21 @@ export function CanvasRenderer({
 
         // 2. Dibujar la imagen de fondo borrosa (fuera del círculo)
         ctx.save();
-        let baseFilter = 'grayscale(100%)';
-        if (adjustments) {
-          baseFilter += ` brightness(${100 + adjustments.brightness}%) contrast(${100 + adjustments.contrast}%)`;
+        if (supportsNativeFilter) {
+          let baseFilter = 'grayscale(100%)';
+          if (adjustments) {
+            baseFilter += ` brightness(${100 + adjustments.brightness}%) contrast(${100 + adjustments.contrast}%)`;
+          }
+          ctx.filter = baseFilter + ' blur(8px) opacity(0.35)';
+          ctx.drawImage(sourceImage, drawX, drawY, scaledW, scaledH);
+        } else {
+          // Fallback para Safari/iOS (atenuación manual de la periferia)
+          ctx.globalAlpha = 0.25;
+          ctx.drawImage(sourceImage, drawX, drawY, scaledW, scaledH);
+          ctx.globalAlpha = 1.0;
+          ctx.fillStyle = 'rgba(22, 22, 22, 0.45)';
+          ctx.fillRect(0, 0, canvasSize, canvasSize);
         }
-        ctx.filter = baseFilter + ' blur(8px) opacity(0.35)';
-        ctx.drawImage(sourceImage, drawX, drawY, scaledW, scaledH);
         ctx.restore();
 
         // 3. Dibujar el círculo de recorte nítido
@@ -205,7 +241,13 @@ export function CanvasRenderer({
 
         // Dibujar la imagen nítida dentro de la máscara circular
         ctx.save();
-        ctx.filter = baseFilter;
+        if (supportsNativeFilter) {
+          let baseFilter = 'grayscale(100%)';
+          if (adjustments) {
+            baseFilter += ` brightness(${100 + adjustments.brightness}%) contrast(${100 + adjustments.contrast}%)`;
+          }
+          ctx.filter = baseFilter;
+        }
         ctx.drawImage(sourceImage, drawX, drawY, scaledW, scaledH);
         ctx.restore();
 
@@ -347,6 +389,7 @@ export function CanvasRenderer({
         width={canvasSize}
         height={canvasSize}
         className={styles.canvas}
+        style={cssFilter !== 'none' ? { filter: cssFilter, WebkitFilter: cssFilter } : undefined}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}

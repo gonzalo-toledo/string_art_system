@@ -70,12 +70,13 @@ export function GuideControls({
               onChange={(e) => onChangePlaySpeed(Number(e.target.value))}
               className={styles.speedSelector}
             >
-              <option value={1000}>1.0s</option>
-              <option value={1500}>1.5s</option>
-              <option value={2000}>2.0s</option>
-              <option value={3000}>3.0s</option>
-              <option value={4000}>4.0s</option>
+
               <option value={5000}>5.0s</option>
+              <option value={10000}>10.0s</option>
+              <option value={15000}>15.0s</option>
+              <option value={20000}>20.0s</option>
+              <option value={25000}>25.0s</option>
+              <option value={30000}>30.0s</option>
             </select>
           )}
         </div>
