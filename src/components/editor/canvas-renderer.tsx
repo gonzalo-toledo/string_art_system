@@ -60,8 +60,8 @@ export function CanvasRenderer({
       (navigator.userAgent.includes("Mac") && "ontouchend" in document) ||
       /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
     );
-    const hasFilterSupport = typeof CanvasRenderingContext2D !== 'undefined' && 
-      'filter' in CanvasRenderingContext2D.prototype && 
+    const hasFilterSupport = typeof CanvasRenderingContext2D !== 'undefined' &&
+      'filter' in CanvasRenderingContext2D.prototype &&
       !isSafariOrIOS;
     setSupportsNativeFilter(hasFilterSupport);
   }, []);
@@ -114,7 +114,7 @@ export function CanvasRenderer({
     if (e.touches.length === 2) {
       const touch1 = e.touches[0];
       const touch2 = e.touches[1];
-      
+
       const dist = Math.hypot(touch1.clientX - touch2.clientX, touch1.clientY - touch2.clientY);
       const cx = (touch1.clientX + touch2.clientX) / 2;
       const cy = (touch1.clientY + touch2.clientY) / 2;
@@ -155,7 +155,7 @@ export function CanvasRenderer({
         const deltaY = cy - initialCenterRef.current.y;
 
         const rect = canvasRef.current.getBoundingClientRect();
-        
+
         // Sensibilidad escalada con el tamaño en pantalla del canvas
         const sensitivity = 1.8;
         newOffsetX = initialCropRef.current.offsetX - (deltaX / rect.width) * sensitivity;
@@ -333,14 +333,14 @@ export function CanvasRenderer({
         // Marca de agua del logotipo de Stringo difuso en el centro con relación de aspecto correcta
         if (logoImage) {
           ctx.save();
-          ctx.globalAlpha = 0.045; // Más sutil/transparente
-          
+          ctx.globalAlpha = 0.5; // transparencia del logo en el bastidor
+
           const maxLogoSize = canvasSize * 0.65; // Agrandado
           const logoAspect = logoImage.width / logoImage.height;
-          
+
           let logoW = maxLogoSize;
           let logoH = maxLogoSize;
-          
+
           if (logoAspect > 1) {
             // Ancho > Alto: ajustar altura en base al ancho
             logoH = maxLogoSize / logoAspect;
@@ -348,10 +348,10 @@ export function CanvasRenderer({
             // Alto >= Ancho: ajustar ancho en base a la altura
             logoW = maxLogoSize * logoAspect;
           }
-          
+
           const logoX = (canvasSize - logoW) / 2;
           const logoY = (canvasSize - logoH) / 2;
-          
+
           ctx.drawImage(logoImage, logoX, logoY, logoW, logoH);
           ctx.restore();
         }

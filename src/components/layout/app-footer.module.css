@@ -12,9 +12,10 @@
 .footerContent {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
+.copyright,
 .credits {
   color: var(--color-text-muted);
   font-family: var(--font-body);
@@ -23,15 +24,43 @@
   letter-spacing: 0.03em;
 }
 
+.divider {
+  color: rgba(255, 255, 255, 0.15);
+  margin: 0 2px;
+  font-size: 13px;
+}
+
+@media (min-width: 768px) {
+  .copyright,
+  .credits {
+    font-size: 14px;
+  }
+  
+  .divider {
+    font-size: 14px;
+    margin: 0 4px;
+  }
+}
+
 .logoLink {
   display: block;
 }
 
 .logo {
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  height: 13px;
+  width: auto;
+  opacity: 0.6;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: block;
 }
 
+@media (min-width: 768px) {
+  .logo {
+    height: 16px;
+  }
+}
+
 .logo:hover {
+  opacity: 1;
   transform: scale(1.08);
 }
