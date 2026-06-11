@@ -5,10 +5,10 @@ import MainLayout from '@/components/layout/main-layout';
 import '../globals.css';
 
 export const metadata: Metadata = {
-  title: 'HÁGALO — String Art Generator',
-  description: 'Crea arte asombroso a partir de tus fotos con el Kit HÁGALO.',
+  title: 'Stringo — String Art Generator',
+  description: 'Crea arte asombroso a partir de tus fotos con el Kit Stringo.',
   icons: {
-    icon: '/hagalo-logo.png',
+    icon: '/stringo-logo-completo.png',
   },
 };
 

@@ -11,7 +11,7 @@ export default function AppHeader({ locale }: AppHeaderProps) {
     <header className={styles.header}>
       <div className={styles.headerContainer}>
         <Link href={`/${locale}/editor`} className={styles.logoLink}>
-          <img src="/hagalo-logo.png" alt="HÁGALO" className={styles.logoImage} />
+          <img src="/stringo-logo.png" alt="Stringo" className={styles.logoImage} />
         </Link>
         <div className={styles.headerActions}>
           <LanguageSelector currentLocale={locale} />

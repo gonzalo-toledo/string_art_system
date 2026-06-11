@@ -1,6 +1,6 @@
-# HáceloArt: Generador de String Art
+# Stringo: Generador de String Art
 
-Aplicación web mobile-first para Hagalo (hagalo.com.ar) que genera patrones de String Art a partir de fotografías. El sistema calcula la secuencia óptima de hilos entre pines distribuidos en un tablero circular y produce una animación visual, PDF instructivo y audio guía.
+Aplicación web mobile-first para Stringo (stringo.ar) que genera patrones de String Art a partir de fotografías. El sistema calcula la secuencia óptima de hilos entre pines distribuidos en un tablero circular y produce una animación visual, PDF instructivo y audio guía.
 
 ---
 

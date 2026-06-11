@@ -1,6 +1,6 @@
 :root {
-  /* HÁGALO Brand Palette */
-  --color-primary: #2A3D47;            /* Charcoal azulado insignia de HÁGALO */
+  /* Stringo Brand Palette */
+  --color-primary: #2A3D47;            /* Charcoal azulado insignia de Stringo */
   --color-primary-hover: #1E2C33;      /* Variante oscura para hover */
   --color-secondary: #A0BADA;          /* Celeste/azul pastel suave */
   --color-accent: #d4af37;             /* Dorado premium (para hilos activos y detalles de arte) */
@@ -22,6 +22,6 @@
   --font-body: 'Mulish', 'Muli', 'Inter', sans-serif;
   
   /* Borders and Radii */
-  --border-radius-btn: 14px;           /* Redondeado de botones oficial de HÁGALO */
+  --border-radius-btn: 14px;           /* Redondeado de botones oficial de Stringo */
   --border-radius-panel: 12px;         /* Redondeado de paneles oficial (1.2rem) */
 }

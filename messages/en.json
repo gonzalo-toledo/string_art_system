@@ -22,7 +22,7 @@
     "lines": "Lines",
     "pins": "Pins",
     "fixedPins": "Fixed",
-    "fixedPinsDesc": "The number of pins is fixed at 240 to match the physical HÁGALO Kit exactly.",
+    "fixedPinsDesc": "The number of pins is fixed at 240 to match the physical Stringo Kit exactly.",
     "generateTitle": "3. Generate",
     "startGeneration": "Start Generation",
     "regenerate": "Regenerate",
@@ -69,7 +69,7 @@
     "repeatVoice": "Repeat instruction"
   },
   "Header": {
-    "title": "HÁGALO",
+    "title": "Stringo",
     "editor": "Editor",
     "guide": "Guide"
   },

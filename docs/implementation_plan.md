@@ -221,8 +221,8 @@ Simulación visual interactiva del proceso físico real, **hilo por hilo**. No e
 ### Módulo 5: Core / Shared
 **Responsabilidad:** Contratos de datos, configuración del kit, utilidades
 ```typescript
-// KitSpec — configuración del kit de Hagalo (inmutable)
-export const HAGALO_KIT = {
+// KitSpec — configuración del kit de Stringo (inmutable)
+export const STRINGO_KIT = {
   boardDiameter: 500,        // mm
   totalPins: 240,            // fijo — no configurable por el usuario
   stringLength: 3000,        // metros disponibles
@@ -297,7 +297,7 @@ string_art_system/
 └── public/
     ├── fonts/
     └── images/
-        └── hagalo-logo.svg
+        └── stringo-logo.png
 ```
 
 ---

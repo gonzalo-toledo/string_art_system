@@ -178,7 +178,7 @@
 }
 
 .targetPinNumber {
-  font-family: var(--font-heading); /* tipografía serif premium de HÁGALO (Halant) */
+  font-family: var(--font-heading); /* tipografía serif premium de Stringo (Halant) */
   font-size: clamp(4.5rem, 15vw, 6.5rem);
   font-weight: 800;
   color: #fff;

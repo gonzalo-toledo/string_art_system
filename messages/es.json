@@ -22,7 +22,7 @@
     "lines": "Líneas",
     "pins": "Pines",
     "fixedPins": "Fijo",
-    "fixedPinsDesc": "La cantidad de pines está fijada a 240 para coincidir exactamente con el Kit físico HÁGALO.",
+    "fixedPinsDesc": "La cantidad de pines está fijada a 240 para coincidir exactamente con el Kit físico Stringo.",
     "generateTitle": "3. Generar",
     "startGeneration": "Iniciar generación",
     "regenerate": "Volver a generar",
@@ -69,7 +69,7 @@
     "repeatVoice": "Repetir instrucción"
   },
   "Header": {
-    "title": "HÁGALO",
+    "title": "Stringo",
     "editor": "Editor",
     "guide": "Guía"
   },

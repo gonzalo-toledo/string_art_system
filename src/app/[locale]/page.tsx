@@ -5,7 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { generatePinCoordinates } from '@/core/algorithm/bresenham';
 import styles from './page.module.css';
 
-// Secuencia precalculada óptima del logotipo de HÁGALO para evitar cálculos pesados
+// Secuencia precalculada óptima del logotipo de Stringo para evitar cálculos pesados
 // en el cliente y garantizar consistencia de renderizado idéntica en todos los dispositivos
 const LOGO_INTRO_SEQUENCE = [
   0, 88, 1, 87, 176, 86, 175, 87, 2, 89, 3, 92, 4, 93, 3, 90, 2, 91, 0, 89,
@@ -157,7 +157,7 @@ export default function SplashScreen() {
       ` }} />
 
       <div className={styles.logoContainer}>
-        <img ref={logoRef} src="/hagalo-logo.png" alt="HÁGALO" className={styles.logoImage} />
+        <img ref={logoRef} src="/stringo-logo.png" alt="Stringo" className={styles.logoImage} />
         <canvas
           ref={canvasRef}
           width={512}

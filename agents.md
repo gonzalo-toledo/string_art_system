@@ -11,13 +11,13 @@ Aplicación web **mobile-first** que genera patrones de **String Art** a partir 
 El sistema calcula la secuencia óptima de hilos entre pines distribuidos en un tablero
 circular, y produce tres outputs: animación visual, PDF instructivo y audio guía.
 
-El cliente es **Hagalo** (hagalo.com.ar), una empresa argentina que vende kits físicos de
+El cliente es **Stringo** (stringo.ar), una empresa argentina que vende kits físicos de
 String Art. Este software reemplaza la dependencia actual de farostringart.com con un sistema
 propio, branded y con funcionalidades superiores.
 
-**El sistema se integrará en la web de Hagalo** (Shopify) — ya sea como subdominio o embebido.
+**El sistema se integrará en la web de Stringo** (Shopify) — ya sea como subdominio o embebido.
 La definición exacta de la integración está pendiente con el cliente. El diseño visual deberá
-adaptarse al look & feel de la web de Hagalo cuando se defina.
+adaptarse al look & feel de la web de Stringo cuando se defina.
 
 **Los usuarios finales son compradores del kit** que usan el celular mientras arman el cuadro.
 La interfaz debe ser 100% funcional con una sola mano en pantalla táctil.
@@ -152,13 +152,13 @@ localStorage** (`useGuidedSession`). No hay imports cruzados entre ellas.
 
 ---
 
-## 5. Kit Hagalo — Especificación de referencia
+## 5. Kit Stringo — Especificación de referencia
 
 ```typescript
-// Valores de referencia del kit Hagalo.
+// Valores de referencia del kit Stringo.
 // Los pines son configurables por el usuario (default 240).
 // Los demás valores son constantes del kit físico.
-const HAGALO_KIT = {
+const STRINGO_KIT = {
   boardDiameter: 500,        // mm (50 cm)
   defaultPins: 240,          // cantidad de pines por defecto
   minPins: 150,              // mínimo configurable

@@ -1,6 +1,6 @@
 # 📝 TO-DO: Plan de Cierre y Optimización — HáceloArt
 
-Este documento consolida el **Backlog de Arreglos** y las recomendaciones de la **Auditoría de Calidad** en una lista de tareas ordenadas, priorizadas y listas para ejecutar, adaptadas a la identidad de marca de **HÁGALO** y sumando la marca de **CODEVA** en el pie de página.
+Este documento consolida el **Backlog de Arreglos** y las recomendaciones de la **Auditoría de Calidad** en una lista de tareas ordenadas, priorizadas y listas para ejecutar, adaptadas a la identidad de marca de **Stringo** y sumando la marca de **CODEVA** en el pie de página.
 
 ---
 
@@ -8,7 +8,7 @@ Este documento consolida el **Backlog de Arreglos** y las recomendaciones de la 
 
 ```mermaid
 graph TD
-    T4[4. Sincronización de Rendering] --> T5[5. Migración a Tokens CSS de HÁGALO]
+    T4[4. Sincronización de Rendering] --> T5[5. Migración a Tokens CSS de Stringo]
     T5 --> T6[6. Rediseño del Footer con Marca CODEVA]
     T6 --> FD[Fase D: Optimización de Rendimiento y Pulido Visual]
     FD --> T7[7. Landing Page Completa]
@@ -22,8 +22,8 @@ graph TD
 
 ---
 
-## 🎨 Guía de Estilos de Marca (HÁGALO)
-*Extraídos directamente del sitio oficial https://www.hagalo.com.ar/*
+## 🎨 Guía de Estilos de Marca (Stringo)
+*Extraídos directamente del sitio oficial https://www.stringo.ar/*
 
 - **Paleta de Colores**:
   - `Color Primario (Acentos)`: `#2A3D47` (Charcoal azulado elegante, usado en botones de acción y fondos de estado activo).
@@ -54,7 +54,7 @@ graph TD
 
 - [x] **Atomización de la Pantalla del Modo Guiado (`guide-page.tsx`)**
 - [x] **Sincronización del Renderizado del Canvas (Fidelidad Visual)**
-- [x] **Migración Completa a CSS Variables de HÁGALO (Design Tokens)**
+- [x] **Migración Completa a CSS Variables de Stringo (Design Tokens)**
 - [x] **Rediseño del Footer con la Marca de CODEVA (SVG)**
 - [ ] **Rediseño Comercial de la Landing Page (`/`)**
 
@@ -73,7 +73,7 @@ graph TD
 
 ### 3. Efectos Visuales y Consistencia de Marca
 - [x] **Efecto de Desenfoque Exterior (Crop Mask Blur):** Aplicar una máscara de desenfoque (`backdrop-filter: blur(4px)`) a los bordes de la imagen cargada que queden fuera del círculo del bastidor, destacando la zona activa de tejido.
-- [x] **Marca de Agua en el Lienzo Vacío:** Agregar el logotipo de HÁGALO (`public/hagalo-logo.png`) como una marca de agua difusa/atenuada (opacidad ~0.15 y escala de grises) en el centro del canvas cuando no hay imagen cargada.
+- [x] **Marca de Agua en el Lienzo Vacío:** Agregar el logotipo de Stringo (`public/stringo-logo.png`) como una marca de agua difusa/atenuada (opacidad ~0.15 y escala de grises) en el centro del canvas cuando no hay imagen cargada.
 - [x] **Link e Interacción en el Pie de Página:** Envolver el logo de Codeva en el footer en un enlace directo a `www.codeva.com.ar` y remover la rotación de 5 grados del hover, cambiándola por una escala limpia y moderna de `1.08`.
 
 ### 4. Flujo de Estados del Editor (Lock de Ajustes)

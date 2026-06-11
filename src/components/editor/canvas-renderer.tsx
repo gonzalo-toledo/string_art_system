@@ -79,10 +79,10 @@ export function CanvasRenderer({
     return filter;
   })();
 
-  // Cargar logotipo de HÁGALO para marca de agua en vacío
+  // Cargar logotipo de Stringo para marca de agua en vacío
   useEffect(() => {
     const img = new Image();
-    img.src = '/hagalo-logo.png';
+    img.src = '/stringo-logo.png';
     img.onload = () => {
       setLogoImage(img);
     };
@@ -300,7 +300,7 @@ export function CanvasRenderer({
         ctx.arc(canvasSize / 2, canvasSize / 2, canvasSize / 2 - 1, 0, Math.PI * 2);
         ctx.stroke();
 
-        // Marca de agua del logotipo de HÁGALO difuso en el centro con relación de aspecto correcta
+        // Marca de agua del logotipo de Stringo difuso en el centro con relación de aspecto correcta
         if (logoImage) {
           ctx.save();
           ctx.globalAlpha = 0.08;
