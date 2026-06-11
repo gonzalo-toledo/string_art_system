@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { generatePinCoordinates } from '../../core/algorithm/bresenham';
-import { CropTransform, ImageAdjustments } from '../../utils/image-adjustments';
+import { CropTransform, ImageAdjustments, applyWhitesAndBlacks, applySharpen } from '../../utils/image-adjustments';
 import styles from './editor.module.css';
 
 interface Props {
@@ -250,6 +250,36 @@ export function CanvasRenderer({
         }
         ctx.drawImage(sourceImage, drawX, drawY, scaledW, scaledH);
         ctx.restore();
+
+        // Aplicar blancos, negros y nitidez a nivel de píxeles (no soportados por CSS filters)
+        // Usar canvas temporal para que putImageData no sobreescriba el fondo fuera del círculo
+        if (adjustments && (adjustments.whites !== 0 || adjustments.blacks !== 0 || adjustments.sharpness > 0)) {
+          const tempCanvas = document.createElement('canvas');
+          tempCanvas.width = canvasSize;
+          tempCanvas.height = canvasSize;
+          const tempCtx = tempCanvas.getContext('2d')!;
+          tempCtx.drawImage(canvas, 0, 0);
+
+          const imageData = tempCtx.getImageData(0, 0, canvasSize, canvasSize);
+          if (adjustments.whites !== 0 || adjustments.blacks !== 0) {
+            applyWhitesAndBlacks(imageData.data, adjustments);
+          }
+          if (adjustments.sharpness > 0) {
+            applySharpen(imageData.data, canvasSize, canvasSize, adjustments.sharpness);
+          }
+          tempCtx.putImageData(imageData, 0, 0);
+
+          // Redibujar solo dentro del círculo (respeta el fondo)
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(canvasSize / 2, canvasSize / 2, canvasSize / 2 - 2, 0, Math.PI * 2);
+          ctx.clip();
+          ctx.clearRect(0, 0, canvasSize, canvasSize);
+          ctx.fillStyle = '#ffffff';
+          ctx.fill();
+          ctx.drawImage(tempCanvas, 0, 0);
+          ctx.restore();
+        }
 
         ctx.restore(); // restaurar clip circular
 

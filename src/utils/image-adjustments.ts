@@ -103,6 +103,47 @@ export function applyTonalAdjustments(
 }
 
 /**
+ * Aplica solo blancos y negros sobre datos RGBA in-place.
+ * Versión ligera de applyTonalAdjustments para uso en preview del canvas
+ * donde brillo y contraste ya se aplican via CSS filters.
+ */
+export function applyWhitesAndBlacks(
+  data: Uint8ClampedArray,
+  adj: ImageAdjustments
+): void {
+  const whitesShift = (adj.whites / 100) * 80;
+  const blacksShift = (adj.blacks / 100) * 80;
+
+  if (whitesShift === 0 && blacksShift === 0) return;
+
+  for (let i = 0; i < data.length; i += 4) {
+    let r = data[i];
+    let g = data[i + 1];
+    let b = data[i + 2];
+
+    const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+
+    if (lum > 180 && whitesShift !== 0) {
+      const blend = Math.min((lum - 180) / 75, 1);
+      r += whitesShift * blend;
+      g += whitesShift * blend;
+      b += whitesShift * blend;
+    }
+
+    if (lum < 75 && blacksShift !== 0) {
+      const blend = Math.min((75 - lum) / 75, 1);
+      r -= blacksShift * blend;
+      g -= blacksShift * blend;
+      b -= blacksShift * blend;
+    }
+
+    data[i] = clamp(r);
+    data[i + 1] = clamp(g);
+    data[i + 2] = clamp(b);
+  }
+}
+
+/**
  * Aplica máscara de nitidez (unsharp mask).
  * Usa un kernel 3×3 de convolución cruzado (arriba, abajo, izquierda, derecha).
  *
