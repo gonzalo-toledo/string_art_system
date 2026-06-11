@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   title: 'Stringo — String Art Generator',
   description: 'Crea arte asombroso a partir de tus fotos con el Kit Stringo.',
   icons: {
-    icon: '/stringo-logo-completo.png',
+    icon: '/stringo-o.png',
   },
 };
 
