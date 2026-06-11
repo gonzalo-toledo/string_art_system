@@ -1,7 +1,9 @@
 .header {
-  background-color: var(--color-primary);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  height: 48px;
+  background-color: rgba(17, 17, 17, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  height: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -10,11 +12,18 @@
   z-index: 1000;
   padding: 0 var(--spacing-md);
   box-sizing: border-box;
+  transition: all 0.3s ease;
+}
+
+@media (min-width: 768px) {
+  .header {
+    height: 85px;
+  }
 }
 
 .headerContainer {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1400px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -26,13 +35,35 @@
   align-items: center;
   text-decoration: none;
   height: 100%;
+  position: relative;
 }
 
 .logoImage {
-  height: 50px;
+  height: 42px;
   width: auto;
   object-fit: contain;
   display: block;
+  filter: invert(1);
+  transition: all 0.2s ease;
+}
+
+@media (min-width: 768px) {
+  .logoImage {
+    height: 150px;
+    position: absolute;
+    top: 50%;
+    transform: translateY(calc(-50% + 5px));
+  }
+}
+
+.logoImage:hover {
+  transform: scale(1.05);
+}
+
+@media (min-width: 768px) {
+  .logoImage:hover {
+    transform: translateY(calc(-50% + 5px)) scale(1.05);
+  }
 }
 
 .headerActions {

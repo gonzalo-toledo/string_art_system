@@ -82,9 +82,9 @@ export default function SplashScreen() {
       // Limpiar lienzo
       ctx.clearRect(0, 0, TARGET_SIZE, TARGET_SIZE);
 
-      // 1. Dibujar hilos normales con dorado sutil y elegante
+      // 1. Dibujar hilos normales con azul sutil y elegante
       const normalLinesCount = Math.max(0, linesToDraw - 8);
-      ctx.strokeStyle = 'rgba(212, 175, 55, 0.4)';
+      ctx.strokeStyle = 'rgba(59, 110, 187, 0.35)';
       ctx.lineWidth = 1.0;
       ctx.beginPath();
       for (let i = 0; i < normalLinesCount; i++) {
@@ -98,9 +98,9 @@ export default function SplashScreen() {
       // 2. Dibujar la cola de hilos "calientes" activos (últimos 8 hilos de forma fluida y brillante)
       if (linesToDraw > normalLinesCount) {
         ctx.save();
-        ctx.strokeStyle = 'rgba(212, 175, 55, 0.85)';
+        ctx.strokeStyle = 'rgba(59, 110, 187, 0.85)';
         ctx.lineWidth = 1.5;
-        ctx.shadowColor = '#d4af37';
+        ctx.shadowColor = '#3b6ebb';
         ctx.shadowBlur = 6;
         ctx.beginPath();
         for (let i = normalLinesCount; i < linesToDraw; i++) {
@@ -113,7 +113,7 @@ export default function SplashScreen() {
         ctx.restore();
       }
 
-      // 3. Dibujar la aguja dorada brillante (el punto en movimiento con pulso de luz)
+      // 3. Dibujar la aguja azul brillante (el punto en movimiento con pulso de luz)
       if (linesToDraw > 0) {
         const lastPinIdx = sequence[linesToDraw];
         const needlePos = pins[lastPinIdx];
@@ -124,10 +124,10 @@ export default function SplashScreen() {
           ? 12 + Math.sin((elapsed - WEAVE_DURATION) * 0.015) * 3
           : 8;
 
-        ctx.shadowColor = '#d4af37';
+        ctx.shadowColor = '#3b6ebb';
         ctx.shadowBlur = pulse;
         ctx.fillStyle = '#ffffff'; // Centro blanco de alta intensidad lumínica
-        ctx.strokeStyle = '#d4af37'; // Contorno dorado
+        ctx.strokeStyle = '#3b6ebb'; // Contorno azul
         ctx.lineWidth = 1.5;
         ctx.beginPath();
         ctx.arc(needlePos.x, needlePos.y, 4, 0, 2 * Math.PI);

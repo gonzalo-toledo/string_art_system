@@ -67,7 +67,7 @@ export function ImageAdjuster({ adjustments, crop, onAdjustmentsChange, onCropCh
             color: '#aaa',
             transition: 'border-color 0.2s, color 0.2s'
           }}
-          onMouseOver={(e) => { if (!disabled) { e.currentTarget.style.borderColor = '#d4af37'; e.currentTarget.style.color = '#fff'; } }}
+          onMouseOver={(e) => { if (!disabled) { e.currentTarget.style.borderColor = 'var(--color-accent)'; e.currentTarget.style.color = '#fff'; } }}
           onMouseOut={(e) => { e.currentTarget.style.borderColor = '#555'; e.currentTarget.style.color = '#aaa'; }}
         >
           {t('reset')}

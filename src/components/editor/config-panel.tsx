@@ -42,7 +42,7 @@ export function ConfigPanel({ params, onChange, disabled }: Props) {
       <div className={styles.formGroup} style={{ marginTop: '12px' }}>
         <label style={{ fontSize: '0.85rem', color: '#aaa', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span>{t('pins')}</span>
-          <span style={{ fontWeight: 'bold', color: 'var(--color-accent, #d4af37)' }}>{params.totalPins}</span>
+          <span style={{ fontWeight: 'bold', color: 'var(--color-accent)' }}>{params.totalPins}</span>
         </label>
         <p style={{ fontSize: '0.75rem', color: '#666', marginTop: '4px', margin: 0, lineHeight: '1.3' }}>
           {t('fixedPinsDesc')}

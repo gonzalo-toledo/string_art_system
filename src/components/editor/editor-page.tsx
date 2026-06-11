@@ -167,8 +167,8 @@ export function EditorPage() {
           {/* Banner de sesión activa */}
           {session && (
             <div className={styles.banner} style={{
-            background: 'rgba(212, 175, 55, 0.12)',
-            border: '1px solid #d4af37',
+            background: 'rgba(var(--color-accent-rgb), 0.12)',
+            border: '1px solid var(--color-accent)',
             borderRadius: '8px',
             padding: '12px',
             width: '100%',
@@ -189,8 +189,8 @@ export function EditorPage() {
               <button
                 onClick={() => router.push(`/${locale}/guide`)}
                 style={{
-                  background: '#d4af37',
-                  color: '#111',
+                  background: 'var(--color-accent)',
+                  color: '#ffffff',
                   border: 'none',
                   padding: '6px 12px',
                   borderRadius: '6px',

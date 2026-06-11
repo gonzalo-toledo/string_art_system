@@ -4,7 +4,7 @@
   align-items: center;
   padding: 16px;
   gap: 16px;
-  max-width: 1200px;
+  max-width: 100%;
   margin: 0 auto;
   background-color: var(--color-bg);
   color: var(--color-text);
@@ -32,6 +32,7 @@
 
 @media (min-width: 768px) {
   .container {
+    max-width: 1400px;
     padding: var(--spacing-lg, 32px);
     gap: var(--spacing-lg, 32px);
   }
@@ -50,6 +51,12 @@
   gap: 16px;
   width: 100%;
   max-width: 400px;
+}
+
+@media (min-width: 768px) {
+  .sidebar {
+    max-width: 460px;
+  }
 }
 
 /* Mobile ordering when width is < 768px */
@@ -89,6 +96,7 @@
   justify-content: center;
   align-items: center;
   width: 100%;
+  max-width: 800px;
   background-color: var(--color-surface);
   border-radius: var(--border-radius-panel);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
@@ -197,7 +205,7 @@
 
 .formGroup input:focus,
 .formGroup select:focus {
-  border-color: var(--color-accent, #d4af37);
+  border-color: var(--color-accent);
 }
 
 .formGroup input[type="range"] {
@@ -217,14 +225,14 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: var(--color-accent, #d4af37);
+  background: var(--color-accent);
   cursor: pointer;
   border: 2px solid #1a1a1a;
 }
 
 .buttonAccent {
   background-color: var(--color-accent);
-  color: #111;
+  color: #ffffff;
 }
 
 .buttonAccent:hover {
@@ -294,7 +302,7 @@
   z-index: 10;
   text-align: center;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(212, 175, 55, 0.3);
+  border: 1px solid rgba(var(--color-accent-rgb), 0.3);
   animation: fadeInOut 5s forwards;
   white-space: nowrap;
 }
@@ -312,8 +320,8 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(212, 175, 55, 0.12);
-  border: 3px dashed var(--color-accent, #d4af37);
+  background: rgba(var(--color-accent-rgb), 0.12);
+  border: 3px dashed var(--color-accent);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -326,10 +334,10 @@
   background: var(--color-bg, #111);
   padding: 24px 48px;
   border-radius: var(--border-radius-panel, 12px);
-  color: var(--color-accent, #d4af37);
+  color: var(--color-accent);
   font-size: 1.25rem;
   font-weight: 600;
-  border: 2px solid var(--color-accent, #d4af37);
+  border: 2px solid var(--color-accent);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
@@ -340,25 +348,25 @@
 
 .dropZone {
   display: none;
-  border: 2px dashed var(--color-accent, #d4af37);
+  border: 2px dashed var(--color-accent);
   border-radius: var(--border-radius-panel, 12px);
   padding: 40px 24px;
   text-align: center;
   cursor: pointer;
   transition: all 0.2s ease;
-  background: rgba(212, 175, 55, 0.05);
+  background: rgba(var(--color-accent-rgb), 0.05);
   color: var(--color-text-muted, #888);
   font-size: 0.9rem;
 }
 
 .dropZone:hover {
-  background: rgba(212, 175, 55, 0.1);
-  border-color: var(--color-accent-hover, #c9a42e);
+  background: rgba(var(--color-accent-rgb), 0.1);
+  border-color: var(--color-accent-hover);
 }
 
 .dropZone.dragActive {
-  background: rgba(212, 175, 55, 0.15);
-  border-color: var(--color-accent-hover, #c9a42e);
+  background: rgba(var(--color-accent-rgb), 0.15);
+  border-color: var(--color-accent-hover);
   border-style: solid;
 }
 

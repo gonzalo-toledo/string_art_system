@@ -37,7 +37,7 @@ export function CollapsiblePanel({ title, children, defaultOpen = true, headerRi
               transition: 'transform 0.2s ease',
               transform: isOpen ? 'rotate(0deg)' : 'rotate(-90deg)',
               fontSize: '0.75rem',
-              color: 'var(--color-accent, #d4af37)',
+              color: 'var(--color-accent)',
             }}
           >
             ▼

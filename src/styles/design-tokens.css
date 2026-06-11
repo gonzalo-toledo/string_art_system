@@ -1,27 +1,40 @@
 :root {
   /* Stringo Brand Palette */
-  --color-primary: #2A3D47;            /* Charcoal azulado insignia de Stringo */
-  --color-primary-hover: #1E2C33;      /* Variante oscura para hover */
-  --color-secondary: #A0BADA;          /* Celeste/azul pastel suave */
-  --color-accent: #d4af37;             /* Dorado premium (para hilos activos y detalles de arte) */
-  
+  --color-primary: #2b4a80;
+  /* Azul insignia de Stringo */
+  --color-primary-hover: #1e355c;
+  /* Variante oscura para hover */
+  --color-secondary: #A0BADA;
+  /* Celeste/azul pastel suave */
+  --color-accent: #3b6ebb;
+  /* Azul vibrante (reemplaza al dorado para hilos activos y detalles) */
+  --color-accent-hover: #4a7ed1;
+  /* Variante hover para el acento */
+  --color-accent-rgb: 59, 110, 187;
+  /* Canal RGB para opacidad en CSS */
+
   /* Backgrounds and surfaces */
-  --color-bg: #111111;                 /* Fondo base oscuro */
-  --color-surface: #1a1a1a;            /* Paneles */
-  --color-surface-elevated: #262626;   /* Controles e inputs */
+  --color-bg: #111111;
+  /* Fondo base oscuro */
+  --color-surface: #1a1a1a;
+  /* Paneles */
+  --color-surface-elevated: #262626;
+  /* Controles e inputs */
   --color-text: #f5f5f5;
   --color-text-muted: #888888;
-  
+
   /* Spacing */
   --spacing-sm: 8px;
   --spacing-md: 16px;
   --spacing-lg: 32px;
-  
+
   /* Typography */
   --font-heading: 'Halant', Georgia, serif;
   --font-body: 'Mulish', 'Muli', 'Inter', sans-serif;
-  
+
   /* Borders and Radii */
-  --border-radius-btn: 14px;           /* Redondeado de botones oficial de Stringo */
-  --border-radius-panel: 12px;         /* Redondeado de paneles oficial (1.2rem) */
+  --border-radius-btn: 14px;
+  /* Redondeado de botones oficial de Stringo */
+  --border-radius-panel: 12px;
+  /* Redondeado de paneles oficial (1.2rem) */
 }
