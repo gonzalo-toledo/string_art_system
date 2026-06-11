@@ -24,10 +24,17 @@
 }
 
 .headerTitle {
+  font-family: var(--font-heading);
   font-size: 1.1rem;
   font-weight: 700;
   margin: 0;
   color: #fff;
+}
+
+@media (min-width: 768px) {
+  .headerTitle {
+    font-size: 1.75rem;
+  }
 }
 
 .headerActions {

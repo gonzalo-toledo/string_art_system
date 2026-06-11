@@ -163,6 +163,12 @@
   outline: none;
 }
 
+@media (min-width: 768px) {
+  .button {
+    font-size: 1.05rem;
+  }
+}
+
 .button:hover {
   background-color: var(--color-primary-hover);
 }
@@ -188,6 +194,15 @@
   font-size: 0.85rem;
   color: #aaa;
   font-weight: 500;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+@media (min-width: 768px) {
+  .formGroup label {
+    font-size: 0.95rem;
+  }
 }
 
 .formGroup input,
@@ -201,6 +216,13 @@
   outline: none;
   font-family: inherit;
   -webkit-tap-highlight-color: transparent;
+}
+
+@media (min-width: 768px) {
+  .formGroup input,
+  .formGroup select {
+    font-size: 1rem;
+  }
 }
 
 .formGroup input:focus,
@@ -373,5 +395,36 @@
 @media (min-width: 768px) {
   .dropZone {
     display: block;
+  }
+}
+
+.panelHeaderTitle {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #eee;
+}
+
+@media (min-width: 768px) {
+  .panelHeaderTitle {
+    font-size: 1.125rem;
+  }
+}
+
+.panelDescription {
+  font-size: 0.8rem;
+  color: #888;
+  margin-top: 4px;
+  margin-bottom: 0;
+  line-height: 1.4;
+}
+
+@media (min-width: 768px) {
+  .panelDescription {
+    font-size: 0.9rem;
+    color: #aaa;
   }
 }

@@ -30,7 +30,7 @@ export function ConfigPanel({ params, onChange, disabled }: Props) {
   return (
     <CollapsiblePanel title={t('settingsTitle')} defaultOpen={true}>
       <div className={styles.formGroup}>
-        <label style={{ fontSize: '0.85rem', color: '#aaa' }}>{t('lines')}: {params.maxIterations}</label>
+        <label>{t('lines')}: {params.maxIterations}</label>
         <input
           type="range" name="maxIterations"
           min="1000" max="5000" step="100"
@@ -40,11 +40,11 @@ export function ConfigPanel({ params, onChange, disabled }: Props) {
       </div>
 
       <div className={styles.formGroup} style={{ marginTop: '12px' }}>
-        <label style={{ fontSize: '0.85rem', color: '#aaa', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <label>
           <span>{t('pins')}</span>
           <span style={{ fontWeight: 'bold', color: 'var(--color-accent)' }}>{params.totalPins}</span>
         </label>
-        <p style={{ fontSize: '0.75rem', color: '#666', marginTop: '4px', margin: 0, lineHeight: '1.3' }}>
+        <p className={styles.panelDescription}>
           {t('fixedPinsDesc')}
         </p>
       </div>
