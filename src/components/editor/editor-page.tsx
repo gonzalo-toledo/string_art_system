@@ -167,8 +167,8 @@ export function EditorPage() {
           {/* Banner de sesión activa */}
           {session && (
             <div className={styles.banner} style={{
-            background: 'rgba(212, 175, 55, 0.12)',
-            border: '1px solid #d4af37',
+            background: 'rgba(var(--color-accent-rgb), 0.12)',
+            border: '1px solid var(--color-accent)',
             borderRadius: '8px',
             padding: '12px',
             width: '100%',
@@ -177,8 +177,8 @@ export function EditorPage() {
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ flex: 1, paddingRight: '8px' }}>
-                <h4 style={{ margin: 0, color: '#fff', fontSize: '0.95rem' }}>{t('projectInProgress')}</h4>
-                <p style={{ margin: '4px 0 0 0', fontSize: '0.8rem', color: '#aaa' }}>
+                <h4 style={{ margin: 0, color: '#fff', fontSize: '1.05rem' }}>{t('projectInProgress')}</h4>
+                <p className={styles.panelDescription} style={{ color: '#aaa', marginTop: '4px' }}>
                   {t('stepProgress', {
                     current: session.currentStep + 1,
                     total: session.totalSteps + 1,
@@ -189,14 +189,14 @@ export function EditorPage() {
               <button
                 onClick={() => router.push(`/${locale}/guide`)}
                 style={{
-                  background: '#d4af37',
-                  color: '#111',
+                  background: 'var(--color-accent)',
+                  color: '#ffffff',
                   border: 'none',
                   padding: '6px 12px',
                   borderRadius: '6px',
                   fontWeight: 'bold',
                   cursor: 'pointer',
-                  fontSize: '0.85rem'
+                  fontSize: '0.95rem'
                 }}
               >
                 {t('continue')}
@@ -247,7 +247,7 @@ export function EditorPage() {
                   gap: '12px'
                 }}
               >
-                <span style={{ fontSize: '0.85rem', color: '#aaa', lineHeight: '1.4' }}>
+                <span className={styles.panelDescription}>
                   {t('sequenceGeneratedLock')}
                 </span>
                 <button
@@ -255,7 +255,7 @@ export function EditorPage() {
                   onClick={() => {
                     worker.reset();
                   }}
-                  style={{ width: '100%', padding: '8px 12px', fontSize: '0.85rem' }}
+                  style={{ width: '100%', padding: '8px 12px' }}
                 >
                   {t('backToEdit')}
                 </button>

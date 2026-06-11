@@ -283,8 +283,8 @@ export function CanvasRenderer({
 
         ctx.restore(); // restaurar clip circular
 
-        // 4. Borde del bastidor dorado/elegante
-        ctx.strokeStyle = 'rgba(212, 175, 55, 0.6)';
+        // 4. Borde del bastidor azul elegante de Stringo
+        ctx.strokeStyle = 'rgba(59, 110, 187, 0.65)';
         ctx.lineWidth = 3;
         ctx.beginPath();
         ctx.arc(canvasSize / 2, canvasSize / 2, canvasSize / 2 - 2, 0, Math.PI * 2);
@@ -309,7 +309,7 @@ export function CanvasRenderer({
           ctx.restore();
 
           // Borde del bastidor
-          ctx.strokeStyle = 'rgba(212, 175, 55, 0.6)';
+          ctx.strokeStyle = 'rgba(59, 110, 187, 0.65)';
           ctx.lineWidth = 3;
           ctx.beginPath();
           ctx.arc(canvasSize / 2, canvasSize / 2, canvasSize / 2 - 2, 0, Math.PI * 2);
@@ -333,9 +333,9 @@ export function CanvasRenderer({
         // Marca de agua del logotipo de Stringo difuso en el centro con relación de aspecto correcta
         if (logoImage) {
           ctx.save();
-          ctx.globalAlpha = 0.08;
+          ctx.globalAlpha = 0.045; // Más sutil/transparente
           
-          const maxLogoSize = canvasSize * 0.45;
+          const maxLogoSize = canvasSize * 0.65; // Agrandado
           const logoAspect = logoImage.width / logoImage.height;
           
           let logoW = maxLogoSize;

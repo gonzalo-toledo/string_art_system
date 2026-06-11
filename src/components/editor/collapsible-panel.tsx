@@ -30,14 +30,14 @@ export function CollapsiblePanel({ title, children, defaultOpen = true, headerRi
           userSelect: 'none'
         }}
       >
-        <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1rem', fontWeight: 600, color: '#eee' }}>
+        <h3 className={styles.panelHeaderTitle}>
           <span
             style={{
               display: 'inline-block',
               transition: 'transform 0.2s ease',
               transform: isOpen ? 'rotate(0deg)' : 'rotate(-90deg)',
               fontSize: '0.75rem',
-              color: 'var(--color-accent, #d4af37)',
+              color: 'var(--color-accent)',
             }}
           >
             ▼

@@ -67,7 +67,7 @@ export function ImageAdjuster({ adjustments, crop, onAdjustmentsChange, onCropCh
             color: '#aaa',
             transition: 'border-color 0.2s, color 0.2s'
           }}
-          onMouseOver={(e) => { if (!disabled) { e.currentTarget.style.borderColor = '#d4af37'; e.currentTarget.style.color = '#fff'; } }}
+          onMouseOver={(e) => { if (!disabled) { e.currentTarget.style.borderColor = 'var(--color-accent)'; e.currentTarget.style.color = '#fff'; } }}
           onMouseOut={(e) => { e.currentTarget.style.borderColor = '#555'; e.currentTarget.style.color = '#aaa'; }}
         >
           {t('reset')}
@@ -77,7 +77,7 @@ export function ImageAdjuster({ adjustments, crop, onAdjustmentsChange, onCropCh
       {/* Sliders de ajuste tonal */}
       {SLIDERS.map(({ key, labelKey, min, max, step }) => (
         <div key={key} className={styles.formGroup} style={{ marginBottom: '10px' }}>
-          <label style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+          <label>
             <span>{t(labelKey)}</span>
             <span style={{ fontFamily: 'monospace', color: '#888' }}>{adjustments[key]}</span>
           </label>
@@ -99,7 +99,7 @@ export function ImageAdjuster({ adjustments, crop, onAdjustmentsChange, onCropCh
 
         {/* Controles de crop: zoom y posición */}
         <div className={styles.formGroup} style={{ marginBottom: '10px' }}>
-          <label style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+          <label>
             <span>{t('zoom')}</span>
             <span style={{ fontFamily: 'monospace', color: '#888' }}>{crop.zoom.toFixed(2)}x</span>
           </label>
@@ -116,7 +116,7 @@ export function ImageAdjuster({ adjustments, crop, onAdjustmentsChange, onCropCh
         </div>
 
         <div className={styles.formGroup} style={{ marginBottom: '10px' }}>
-          <label style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+          <label>
             <span>{t('positionX')}</span>
             <span style={{ fontFamily: 'monospace', color: '#888' }}>{crop.offsetX.toFixed(2)}</span>
           </label>
@@ -133,7 +133,7 @@ export function ImageAdjuster({ adjustments, crop, onAdjustmentsChange, onCropCh
         </div>
 
         <div className={styles.formGroup} style={{ marginBottom: '10px' }}>
-          <label style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+          <label>
             <span>{t('positionY')}</span>
             <span style={{ fontFamily: 'monospace', color: '#888' }}>{crop.offsetY.toFixed(2)}</span>
           </label>

@@ -24,10 +24,17 @@
 }
 
 .headerTitle {
+  font-family: var(--font-heading);
   font-size: 1.1rem;
   font-weight: 700;
   margin: 0;
   color: #fff;
+}
+
+@media (min-width: 768px) {
+  .headerTitle {
+    font-size: 1.75rem;
+  }
 }
 
 .headerActions {
@@ -58,7 +65,7 @@
 }
 
 .iconButtonActive {
-  color: var(--color-accent, #d4af37);
+  color: var(--color-accent);
 }
 
 /* Progress bar section */
@@ -85,7 +92,7 @@
 
 .progressFill {
   height: 100%;
-  background-color: var(--color-accent, #d4af37);
+  background-color: var(--color-accent);
   transition: width 0.3s ease;
 }
 
@@ -160,8 +167,8 @@
   align-items: center;
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6), 
               inset 0 2px 4px rgba(255, 255, 255, 0.03),
-              0 0 20px rgba(212, 175, 55, 0.05);
-  border: 2px solid rgba(212, 175, 55, 0.15);
+              0 0 20px rgba(var(--color-accent-rgb), 0.05);
+  border: 2px solid rgba(var(--color-accent-rgb), 0.15);
   margin: 10px 0;
   transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s, box-shadow 0.2s;
   cursor: pointer;
@@ -171,10 +178,10 @@
 
 .targetPinContainer:active {
   transform: scale(0.94);
-  border-color: var(--color-accent, #d4af37);
+  border-color: var(--color-accent);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8), 
               inset 0 1px 2px rgba(255, 255, 255, 0.01),
-              0 0 30px rgba(212, 175, 55, 0.15);
+              0 0 30px rgba(var(--color-accent-rgb), 0.15);
 }
 
 .targetPinNumber {
@@ -193,7 +200,7 @@
 }
 
 .originPinHighlight {
-  color: var(--color-accent, #d4af37);
+  color: var(--color-accent);
   font-weight: 700;
   background-color: #2a2a2a;
   padding: 2px 8px;
@@ -300,10 +307,10 @@
 }
 
 .btnPlayPauseActive {
-  background-color: rgba(212, 175, 55, 0.15);
-  border-color: var(--color-accent, #d4af37);
-  color: var(--color-accent, #d4af37);
-  box-shadow: 0 0 12px rgba(212, 175, 55, 0.1);
+  background-color: rgba(var(--color-accent-rgb), 0.15);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  box-shadow: 0 0 12px rgba(var(--color-accent-rgb), 0.15);
 }
 
 .speedSelector {
@@ -431,7 +438,7 @@
 .loader {
   border: 3px solid #333;
   border-radius: 50%;
-  border-top: 3px solid var(--color-accent, #d4af37);
+  border-top: 3px solid var(--color-accent);
   width: 40px;
   height: 40px;
   animation: spin 1s linear infinite;
@@ -468,7 +475,7 @@
 .completedTitle {
   font-size: 1.8rem;
   font-weight: 800;
-  color: var(--color-accent, #d4af37);
+  color: var(--color-accent);
 }
 
 .completedDesc {
@@ -502,13 +509,13 @@
 }
 
 .seqRowDone {
-  background-color: rgba(212, 175, 55, 0.12);
+  background-color: rgba(var(--color-accent-rgb), 0.08);
   color: #bbb;
 }
 
 .seqRowCurrent {
-  background-color: rgba(212, 175, 55, 0.25);
-  border: 1px solid var(--color-accent, #d4af37);
+  background-color: rgba(var(--color-accent-rgb), 0.25);
+  border: 1px solid var(--color-accent);
   color: #fff;
   font-weight: 700;
 }
@@ -526,7 +533,7 @@
 }
 
 .seqRowCurrent .seqStep {
-  color: var(--color-accent, #d4af37);
+  color: var(--color-accent);
 }
 
 .seqPins {
@@ -534,7 +541,7 @@
 }
 
 .seqCheck {
-  color: var(--color-accent, #d4af37);
+  color: var(--color-accent);
   font-weight: 700;
   font-size: 1rem;
 }
@@ -564,7 +571,7 @@
 }
 
 .modalOriginHighlight {
-  color: var(--color-accent, #d4af37);
+  color: var(--color-accent);
   font-weight: 700;
   background-color: #2a2a2a;
   padding: 1px 6px;

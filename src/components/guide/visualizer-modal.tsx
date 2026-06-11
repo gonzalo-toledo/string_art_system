@@ -72,12 +72,12 @@ export function VisualizerModal({ onClose, session }: VisualizerModalProps) {
       }
     }
 
-    // Dibujar la línea de hilo activa actual resaltada en color dorado
+    // Dibujar la línea de hilo activa actual resaltada en color azul de la marca
     if (session.currentStep < session.totalSteps) {
       const pStart = pins[session.sequence[session.currentStep]];
       const pEnd = pins[session.sequence[session.currentStep + 1]];
       ctx.beginPath();
-      ctx.strokeStyle = '#d4af37';
+      ctx.strokeStyle = '#3b6ebb';
       ctx.lineWidth = 1.5;
       ctx.moveTo(pStart.x, pStart.y);
       ctx.lineTo(pEnd.x, pEnd.y);
@@ -96,8 +96,8 @@ export function VisualizerModal({ onClose, session }: VisualizerModalProps) {
         ctx.arc(p.x, p.y, 4.5, 0, Math.PI * 2);
         ctx.fill();
       } else if (isCurrentOrigin) {
-        // Pin de origen: Dorado
-        ctx.fillStyle = '#eab308';
+        // Pin de origen: Azul
+        ctx.fillStyle = '#2b4a80';
         ctx.beginPath();
         ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
         ctx.fill();
