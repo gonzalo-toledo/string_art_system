@@ -38,9 +38,9 @@ export function GuideHeader({
       >
         <ArrowLeft size={20} />
       </button>
-      
+
       {/* Título de la página de guiado */}
-      <h1 className={styles.headerTitle}>{t('title')}</h1>
+      {/* <h1 className={styles.headerTitle}>{t('title')}</h1> */}
 
       <div className={styles.headerActions}>
         {/* Control para activar/desactivar la voz del guiado */}

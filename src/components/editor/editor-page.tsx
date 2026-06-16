@@ -160,182 +160,182 @@ export function EditorPage() {
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
-      <h2 className={styles.pageTitle}>{t('title')}</h2>
+      {/* <h2 className={styles.pageTitle}>{t('title')}</h2> */}
 
       <div className={styles.editorContent}>
         <div className={styles.sidebar}>
           {/* Banner de sesión activa */}
           {session && (
             <div className={styles.banner} style={{
-            background: 'rgba(var(--color-accent-rgb), 0.12)',
-            border: '1px solid var(--color-accent)',
-            borderRadius: '8px',
-            padding: '12px',
-            width: '100%',
-            marginBottom: '16px',
-            boxSizing: 'border-box'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ flex: 1, paddingRight: '8px' }}>
-                <h4 style={{ margin: 0, color: '#fff', fontSize: '1.05rem' }}>{t('projectInProgress')}</h4>
-                <p className={styles.panelDescription} style={{ color: '#aaa', marginTop: '4px' }}>
-                  {t('stepProgress', {
-                    current: session.currentStep + 1,
-                    total: session.totalSteps + 1,
-                    percent: Math.round((session.currentStep / session.totalSteps) * 100)
-                  })}
-                </p>
+              background: 'rgba(var(--color-accent-rgb), 0.12)',
+              border: '1px solid var(--color-accent)',
+              borderRadius: '8px',
+              padding: '12px',
+              width: '100%',
+              marginBottom: '16px',
+              boxSizing: 'border-box'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ flex: 1, paddingRight: '8px' }}>
+                  <h4 style={{ margin: 0, color: '#fff', fontSize: '1.05rem' }}>{t('projectInProgress')}</h4>
+                  <p className={styles.panelDescription} style={{ color: '#aaa', marginTop: '4px' }}>
+                    {t('stepProgress', {
+                      current: session.currentStep + 1,
+                      total: session.totalSteps + 1,
+                      percent: Math.round((session.currentStep / session.totalSteps) * 100)
+                    })}
+                  </p>
+                </div>
+                <button
+                  onClick={() => router.push(`/${locale}/guide`)}
+                  style={{
+                    background: 'var(--color-accent)',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '6px 12px',
+                    borderRadius: '6px',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    fontSize: '0.95rem'
+                  }}
+                >
+                  {t('continue')}
+                </button>
               </div>
               <button
-                onClick={() => router.push(`/${locale}/guide`)}
+                onClick={() => {
+                  const confirmed = window.confirm(t('confirmCancel'));
+                  if (confirmed) clearSession();
+                }}
                 style={{
-                  background: 'var(--color-accent)',
-                  color: '#ffffff',
+                  background: 'none',
                   border: 'none',
-                  padding: '6px 12px',
-                  borderRadius: '6px',
-                  fontWeight: 'bold',
+                  color: '#ef4444',
                   cursor: 'pointer',
-                  fontSize: '0.95rem'
+                  fontSize: '0.8rem',
+                  marginTop: '8px',
+                  padding: 0,
+                  textDecoration: 'underline'
                 }}
               >
-                {t('continue')}
+                {t('cancelProject')}
               </button>
             </div>
-            <button
-              onClick={() => {
-                const confirmed = window.confirm(t('confirmCancel'));
-                if (confirmed) clearSession();
-              }}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: '#ef4444',
-                cursor: 'pointer',
-                fontSize: '0.8rem',
-                marginTop: '8px',
-                padding: 0,
-                textDecoration: 'underline'
-              }}
-            >
-              {t('cancelProject')}
-            </button>
+          )}
+
+          {/* Paso 1: Subir imagen */}
+          <div className={styles.stepOne}>
+            <ImageUploader
+              onImageSelected={handleImageSelected}
+              disabled={worker.isRunning}
+            />
           </div>
-        )}
 
-        {/* Paso 1: Subir imagen */}
-        <div className={styles.stepOne}>
-          <ImageUploader
-            onImageSelected={handleImageSelected}
-            disabled={worker.isRunning}
-          />
-        </div>
+          {/* Panel de ajustes de imagen (solo visible después de subir foto) */}
+          {sourceImage && (
+            <div className={styles.adjuster}>
+              {worker.sequence ? (
+                <div
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '12px',
+                    padding: '16px',
+                    textAlign: 'center',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px'
+                  }}
+                >
+                  <span className={styles.panelDescription}>
+                    {t('sequenceGeneratedLock')}
+                  </span>
+                  <button
+                    className={`${styles.button} ${styles.buttonOutline}`}
+                    onClick={() => {
+                      worker.reset();
+                    }}
+                    style={{ width: '100%', padding: '8px 12px' }}
+                  >
+                    {t('backToEdit')}
+                  </button>
+                </div>
+              ) : (
+                <ImageAdjuster
+                  adjustments={adjustments}
+                  crop={crop}
+                  onAdjustmentsChange={setAdjustments}
+                  onCropChange={setCrop}
+                  onReset={handleResetAdjustments}
+                  disabled={worker.isRunning}
+                />
+              )}
+            </div>
+          )}
 
-        {/* Panel de ajustes de imagen (solo visible después de subir foto) */}
-        {sourceImage && (
-          <div className={styles.adjuster}>
-            {worker.sequence ? (
-              <div 
-                style={{ 
-                  background: 'rgba(255, 255, 255, 0.03)', 
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  borderRadius: '12px',
-                  padding: '16px',
-                  textAlign: 'center',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '12px'
-                }}
+          {/* Paso 2: Configuración del algoritmo */}
+          <div className={styles.stepTwo}>
+            <ConfigPanel
+              params={params}
+              onChange={setParams}
+              disabled={worker.isRunning}
+            />
+          </div>
+
+          {/* Paso 3: Generar y resultados */}
+          <div className={styles.stepThree}>
+            <CollapsiblePanel title={t('generateTitle')} defaultOpen={true}>
+              <button
+                className={styles.button}
+                onClick={handleGenerate}
+                disabled={!pixelData || worker.isRunning}
               >
-                <span className={styles.panelDescription}>
-                  {t('sequenceGeneratedLock')}
-                </span>
-                <button
-                  className={`${styles.button} ${styles.buttonOutline}`}
-                  onClick={() => {
-                    worker.reset();
-                  }}
-                  style={{ width: '100%', padding: '8px 12px' }}
-                >
-                  {t('backToEdit')}
-                </button>
-              </div>
-            ) : (
-              <ImageAdjuster
-                adjustments={adjustments}
-                crop={crop}
-                onAdjustmentsChange={setAdjustments}
-                onCropChange={setCrop}
-                onReset={handleResetAdjustments}
-                disabled={worker.isRunning}
-              />
-            )}
+                {worker.isRunning
+                  ? t('generating', { progress: worker.progress, total: worker.total })
+                  : worker.sequence
+                    ? t('regenerate')
+                    : t('startGeneration')
+                }
+              </button>
+
+              {/* Botones post-generación */}
+              {worker.sequence && !worker.isRunning && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '12px' }}>
+                  <button
+                    className={`${styles.button} ${styles.buttonAccent}`}
+                    onClick={() => {
+                      startSession(Array.from(worker.sequence!), params.totalPins, params.maxIterations);
+                      router.push(`/${locale}/guide`);
+                    }}
+                  >
+                    <div className={styles.buttonContent}>
+                      <Play size={18} fill="currentColor" />
+                      <span>{t('guidedMode')}</span>
+                    </div>
+                  </button>
+                  <button
+                    className={`${styles.button} ${styles.buttonOutline}`}
+                    onClick={() => {
+                      exportPDFGuide({
+                        sequence: worker.sequence!,
+                        totalPins: params.totalPins,
+                        maxIterations: params.maxIterations,
+                        totalMeters: worker.totalMeters,
+                        locale: locale as 'es' | 'en' | 'pt'
+                      });
+                    }}
+                  >
+                    <div className={styles.buttonContent}>
+                      <Download size={18} />
+                      <span>{t('exportPDF')}</span>
+                    </div>
+                  </button>
+                </div>
+              )}
+
+              {worker.error && <p style={{ color: 'red', marginTop: '8px' }}>{worker.error}</p>}
+            </CollapsiblePanel>
           </div>
-        )}
-
-        {/* Paso 2: Configuración del algoritmo */}
-        <div className={styles.stepTwo}>
-          <ConfigPanel
-            params={params}
-            onChange={setParams}
-            disabled={worker.isRunning}
-          />
-        </div>
-
-        {/* Paso 3: Generar y resultados */}
-        <div className={styles.stepThree}>
-          <CollapsiblePanel title={t('generateTitle')} defaultOpen={true}>
-            <button
-              className={styles.button}
-              onClick={handleGenerate}
-              disabled={!pixelData || worker.isRunning}
-            >
-              {worker.isRunning
-                ? t('generating', { progress: worker.progress, total: worker.total })
-                : worker.sequence
-                  ? t('regenerate')
-                  : t('startGeneration')
-              }
-            </button>
-
-            {/* Botones post-generación */}
-            {worker.sequence && !worker.isRunning && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '12px' }}>
-                <button
-                  className={`${styles.button} ${styles.buttonAccent}`}
-                  onClick={() => {
-                    startSession(Array.from(worker.sequence!), params.totalPins, params.maxIterations);
-                    router.push(`/${locale}/guide`);
-                  }}
-                >
-                  <div className={styles.buttonContent}>
-                    <Play size={18} fill="currentColor" />
-                    <span>{t('guidedMode')}</span>
-                  </div>
-                </button>
-                <button
-                  className={`${styles.button} ${styles.buttonOutline}`}
-                  onClick={() => {
-                    exportPDFGuide({
-                      sequence: worker.sequence!,
-                      totalPins: params.totalPins,
-                      maxIterations: params.maxIterations,
-                      totalMeters: worker.totalMeters,
-                      locale: locale as 'es' | 'en' | 'pt'
-                    });
-                  }}
-                >
-                  <div className={styles.buttonContent}>
-                    <Download size={18} />
-                    <span>{t('exportPDF')}</span>
-                  </div>
-                </button>
-              </div>
-            )}
-
-            {worker.error && <p style={{ color: 'red', marginTop: '8px' }}>{worker.error}</p>}
-          </CollapsiblePanel>
-        </div>
         </div>
 
         {/* Canvas de visualización */}
