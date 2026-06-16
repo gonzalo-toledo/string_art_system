@@ -64,17 +64,12 @@
     /* Desplaza el logo a la izquierda en escritorio */
     transform: translateY(calc(-50% + 5px));
   }
-}
 
-.logoImage:hover {
-  transform: scale(1.05);
-}
-
-@media (min-width: 768px) {
   .logoImage:hover {
     transform: translateY(calc(-50% + 5px)) scale(1.05);
   }
 }
+
 
 .headerActions {
   display: flex;

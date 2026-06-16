@@ -56,6 +56,8 @@
 
 @media (min-width: 768px) {
   .sidebar {
+    flex: 0 0 440px;
+    width: 440px;
     max-width: 440px;
   }
 }
@@ -127,12 +129,14 @@
   outline: none;
 }
 
-.panelHeader:hover h3 span {
-  transform: scale(1.15) !important;
-}
+@media (hover: hover) {
+  .panelHeader:hover h3 span {
+    transform: scale(1.15) !important;
+  }
 
-.panelHeader:hover h3 {
-  color: #fff !important;
+  .panelHeader:hover h3 {
+    color: #fff !important;
+  }
 }
 
 .panelCollapsed {

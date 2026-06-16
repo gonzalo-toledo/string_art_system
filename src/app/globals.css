@@ -1,6 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Halant:wght@400;600;700&family=Mulish:wght@400;500;600;700&display=swap');
 @import '../styles/design-tokens.css';
 
+html {
+  scrollbar-gutter: stable;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;

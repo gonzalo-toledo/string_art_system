@@ -286,57 +286,62 @@ export function EditorPage() {
 
           {/* Paso 3: Generar y resultados */}
           <div className={styles.stepThree}>
-            <CollapsiblePanel title={t('generateTitle')} defaultOpen={true}>
-              <button
-                className={styles.button}
-                onClick={handleGenerate}
-                disabled={!pixelData || worker.isRunning}
-              >
-                {worker.isRunning
-                  ? t('generating', { progress: worker.progress, total: worker.total })
-                  : worker.sequence
-                    ? t('regenerate')
-                    : t('startGeneration')
-                }
-              </button>
+            <div className={styles.panel}>
+              <h3 className={styles.panelHeaderTitle} style={{ marginBottom: '12px' }}>
+                {t('generateTitle')}
+              </h3>
+              <div className={styles.panelContent}>
+                <button
+                  className={styles.button}
+                  onClick={handleGenerate}
+                  disabled={!pixelData || worker.isRunning}
+                >
+                  {worker.isRunning
+                    ? t('generating', { progress: worker.progress, total: worker.total })
+                    : worker.sequence
+                      ? t('regenerate')
+                      : t('startGeneration')
+                  }
+                </button>
 
-              {/* Botones post-generación */}
-              {worker.sequence && !worker.isRunning && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '12px' }}>
-                  <button
-                    className={`${styles.button} ${styles.buttonAccent}`}
-                    onClick={() => {
-                      startSession(Array.from(worker.sequence!), params.totalPins, params.maxIterations);
-                      router.push(`/${locale}/guide`);
-                    }}
-                  >
-                    <div className={styles.buttonContent}>
-                      <Play size={18} fill="currentColor" />
-                      <span>{t('guidedMode')}</span>
-                    </div>
-                  </button>
-                  <button
-                    className={`${styles.button} ${styles.buttonOutline}`}
-                    onClick={() => {
-                      exportPDFGuide({
-                        sequence: worker.sequence!,
-                        totalPins: params.totalPins,
-                        maxIterations: params.maxIterations,
-                        totalMeters: worker.totalMeters,
-                        locale: locale as 'es' | 'en' | 'pt'
-                      });
-                    }}
-                  >
-                    <div className={styles.buttonContent}>
-                      <Download size={18} />
-                      <span>{t('exportPDF')}</span>
-                    </div>
-                  </button>
-                </div>
-              )}
+                {/* Botones post-generación */}
+                {worker.sequence && !worker.isRunning && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '12px' }}>
+                    <button
+                      className={`${styles.button} ${styles.buttonAccent}`}
+                      onClick={() => {
+                        startSession(Array.from(worker.sequence!), params.totalPins, params.maxIterations);
+                        router.push(`/${locale}/guide`);
+                      }}
+                    >
+                      <div className={styles.buttonContent}>
+                        <Play size={18} fill="currentColor" />
+                        <span>{t('guidedMode')}</span>
+                      </div>
+                    </button>
+                    <button
+                      className={`${styles.button} ${styles.buttonOutline}`}
+                      onClick={() => {
+                        exportPDFGuide({
+                          sequence: worker.sequence!,
+                          totalPins: params.totalPins,
+                          maxIterations: params.maxIterations,
+                          totalMeters: worker.totalMeters,
+                          locale: locale as 'es' | 'en' | 'pt'
+                        });
+                      }}
+                    >
+                      <div className={styles.buttonContent}>
+                        <Download size={18} />
+                        <span>{t('exportPDF')}</span>
+                      </div>
+                    </button>
+                  </div>
+                )}
 
-              {worker.error && <p style={{ color: 'red', marginTop: '8px' }}>{worker.error}</p>}
-            </CollapsiblePanel>
+                {worker.error && <p style={{ color: 'red', marginTop: '8px' }}>{worker.error}</p>}
+              </div>
+            </div>
           </div>
         </div>
 

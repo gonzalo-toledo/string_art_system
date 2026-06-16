@@ -33,14 +33,29 @@ export function CollapsiblePanel({ title, children, defaultOpen = true, headerRi
         <h3 className={styles.panelHeaderTitle}>
           <span
             style={{
-              display: 'inline-block',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               transition: 'transform 0.2s ease',
               transform: isOpen ? 'rotate(0deg)' : 'rotate(-90deg)',
-              fontSize: '0.75rem',
               color: 'var(--color-accent)',
+              width: '12px',
+              height: '12px',
             }}
           >
-            ▼
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="10"
+              height="10"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
           </span>
           {title}
         </h3>
