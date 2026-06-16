@@ -8,6 +8,8 @@
     "uploadTitle": "1. Upload Photo",
     "selectImage": "Select Image",
     "dropOrSelectImage": "Drag your photo here or click to select",
+    "imageLoaded": "Image uploaded successfully",
+    "changeImage": "Change photo",
     "adjustmentsTitle": "Image Adjustments",
     "reset": "Reset",
     "brightness": "Brightness",

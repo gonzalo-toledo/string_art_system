@@ -8,6 +8,8 @@
     "uploadTitle": "1. Subí tu foto",
     "selectImage": "Seleccionar imagen",
     "dropOrSelectImage": "Arrastrá tu foto aquí o tocá para seleccionar",
+    "imageLoaded": "Imagen cargada con éxito",
+    "changeImage": "Cambiar foto",
     "adjustmentsTitle": "Ajustes de imagen",
     "reset": "Resetear",
     "brightness": "Brillo",

@@ -228,6 +228,8 @@ export function EditorPage() {
             <ImageUploader
               onImageSelected={handleImageSelected}
               disabled={worker.isRunning}
+              hasImage={!!sourceImage}
+              previewUrl={objectUrlRef.current}
             />
           </div>
 

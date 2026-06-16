@@ -23,7 +23,7 @@ export default function SplashScreen() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const logoRef = useRef<HTMLImageElement | null>(null);
   const [isReady, setIsReady] = useState(false);
-  const [skipped, setSkipped] = useState(false);
+  const redirectedRef = useRef(false);
 
   useEffect(() => {
     let active = true;
@@ -60,8 +60,8 @@ export default function SplashScreen() {
 
       // Redirección al terminar los 3 segundos
       if (elapsed >= TOTAL_DURATION) {
-        if (active && !skipped) {
-          setSkipped(true);
+        if (active && !redirectedRef.current) {
+          redirectedRef.current = true;
           router.push(`/${locale}/editor`);
         }
         return;
@@ -145,7 +145,7 @@ export default function SplashScreen() {
       active = false;
       cancelAnimationFrame(animationId);
     };
-  }, [locale, router, skipped]);
+  }, [locale, router]);
 
   return (
     <div className={styles.splashContainer}>

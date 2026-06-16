@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { generatePinCoordinates } from '../../core/algorithm/bresenham';
 import { CropTransform, ImageAdjustments, applyWhitesAndBlacks, applySharpen } from '../../utils/image-adjustments';
@@ -100,84 +100,103 @@ export function CanvasRenderer({
     }
   }, [sourceImage]);
 
-  const dismissGestureHint = () => {
+  const dismissGestureHint = useCallback(() => {
     if (showGestureHint) {
       setShowGestureHint(false);
       localStorage.setItem('has_seen_gesture_hint', 'true');
     }
-  };
+  }, [showGestureHint]);
 
-  const handleTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
-    if (disabled || !crop || !onCropChange) return;
-    dismissGestureHint();
+  // Manejador de eventos touch nativo para soportar scrolling vertical con un solo dedo
+  // e interceptar gestos multitáctiles (zoom/pan con dos dedos) de forma no pasiva.
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-    if (e.touches.length === 2) {
-      const touch1 = e.touches[0];
-      const touch2 = e.touches[1];
+    const onTouchStart = (e: TouchEvent) => {
+      if (disabled || !crop || !onCropChange) return;
+      dismissGestureHint();
 
-      const dist = Math.hypot(touch1.clientX - touch2.clientX, touch1.clientY - touch2.clientY);
-      const cx = (touch1.clientX + touch2.clientX) / 2;
-      const cy = (touch1.clientY + touch2.clientY) / 2;
+      if (e.touches.length === 2) {
+        const touch1 = e.touches[0];
+        const touch2 = e.touches[1];
 
-      initialDistanceRef.current = dist;
-      initialCenterRef.current = { x: cx, y: cy };
-      initialCropRef.current = { ...crop };
-    }
-  };
-
-  const handleTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
-    if (disabled || !crop || !onCropChange || !initialCropRef.current) return;
-
-    if (e.touches.length === 2) {
-      // Previene scroll nativo de la pantalla al usar dos dedos en el canvas
-      if (e.cancelable) e.preventDefault();
-
-      const touch1 = e.touches[0];
-      const touch2 = e.touches[1];
-
-      // 1. Zoom (pinch)
-      let newZoom = crop.zoom;
-      if (initialDistanceRef.current && initialDistanceRef.current > 0) {
         const dist = Math.hypot(touch1.clientX - touch2.clientX, touch1.clientY - touch2.clientY);
-        const scaleFactor = dist / initialDistanceRef.current;
-        newZoom = initialCropRef.current.zoom * scaleFactor;
-        newZoom = Math.max(1.0, Math.min(3.0, newZoom)); // límite de zoom entre 1.0x y 3.0x
-      }
-
-      // 2. Desplazamiento (drag/pan)
-      let newOffsetX = crop.offsetX;
-      let newOffsetY = crop.offsetY;
-      if (initialCenterRef.current && canvasRef.current) {
         const cx = (touch1.clientX + touch2.clientX) / 2;
         const cy = (touch1.clientY + touch2.clientY) / 2;
 
-        const deltaX = cx - initialCenterRef.current.x;
-        const deltaY = cy - initialCenterRef.current.y;
-
-        const rect = canvasRef.current.getBoundingClientRect();
-
-        // Sensibilidad escalada con el tamaño en pantalla del canvas
-        const sensitivity = 1.8;
-        newOffsetX = initialCropRef.current.offsetX - (deltaX / rect.width) * sensitivity;
-        newOffsetY = initialCropRef.current.offsetY - (deltaY / rect.height) * sensitivity;
-
-        newOffsetX = Math.max(-1, Math.min(1, newOffsetX));
-        newOffsetY = Math.max(-1, Math.min(1, newOffsetY));
+        initialDistanceRef.current = dist;
+        initialCenterRef.current = { x: cx, y: cy };
+        initialCropRef.current = { ...crop };
       }
+    };
 
-      onCropChange({
-        zoom: newZoom,
-        offsetX: newOffsetX,
-        offsetY: newOffsetY
-      });
-    }
-  };
+    const onTouchMove = (e: TouchEvent) => {
+      if (disabled || !crop || !onCropChange || !initialCropRef.current) return;
 
-  const handleTouchEnd = () => {
-    initialDistanceRef.current = null;
-    initialCenterRef.current = null;
-    initialCropRef.current = null;
-  };
+      if (e.touches.length === 2) {
+        // Previene scroll nativo de la pantalla al usar dos dedos en el canvas
+        if (e.cancelable) e.preventDefault();
+
+        const touch1 = e.touches[0];
+        const touch2 = e.touches[1];
+
+        // 1. Zoom (pinch)
+        let newZoom = crop.zoom;
+        if (initialDistanceRef.current && initialDistanceRef.current > 0) {
+          const dist = Math.hypot(touch1.clientX - touch2.clientX, touch1.clientY - touch2.clientY);
+          const scaleFactor = dist / initialDistanceRef.current;
+          newZoom = initialCropRef.current.zoom * scaleFactor;
+          newZoom = Math.max(1.0, Math.min(3.0, newZoom)); // límite de zoom entre 1.0x y 3.0x
+        }
+
+        // 2. Desplazamiento (drag/pan)
+        let newOffsetX = crop.offsetX;
+        let newOffsetY = crop.offsetY;
+        if (initialCenterRef.current) {
+          const cx = (touch1.clientX + touch2.clientX) / 2;
+          const cy = (touch1.clientY + touch2.clientY) / 2;
+
+          const deltaX = cx - initialCenterRef.current.x;
+          const deltaY = cy - initialCenterRef.current.y;
+
+          const rect = canvas.getBoundingClientRect();
+
+          // Sensibilidad escalada con el tamaño en pantalla del canvas
+          const sensitivity = 1.8;
+          newOffsetX = initialCropRef.current.offsetX - (deltaX / rect.width) * sensitivity;
+          newOffsetY = initialCropRef.current.offsetY - (deltaY / rect.height) * sensitivity;
+
+          newOffsetX = Math.max(-1, Math.min(1, newOffsetX));
+          newOffsetY = Math.max(-1, Math.min(1, newOffsetY));
+        }
+
+        onCropChange({
+          zoom: newZoom,
+          offsetX: newOffsetX,
+          offsetY: newOffsetY
+        });
+      }
+    };
+
+    const onTouchEnd = () => {
+      initialDistanceRef.current = null;
+      initialCenterRef.current = null;
+      initialCropRef.current = null;
+    };
+
+    canvas.addEventListener('touchstart', onTouchStart, { passive: true });
+    canvas.addEventListener('touchmove', onTouchMove, { passive: false });
+    canvas.addEventListener('touchend', onTouchEnd, { passive: true });
+    canvas.addEventListener('touchcancel', onTouchEnd, { passive: true });
+
+    return () => {
+      canvas.removeEventListener('touchstart', onTouchStart);
+      canvas.removeEventListener('touchmove', onTouchMove);
+      canvas.removeEventListener('touchend', onTouchEnd);
+      canvas.removeEventListener('touchcancel', onTouchEnd);
+    };
+  }, [disabled, crop, onCropChange, dismissGestureHint]);
 
   // Dibuja el estado inicial (preview/imagen) o vacío
   useEffect(() => {
@@ -420,10 +439,6 @@ export function CanvasRenderer({
         height={canvasSize}
         className={styles.canvas}
         style={cssFilter !== 'none' ? { filter: cssFilter, WebkitFilter: cssFilter } : undefined}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        onTouchCancel={handleTouchEnd}
       />
       {showGestureHint && (
         <div className={`${styles.gestureHint} ${styles.mobileOnly}`}>
