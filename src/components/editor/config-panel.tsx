@@ -3,6 +3,7 @@ import React from 'react';
 import { useTranslations } from 'next-intl';
 import { AlgorithmParams } from '../../core/algorithm/types';
 import { CollapsiblePanel } from './collapsible-panel';
+import { DragSlider } from './drag-slider';
 import styles from './editor.module.css';
 
 interface Props {
@@ -19,22 +20,16 @@ interface Props {
 export function ConfigPanel({ params, onChange, disabled }: Props) {
   const t = useTranslations('Editor');
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    onChange({
-      ...params,
-      [name]: Number(value)
-    });
-  };
-
   return (
     <CollapsiblePanel title={t('settingsTitle')} defaultOpen={true}>
       <div className={styles.formGroup}>
         <label>{t('lines')}: {params.maxIterations}</label>
-        <input
-          type="range" name="maxIterations"
-          min="1000" max="5000" step="100"
-          value={params.maxIterations} onChange={handleChange}
+        <DragSlider
+          value={params.maxIterations}
+          min={1000}
+          max={5000}
+          step={100}
+          onChange={(val) => onChange({ ...params, maxIterations: val })}
           disabled={disabled}
         />
       </div>

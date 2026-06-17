@@ -8,8 +8,9 @@ interface PinDisplayProps {
   currentPin: number | string;                 // Pin de origen actual
   targetPin: number | string | null;            // Pin de destino actual
   onRepeatSpeech: () => void;                  // Acción al hacer clic en el número (reproducir audio)
-  onTouchStart: (e: React.TouchEvent) => void; // Manejador del inicio del gesto táctil (swipe)
-  onTouchEnd: (e: React.TouchEvent) => void;   // Manejador del fin del gesto táctil (swipe)
+  onTouchStart?: (e: React.TouchEvent) => void; // Manejador del inicio del gesto táctil (swipe)
+  onTouchEnd?: (e: React.TouchEvent) => void;   // Manejador del fin del gesto táctil (swipe)
+  swipeDisabled?: boolean;                      // Deshabilitar gestos de swipe (during autoplay)
 }
 
 /**
@@ -21,7 +22,8 @@ export function PinDisplay({
   targetPin,
   onRepeatSpeech,
   onTouchStart,
-  onTouchEnd
+  onTouchEnd,
+  swipeDisabled = false
 }: PinDisplayProps) {
   // Hook de traducción de Next-intl
   const t = useTranslations('Guide');
@@ -31,10 +33,15 @@ export function PinDisplay({
       className={styles.centerSection}
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
+      style={swipeDisabled ? { touchAction: 'none' } : undefined}
     >
       {/* Indicadores visuales discretos de gesto de deslizamiento lateral (Swipe) */}
-      <div className={styles.swipeHintLeft} aria-hidden="true">‹</div>
-      <div className={styles.swipeHintRight} aria-hidden="true">›</div>
+      {!swipeDisabled && (
+        <>
+          <div className={styles.swipeHintLeft} aria-hidden="true">‹</div>
+          <div className={styles.swipeHintRight} aria-hidden="true">›</div>
+        </>
+      )}
 
       {/* Etiqueta superior del pin de destino */}
       <span className={styles.label}>{t('toPin')}</span>

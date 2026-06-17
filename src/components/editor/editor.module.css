@@ -427,6 +427,53 @@
   line-height: 1.4;
 }
 
+/* --- Drag Slider (solo arrastrar, no click en track) --- */
+
+.dragSliderTrack {
+  position: relative;
+  width: 100%;
+  height: 6px;
+  background: #444;
+  border-radius: 3px;
+  cursor: default;
+  touch-action: pan-y;
+}
+
+.dragSliderFill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: var(--color-accent);
+  border-radius: 3px;
+  pointer-events: none;
+}
+
+.dragSliderThumb {
+  position: absolute;
+  top: 50%;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  border: 2px solid #1a1a1a;
+  transform: translate(-50%, -50%);
+  cursor: grab;
+  touch-action: none;
+  z-index: 1;
+  transition: box-shadow 0.15s ease;
+}
+
+.dragSliderThumb:active {
+  cursor: grabbing;
+  box-shadow: 0 0 0 6px rgba(var(--color-accent-rgb), 0.2);
+}
+
+.dragSliderDisabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
 @media (min-width: 768px) {
   .panelDescription {
     font-size: 0.9rem;

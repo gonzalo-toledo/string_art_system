@@ -80,18 +80,20 @@ export function GuidePage() {
   // Avanzar al siguiente paso del tejido
   const handleNext = useCallback(() => {
     if (!session) return;
+    if (isPlaying) return; // No permitir avance manual durante autoplay
     if (session.currentStep < session.totalSteps) {
       updateStep(session.currentStep + 1);
     }
-  }, [session, updateStep]);
+  }, [session, updateStep, isPlaying]);
 
   // Retroceder al paso anterior del tejido
   const handlePrev = useCallback(() => {
     if (!session) return;
+    if (isPlaying) return; // No permitir retroceso manual durante autoplay
     if (session.currentStep > 0) {
       updateStep(session.currentStep - 1);
     }
-  }, [session, updateStep]);
+  }, [session, updateStep, isPlaying]);
 
   // Repetir la locución por voz del pin de destino
   const handleRepeatSpeech = () => {
@@ -219,8 +221,9 @@ export function GuidePage() {
         currentPin={currentPin}
         targetPin={targetPin}
         onRepeatSpeech={handleRepeatSpeech}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
+        onTouchStart={isPlaying ? undefined : handleTouchStart}
+        onTouchEnd={isPlaying ? undefined : handleTouchEnd}
+        swipeDisabled={isPlaying}
       />
 
       {/* 4. Controles de navegación y autoplay */}
@@ -232,6 +235,7 @@ export function GuidePage() {
         isWakeLockActive={isWakeLockActive}
         onPrev={handlePrev}
         onNext={handleNext}
+        manualDisabled={isPlaying}
       />
 
       {/* 5. Modal del visualizador de progreso (Mini-canvas) */}

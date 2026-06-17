@@ -20,6 +20,7 @@ export interface UseWorkerResult {
   start: (imageData: Float32Array, params: AlgorithmParams) => void;
   stop: () => void;
   reset: () => void;
+  restore: (sequence: Uint16Array, totalMeters: number) => void;
 }
 
 export function useStringArtWorker(): UseWorkerResult {
@@ -97,5 +98,13 @@ export function useStringArtWorker(): UseWorkerResult {
     setError(null);
   }, [stop]);
 
-  return { isRunning, progress, total, sequence, totalMeters, error, start, stop, reset };
+  // Restaurar una secuencia previamente generada (desde localStorage)
+  const restore = useCallback((savedSequence: Uint16Array, savedTotalMeters: number) => {
+    setSequence(savedSequence);
+    setTotalMeters(savedTotalMeters);
+    setIsRunning(false);
+    setError(null);
+  }, []);
+
+  return { isRunning, progress, total, sequence, totalMeters, error, start, stop, reset, restore };
 }

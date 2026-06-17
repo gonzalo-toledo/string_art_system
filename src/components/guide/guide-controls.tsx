@@ -13,6 +13,7 @@ interface GuideControlsProps {
   isWakeLockActive: boolean;                   // Estado del Wake Lock (pantalla siempre activa)
   onPrev: () => void;                          // Acción para volver al paso anterior
   onNext: () => void;                          // Acción para avanzar al siguiente paso
+  manualDisabled?: boolean;                    // Deshabilitar controles manuales (during autoplay)
 }
 
 /**
@@ -26,7 +27,8 @@ export function GuideControls({
   onChangePlaySpeed,
   isWakeLockActive,
   onPrev,
-  onNext
+  onNext,
+  manualDisabled = false
 }: GuideControlsProps) {
   // Hook de traducción de Next-intl
   const t = useTranslations('Guide');
@@ -38,14 +40,16 @@ export function GuideControls({
         <button
           className={`${styles.btn} ${styles.btnPrev}`}
           onClick={onPrev}
-          style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+          disabled={manualDisabled}
+          style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px', opacity: manualDisabled ? 0.35 : 1, pointerEvents: manualDisabled ? 'none' : 'auto' }}
         >
           <ChevronLeft size={16} /> {t('prev')}
         </button>
         <button
           className={`${styles.btn} ${styles.btnNext}`}
           onClick={onNext}
-          style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+          disabled={manualDisabled}
+          style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px', opacity: manualDisabled ? 0.35 : 1, pointerEvents: manualDisabled ? 'none' : 'auto' }}
         >
           {t('next')} <ChevronRight size={16} />
         </button>
