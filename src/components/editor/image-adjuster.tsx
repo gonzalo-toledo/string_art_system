@@ -3,6 +3,7 @@ import React from 'react';
 import { useTranslations } from 'next-intl';
 import { ImageAdjustments, CropTransform } from '../../utils/image-adjustments';
 import { CollapsiblePanel } from './collapsible-panel';
+import { DragSlider } from './drag-slider';
 import styles from './editor.module.css';
 
 interface Props {
@@ -81,15 +82,13 @@ export function ImageAdjuster({ adjustments, crop, onAdjustmentsChange, onCropCh
             <span>{t(labelKey)}</span>
             <span style={{ fontFamily: 'monospace', color: '#888' }}>{adjustments[key]}</span>
           </label>
-          <input
-            type="range"
+          <DragSlider
+            value={adjustments[key]}
             min={min}
             max={max}
             step={step}
-            value={adjustments[key]}
-            onChange={(e) => handleSliderChange(key, parseFloat(e.target.value))}
+            onChange={(val) => handleSliderChange(key, val)}
             disabled={disabled}
-            style={{ width: '100%', accentColor: 'var(--color-primary)' }}
           />
         </div>
       ))}
@@ -103,15 +102,13 @@ export function ImageAdjuster({ adjustments, crop, onAdjustmentsChange, onCropCh
             <span>{t('zoom')}</span>
             <span style={{ fontFamily: 'monospace', color: '#888' }}>{crop.zoom.toFixed(2)}x</span>
           </label>
-          <input
-            type="range"
+          <DragSlider
+            value={crop.zoom}
             min={1}
             max={3}
             step={0.05}
-            value={crop.zoom}
-            onChange={(e) => handleCropChange('zoom', parseFloat(e.target.value))}
+            onChange={(val) => handleCropChange('zoom', val)}
             disabled={disabled}
-            style={{ width: '100%', accentColor: 'var(--color-primary)' }}
           />
         </div>
 
@@ -120,15 +117,13 @@ export function ImageAdjuster({ adjustments, crop, onAdjustmentsChange, onCropCh
             <span>{t('positionX')}</span>
             <span style={{ fontFamily: 'monospace', color: '#888' }}>{crop.offsetX.toFixed(2)}</span>
           </label>
-          <input
-            type="range"
+          <DragSlider
+            value={crop.offsetX}
             min={-1}
             max={1}
             step={0.02}
-            value={crop.offsetX}
-            onChange={(e) => handleCropChange('offsetX', parseFloat(e.target.value))}
+            onChange={(val) => handleCropChange('offsetX', val)}
             disabled={disabled}
-            style={{ width: '100%', accentColor: 'var(--color-primary)' }}
           />
         </div>
 
@@ -137,15 +132,13 @@ export function ImageAdjuster({ adjustments, crop, onAdjustmentsChange, onCropCh
             <span>{t('positionY')}</span>
             <span style={{ fontFamily: 'monospace', color: '#888' }}>{crop.offsetY.toFixed(2)}</span>
           </label>
-          <input
-            type="range"
+          <DragSlider
+            value={crop.offsetY}
             min={-1}
             max={1}
             step={0.02}
-            value={crop.offsetY}
-            onChange={(e) => handleCropChange('offsetY', parseFloat(e.target.value))}
+            onChange={(val) => handleCropChange('offsetY', val)}
             disabled={disabled}
-            style={{ width: '100%', accentColor: 'var(--color-primary)' }}
           />
         </div>
       </div>
