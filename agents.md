@@ -424,6 +424,7 @@ Nunca hardcodear texto en español o inglés directamente en componentes.
 - Mobile-first: escribir estilos base para mobile, media queries para desktop
 - Breakpoints: `768px` (tablet), `1024px` (desktop)
 - Animaciones: usar `prefers-reduced-motion` para respetar accesibilidad
+- **Botones deshabilitados interactivos**: No usar `pointer-events: none` en botones deshabilitados. Deben adoptar un estado grisáceo atenuado (opacidad `0.65`) pero responder a hover (iluminación sutil) y active (`scale(0.97)`) para garantizar feedback físico táctil en móviles (especialmente útil en reproducción automática y paneles del editor).
 
 > **DEUDA TÉCNICA:** Los archivos `.module.css` actuales usan colores hardcodeados
 > en vez de variables CSS. Pendiente de migrar a tokens.

@@ -41,7 +41,7 @@ export function GuideControls({
           className={`${styles.btn} ${styles.btnPrev}`}
           onClick={onPrev}
           disabled={manualDisabled}
-          style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px', opacity: manualDisabled ? 0.35 : 1, pointerEvents: manualDisabled ? 'none' : 'auto' }}
+          style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
         >
           <ChevronLeft size={16} /> {t('prev')}
         </button>
@@ -49,7 +49,7 @@ export function GuideControls({
           className={`${styles.btn} ${styles.btnNext}`}
           onClick={onNext}
           disabled={manualDisabled}
-          style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px', opacity: manualDisabled ? 0.35 : 1, pointerEvents: manualDisabled ? 'none' : 'auto' }}
+          style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
         >
           {t('next')} <ChevronRight size={16} />
         </button>
