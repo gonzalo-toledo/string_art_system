@@ -32,21 +32,13 @@
 
 @media (min-width: 768px) {
   .container {
-    max-width: 1400px;
+    max-width: 1440px;
     padding: var(--spacing-lg, 32px);
-    gap: var(--spacing-lg, 32px);
-  }
-
-  .editorContent {
-    flex-direction: row;
-    align-items: flex-start;
-    justify-content: center;
     gap: var(--spacing-lg, 32px);
   }
 }
 
 .sidebar {
-  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -54,23 +46,12 @@
   max-width: 400px;
 }
 
-@media (min-width: 768px) {
-  .sidebar {
-    flex: 0 0 440px;
-    width: 440px;
-    max-width: 440px;
-  }
-}
-
-/* Mobile ordering when width is < 768px */
-@media (max-width: 767px) {
+/* Mobile/Tablet stacked layout when width is < 1024px */
+@media (max-width: 1023px) {
   .sidebar {
     display: contents;
   }
-  .banner {
-    order: 1;
-    width: 100%;
-  }
+
   .stepOne {
     order: 3;
     width: 100%;
@@ -92,6 +73,7 @@
     width: 100%;
   }
 }
+
 
 .canvasContainer {
   flex: 1.5;
@@ -174,18 +156,33 @@
   }
 }
 
-.button:hover {
+.button:not(:disabled):hover {
   background-color: var(--color-primary-hover);
 }
 
-.button:active {
+.button:not(:disabled):active {
   transform: scale(0.96);
 }
 
 .button:disabled {
-  background-color: #444;
-  color: #888;
-  cursor: not-allowed;
+  background-color: #2a2a2a !important;
+  color: #666666 !important;
+  border-color: #333333 !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+  opacity: 0.65;
+  transition: background-color 0.2s, border-color 0.2s, transform 0.1s;
+}
+
+.button:disabled:hover {
+  background-color: #333333 !important;
+  border-color: #444444 !important;
+  color: #888888 !important;
+}
+
+.button:disabled:active {
+  transform: scale(0.97) !important;
+  background-color: #222222 !important;
 }
 
 .formGroup {
@@ -236,12 +233,12 @@
 }
 
 .buttonAccent {
-  background-color: var(--color-accent);
+  background-color: var(--color-primary);
   color: #ffffff;
 }
 
-.buttonAccent:hover {
-  background-color: var(--color-accent-hover);
+.buttonAccent:not(:disabled):hover {
+  background-color: var(--color-primary-hover);
 }
 
 .buttonOutline {
@@ -250,16 +247,71 @@
   color: var(--color-text);
 }
 
-.buttonOutline:hover {
+.buttonOutline:not(:disabled):hover {
   background-color: rgba(255, 255, 255, 0.05);
   border-color: var(--color-primary-hover);
 }
+
+.resetButton {
+  background: none;
+  border: 1px solid #555;
+  border-radius: 6px;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: #aaa;
+  transition: all 0.2s ease, transform 0.1s ease;
+  font-family: inherit;
+  outline: none;
+  user-select: none;
+}
+
+.resetButton:not(:disabled):hover {
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
+.resetButton:not(:disabled):active {
+  transform: scale(0.95);
+}
+
+.resetButton:disabled {
+  border-color: #333 !important;
+  color: #555 !important;
+  cursor: not-allowed !important;
+  opacity: 0.5;
+}
+
+.resetButton:disabled:hover {
+  border-color: #3a3a3a !important;
+  color: #666 !important;
+  background-color: rgba(255, 255, 255, 0.02) !important;
+}
+
+.resetButton:disabled:active {
+  transform: scale(0.97) !important;
+  background-color: rgba(0, 0, 0, 0.2) !important;
+}
+
 
 .buttonContent {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
+}
+
+.actionButtonsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+@media (max-width: 1023px) {
+  .actionButtonsContainerHiddenMobile {
+    display: none !important;
+  }
 }
 
 .desktopOnly {
@@ -468,5 +520,141 @@
   .dragSliderThumb {
     width: 22px;
     height: 22px;
+  }
+}
+
+/* --- Responsive Active Session & Adjuster Helpers --- */
+
+@media (max-width: 1023px) {
+  .hideOnMobileInProgress {
+    display: none !important;
+  }
+  .hideOnMobileWithoutImage {
+    display: none !important;
+  }
+}
+
+
+
+.cancelLink {
+  background: none;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-top: 12px;
+  padding: 8px;
+  text-decoration: none;
+  transition: color 0.2s, opacity 0.2s;
+  width: 100%;
+  text-align: center;
+  font-weight: 500;
+  display: inline-block;
+  font-family: inherit;
+  outline: none;
+}
+
+.cancelLink:hover {
+  color: #f87171;
+  text-decoration: underline;
+}
+
+.panelContentCollapsed {
+  display: none;
+}
+
+/* Desktop 3-column layout when width is >= 1024px (Defined at the end to ensure override precedence) */
+@media (min-width: 1024px) {
+  .editorContent {
+    display: grid;
+    grid-template-columns: 310px 1.5fr 310px;
+    gap: 32px;
+    align-items: stretch;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .sidebar {
+    width: 100%;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    height: 100%;
+  }
+
+  .canvasContainer {
+    width: 100%;
+    max-width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+  }
+
+  .adjuster {
+    width: 100%;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    height: 100%;
+  }
+
+  /* Hacer que el panel de ajustes (primer hijo) llene el espacio disponible en la columna derecha */
+  .adjuster > div:first-child {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .adjuster > div:first-child > .panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .adjuster > div:first-child > .panel > .panelContent {
+    flex: 1;
+  }
+
+  /* Hacer que el último paso de la columna izquierda (Paso 3) se estire */
+  .sidebar > div:last-child {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar > div:last-child > .panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar > div:last-child > .panel > .panelContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  /* Desactivar colapsabilidad en escritorio para evitar saltos de altura */
+  .panelHeader {
+    cursor: default !important;
+    pointer-events: none !important;
+  }
+
+  .panelHeaderRight {
+    pointer-events: auto !important;
+  }
+
+  .panelChevron {
+    display: none !important;
+  }
+
+  .panelContent {
+    display: block !important;
+    margin-top: 12px !important;
   }
 }

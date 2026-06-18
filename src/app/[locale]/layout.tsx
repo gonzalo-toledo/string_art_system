@@ -1,6 +1,6 @@
-import {NextIntlClientProvider} from 'next-intl';
-import {getMessages} from 'next-intl/server';
-import {Metadata} from 'next';
+import { NextIntlClientProvider } from 'next-intl';
+import { getMessages } from 'next-intl/server';
+import { Metadata } from 'next';
 import MainLayout from '@/components/layout/main-layout';
 import '../globals.css';
 
@@ -8,16 +8,16 @@ export const metadata: Metadata = {
   title: 'Stringo — String Art Generator',
   description: 'Crea arte asombroso a partir de tus fotos con el Kit Stringo.',
   icons: {
-    icon: '/stringo-o.png',
+    icon: '/stringo-o.png?v=2',
   },
 };
 
 export default async function LocaleLayout({
   children,
-  params: {locale}
+  params: { locale }
 }: {
   children: React.ReactNode;
-  params: {locale: string};
+  params: { locale: string };
 }) {
   const messages = await getMessages();
 

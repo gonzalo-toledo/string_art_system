@@ -32,6 +32,7 @@ export function CollapsiblePanel({ title, children, defaultOpen = true, headerRi
       >
         <h3 className={styles.panelHeaderTitle}>
           <span
+            className={styles.panelChevron}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -60,17 +61,15 @@ export function CollapsiblePanel({ title, children, defaultOpen = true, headerRi
           {title}
         </h3>
         {headerRight && (
-          <div onClick={(e) => e.stopPropagation()} style={{ display: 'flex', alignItems: 'center' }}>
+          <div className={styles.panelHeaderRight} onClick={(e) => e.stopPropagation()} style={{ display: 'flex', alignItems: 'center' }}>
             {headerRight}
           </div>
         )}
       </div>
       
-      {isOpen && (
-        <div className={styles.panelContent} style={{ marginTop: '12px' }}>
-          {children}
-        </div>
-      )}
+      <div className={`${styles.panelContent} ${!isOpen ? styles.panelContentCollapsed : ''}`} style={{ marginTop: '12px' }}>
+        {children}
+      </div>
     </div>
   );
 }

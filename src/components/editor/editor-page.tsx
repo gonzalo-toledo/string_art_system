@@ -87,6 +87,31 @@ export function EditorPage() {
     }
   }, [worker.sequence, worker.totalMeters, params]);
 
+  // Controlar cambios de crop limitando el offset según el espacio disponible (evita drag si no hay zoom)
+  const handleCropChange = useCallback((newCrop: CropTransform) => {
+    const img = sourceImageRef.current;
+    if (!img) {
+      setCrop(newCrop);
+      return;
+    }
+
+    const baseScale = Math.max(CANVAS_SIZE / img.width, CANVAS_SIZE / img.height);
+    const scale = baseScale * newCrop.zoom;
+    const scaledW = img.width * scale;
+    const scaledH = img.height * scale;
+
+    const maxOffsetX = (scaledW - CANVAS_SIZE) / 2;
+    const maxOffsetY = (scaledH - CANVAS_SIZE) / 2;
+
+    const adjustedCrop = {
+      zoom: newCrop.zoom,
+      offsetX: maxOffsetX > 0.01 ? Math.max(-1, Math.min(1, newCrop.offsetX)) : 0,
+      offsetY: maxOffsetY > 0.01 ? Math.max(-1, Math.min(1, newCrop.offsetY)) : 0,
+    };
+
+    setCrop(adjustedCrop);
+  }, []);
+
   // Reprocesar imagen cuando cambian ajustes o crop
   const reprocessImage = useCallback(() => {
     const img = sourceImageRef.current;
@@ -115,13 +140,6 @@ export function EditorPage() {
 
   // Manejar la selección de una nueva imagen
   const handleImageSelected = async (file: File) => {
-    // Advertir si hay una sesión guiada en progreso
-    if (session) {
-      const confirmed = window.confirm(t('confirmNewImage'));
-      if (!confirmed) return;
-      clearSession();
-    }
-
     try {
       worker.reset();
       localStorage.removeItem(EDITOR_STATE_KEY);
@@ -159,6 +177,26 @@ export function EditorPage() {
   const handleResetAdjustments = () => {
     setAdjustments(DEFAULT_ADJUSTMENTS);
     setCrop(DEFAULT_CROP);
+  };
+
+  // Cancelar/resetear el proyecto activo
+  const handleCancelProject = () => {
+    const confirmed = window.confirm(t('confirmCancel'));
+    if (confirmed) {
+      worker.reset();
+      localStorage.removeItem(EDITOR_STATE_KEY);
+      if (objectUrlRef.current) {
+        URL.revokeObjectURL(objectUrlRef.current);
+        objectUrlRef.current = null;
+      }
+      sourceImageRef.current = null;
+      setSourceImage(null);
+      setPreviewUrl(null);
+      setPixelData(null);
+      setAdjustments(DEFAULT_ADJUSTMENTS);
+      setCrop(DEFAULT_CROP);
+      clearSession();
+    }
   };
 
   // Drag & drop handlers (solo desktop)
@@ -204,229 +242,139 @@ export function EditorPage() {
 
       <div className={styles.editorContent}>
         <div className={styles.sidebar}>
-          {/* --- VISTA SIMPLIFICADA: Proyecto en progreso --- */}
-          {isInProgress && (
-            <>
-              {/* Banner de sesión activa */}
-              <div className={styles.banner} style={{
-                background: 'rgba(var(--color-accent-rgb), 0.12)',
-                border: '1px solid var(--color-accent)',
-                borderRadius: '8px',
-                padding: '12px',
-                width: '100%',
-                marginBottom: '16px',
-                boxSizing: 'border-box'
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div style={{ flex: 1, paddingRight: '8px' }}>
-                    <h4 style={{ margin: 0, color: '#fff', fontSize: '1.05rem' }}>{t('projectInProgress')}</h4>
-                    <p className={styles.panelDescription} style={{ color: '#aaa', marginTop: '4px' }}>
-                      {t('stepProgress', {
-                        current: session.currentStep + 1,
-                        total: session.totalSteps + 1,
-                        percent: Math.round((session.currentStep / session.totalSteps) * 100)
-                      })}
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => router.push(`/${locale}/guide`)}
-                    style={{
-                      background: 'var(--color-accent)',
-                      color: '#ffffff',
-                      border: 'none',
-                      padding: '6px 12px',
-                      borderRadius: '6px',
-                      fontWeight: 'bold',
-                      cursor: 'pointer',
-                      fontSize: '0.95rem'
-                    }}
-                  >
-                    {t('continue')}
-                  </button>
-                </div>
-                <button
-                  onClick={() => {
-                    const confirmed = window.confirm(t('confirmCancel'));
-                    if (confirmed) {
-                      worker.reset();
-                      localStorage.removeItem(EDITOR_STATE_KEY);
-                      if (objectUrlRef.current) {
-                        URL.revokeObjectURL(objectUrlRef.current);
-                        objectUrlRef.current = null;
-                      }
-                      sourceImageRef.current = null;
-                      setSourceImage(null);
-                      setPreviewUrl(null);
-                      setPixelData(null);
-                      setAdjustments(DEFAULT_ADJUSTMENTS);
-                      setCrop(DEFAULT_CROP);
-                      clearSession();
-                    }
-                  }}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: '#ef4444',
-                    cursor: 'pointer',
-                    fontSize: '0.8rem',
-                    marginTop: '8px',
-                    padding: 0,
-                    textDecoration: 'underline'
-                  }}
-                >
-                  {t('cancelProject')}
-                </button>
-              </div>
+          {/* Paso 1: Subir imagen */}
+          <div className={`${styles.stepOne} ${isInProgress ? styles.hideOnMobileInProgress : ''}`}>
+            <ImageUploader
+              onImageSelected={handleImageSelected}
+              disabled={worker.isRunning || isInProgress}
+              hasImage={!!sourceImage}
+              previewUrl={objectUrlRef.current}
+            />
+          </div>
 
-              {/* Botón descargar guía PDF */}
-              <div className={styles.panel} style={{ width: '100%' }}>
-                <button
-                  className={`${styles.button} ${styles.buttonOutline}`}
-                  onClick={() => {
-                    exportPDFGuide({
-                      sequence: worker.sequence!,
-                      totalPins: params.totalPins,
-                      maxIterations: params.maxIterations,
-                      totalMeters: worker.totalMeters,
-                      locale: locale as 'es' | 'en' | 'pt'
-                    });
-                  }}
-                >
-                  <div className={styles.buttonContent}>
-                    <Download size={18} />
-                    <span>{t('exportPDF')}</span>
-                  </div>
-                </button>
-              </div>
-            </>
-          )}
+          {/* Paso 2: Configuración del algoritmo */}
+          <div className={`${styles.stepTwo} ${isInProgress ? styles.hideOnMobileInProgress : ''}`}>
+            <ConfigPanel
+              params={params}
+              onChange={setParams}
+              disabled={worker.isRunning || isInProgress}
+            />
+          </div>
 
-          {/* --- VISTA COMPLETA: Editor normal --- */}
-          {!isInProgress && (
-            <>
-              {/* Paso 1: Subir imagen */}
-              <div className={styles.stepOne}>
-                <ImageUploader
-                  onImageSelected={handleImageSelected}
-                  disabled={worker.isRunning}
-                  hasImage={!!sourceImage}
-                  previewUrl={objectUrlRef.current}
-                />
-              </div>
-
-              {/* Panel de ajustes de imagen (solo visible después de subir foto) */}
-              {sourceImage && (
-                <div className={styles.adjuster}>
-                  {worker.sequence ? (
-                    <div
-                      style={{
-                        background: 'rgba(255, 255, 255, 0.03)',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                        borderRadius: '12px',
-                        padding: '16px',
-                        textAlign: 'center',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '12px'
+          {/* Paso 3: Generar y resultados / Panel de control del proyecto activo */}
+          <div className={styles.stepThree}>
+            {isInProgress ? (
+              <div className={styles.panel}>
+                <h3 className={styles.panelHeaderTitle} style={{ marginBottom: '12px' }}>
+                  {t('projectInProgress')}
+                </h3>
+                <div className={styles.panelContent}>
+                  <p className={styles.panelDescription} style={{ color: '#aaa', marginBottom: '16px' }}>
+                    {t('stepProgress', {
+                      current: session.currentStep + 1,
+                      total: session.totalSteps + 1,
+                      percent: Math.round((session.currentStep / session.totalSteps) * 100)
+                    })}
+                  </p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <button
+                      className={`${styles.button} ${styles.buttonAccent}`}
+                      onClick={() => router.push(`/${locale}/guide`)}
+                    >
+                      <div className={styles.buttonContent}>
+                        <Play size={18} fill="currentColor" />
+                        <span>{t('continue')}</span>
+                      </div>
+                    </button>
+                    <button
+                      className={`${styles.button} ${styles.buttonOutline}`}
+                      onClick={() => {
+                        exportPDFGuide({
+                          sequence: worker.sequence!,
+                          totalPins: params.totalPins,
+                          maxIterations: params.maxIterations,
+                          totalMeters: worker.totalMeters,
+                          locale: locale as 'es' | 'en' | 'pt'
+                        });
                       }}
                     >
-                      <span className={styles.panelDescription}>
-                        {t('sequenceGeneratedLock')}
-                      </span>
-                      <button
-                        className={`${styles.button} ${styles.buttonOutline}`}
-                        onClick={() => {
-                          worker.reset();
-                          localStorage.removeItem(EDITOR_STATE_KEY);
-                        }}
-                        style={{ width: '100%', padding: '8px 12px' }}
-                      >
-                        {t('backToEdit')}
-                      </button>
-                    </div>
-                  ) : (
-                    <ImageAdjuster
-                      adjustments={adjustments}
-                      crop={crop}
-                      onAdjustmentsChange={setAdjustments}
-                      onCropChange={setCrop}
-                      onReset={handleResetAdjustments}
-                      disabled={worker.isRunning}
-                    />
-                  )}
-                </div>
-              )}
-
-              {/* Paso 2: Configuración del algoritmo */}
-              <div className={styles.stepTwo}>
-                <ConfigPanel
-                  params={params}
-                  onChange={setParams}
-                  disabled={worker.isRunning}
-                />
-              </div>
-
-              {/* Paso 3: Generar y resultados */}
-              <div className={styles.stepThree}>
-                <div className={styles.panel}>
-                  <h3 className={styles.panelHeaderTitle} style={{ marginBottom: '12px' }}>
-                    {t('generateTitle')}
-                  </h3>
-                  <div className={styles.panelContent}>
-                    <button
-                      className={styles.button}
-                      onClick={handleGenerate}
-                      disabled={!pixelData || worker.isRunning}
-                    >
-                      {worker.isRunning
-                        ? t('generating', { progress: worker.progress, total: worker.total })
-                        : worker.sequence
-                          ? t('regenerate')
-                          : t('startGeneration')
-                      }
-                    </button>
-
-                    {/* Botones post-generación */}
-                    {worker.sequence && !worker.isRunning && (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '12px' }}>
-                        <button
-                          className={`${styles.button} ${styles.buttonAccent}`}
-                          onClick={() => {
-                            startSession(Array.from(worker.sequence!), params.totalPins, params.maxIterations);
-                            router.push(`/${locale}/guide`);
-                          }}
-                        >
-                          <div className={styles.buttonContent}>
-                            <Play size={18} fill="currentColor" />
-                            <span>{t('guidedMode')}</span>
-                          </div>
-                        </button>
-                        <button
-                          className={`${styles.button} ${styles.buttonOutline}`}
-                          onClick={() => {
-                            exportPDFGuide({
-                              sequence: worker.sequence!,
-                              totalPins: params.totalPins,
-                              maxIterations: params.maxIterations,
-                              totalMeters: worker.totalMeters,
-                              locale: locale as 'es' | 'en' | 'pt'
-                            });
-                          }}
-                        >
-                          <div className={styles.buttonContent}>
-                            <Download size={18} />
-                            <span>{t('exportPDF')}</span>
-                          </div>
-                        </button>
+                      <div className={styles.buttonContent}>
+                        <Download size={18} />
+                        <span>{t('exportPDF')}</span>
                       </div>
-                    )}
-
-                    {worker.error && <p style={{ color: 'red', marginTop: '8px' }}>{worker.error}</p>}
+                    </button>
+                    <button
+                      onClick={handleCancelProject}
+                      className={styles.cancelLink}
+                    >
+                      {t('cancelProject')}
+                    </button>
                   </div>
                 </div>
               </div>
-            </>
-          )}
+            ) : (
+              <div className={styles.panel}>
+                <h3 className={styles.panelHeaderTitle} style={{ marginBottom: '12px' }}>
+                  {t('generateTitle')}
+                </h3>
+                <div className={styles.panelContent}>
+                  <button
+                    className={styles.button}
+                    onClick={handleGenerate}
+                    disabled={!pixelData || worker.isRunning}
+                  >
+                    {worker.isRunning
+                      ? t('generating', { progress: worker.progress, total: worker.total })
+                      : worker.sequence
+                        ? t('regenerate')
+                        : t('startGeneration')
+                    }
+                  </button>
+
+                  {/* Botones post-generación siempre visibles en desktop pero ocultos en mobile si no se generó aún */}
+                  <div className={`${styles.actionButtonsContainer} ${!worker.sequence ? styles.actionButtonsContainerHiddenMobile : ''}`}>
+                    <button
+                      className={`${styles.button} ${styles.buttonAccent}`}
+                      disabled={!worker.sequence || worker.isRunning}
+                      onClick={() => {
+                        if (worker.sequence) {
+                          startSession(Array.from(worker.sequence), params.totalPins, params.maxIterations);
+                          router.push(`/${locale}/guide`);
+                        }
+                      }}
+                    >
+                      <div className={styles.buttonContent}>
+                        <Play size={18} fill="currentColor" />
+                        <span>{t('guidedMode')}</span>
+                      </div>
+                    </button>
+                    <button
+                      className={`${styles.button} ${styles.buttonOutline}`}
+                      disabled={!worker.sequence || worker.isRunning}
+                      onClick={() => {
+                        if (worker.sequence) {
+                          exportPDFGuide({
+                            sequence: worker.sequence,
+                            totalPins: params.totalPins,
+                            maxIterations: params.maxIterations,
+                            totalMeters: worker.totalMeters,
+                            locale: locale as 'es' | 'en' | 'pt'
+                          });
+                        }
+                      }}
+                    >
+                      <div className={styles.buttonContent}>
+                        <Download size={18} />
+                        <span>{t('exportPDF')}</span>
+                      </div>
+                    </button>
+                  </div>
+
+                  {worker.error && <p style={{ color: 'red', marginTop: '8px' }}>{worker.error}</p>}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Canvas de visualización */}
@@ -438,9 +386,51 @@ export function EditorPage() {
           sourceImage={sourceImage}
           adjustments={adjustments}
           crop={crop}
-          onCropChange={setCrop}
+          onCropChange={handleCropChange}
           disabled={worker.isRunning || !!worker.sequence}
         />
+
+        {/* Columna Derecha: Ajustes de imagen */}
+        <div className={`${styles.adjuster} ${!sourceImage ? styles.hideOnMobileWithoutImage : ''} ${isInProgress ? styles.hideOnMobileInProgress : ''}`}>
+          <ImageAdjuster
+            adjustments={adjustments}
+            crop={crop}
+            onAdjustmentsChange={setAdjustments}
+            onCropChange={handleCropChange}
+            onReset={handleResetAdjustments}
+            disabled={worker.isRunning || isInProgress || !sourceImage || !!worker.sequence}
+          />
+
+          {worker.sequence && !isInProgress && (
+            <div
+              style={{
+                background: 'rgba(255, 255, 255, 0.03)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                borderRadius: '12px',
+                padding: '16px',
+                textAlign: 'center',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px',
+                marginTop: '16px'
+              }}
+            >
+              <span className={styles.panelDescription} style={{ color: '#ccc' }}>
+                {t('sequenceGeneratedLock')}
+              </span>
+              <button
+                className={`${styles.button} ${styles.buttonOutline}`}
+                onClick={() => {
+                  worker.reset();
+                  localStorage.removeItem(EDITOR_STATE_KEY);
+                }}
+                style={{ width: '100%', padding: '8px 12px', marginTop: 0 }}
+              >
+                {t('backToEdit')}
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Overlay de drag & drop (solo desktop) */}

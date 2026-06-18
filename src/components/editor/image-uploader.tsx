@@ -53,7 +53,7 @@ export function ImageUploader({ onImageSelected, disabled, hasImage, previewUrl 
   // Renderizar estado de vista previa compacto una vez que se tiene una imagen cargada
   if (hasImage && previewUrl) {
     return (
-      <div className={styles.panel} style={{ padding: '12px 16px' }}>
+      <div className={styles.panel} style={{ padding: '12px 16px', opacity: disabled ? 0.6 : 1 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <div style={{
             width: '56px',
@@ -106,7 +106,7 @@ export function ImageUploader({ onImageSelected, disabled, hasImage, previewUrl 
   }
 
   return (
-    <div className={styles.panel}>
+    <div className={styles.panel} style={disabled ? { opacity: 0.6 } : undefined}>
       <div className={styles.panelHeader} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', userSelect: 'none' }}>
         <h3 className={styles.panelHeaderTitle} style={{ fontSize: '1.05rem', fontWeight: 600, margin: 0 }}>
           {t('uploadTitle')}
@@ -124,10 +124,11 @@ export function ImageUploader({ onImageSelected, disabled, hasImage, previewUrl 
         {/* Área de drop para desktop */}
         <div
           className={`${styles.dropZone} ${isDragActive ? styles.dragActive : ''}`}
-          onClick={triggerFileInput}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
+          onClick={disabled ? undefined : triggerFileInput}
+          onDragOver={disabled ? undefined : handleDragOver}
+          onDragLeave={disabled ? undefined : handleDragLeave}
+          onDrop={disabled ? undefined : handleDrop}
+          style={disabled ? { cursor: 'not-allowed' } : undefined}
         >
           {t('dropOrSelectImage')}
         </div>
