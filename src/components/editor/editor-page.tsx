@@ -217,62 +217,6 @@ export function EditorPage() {
 
       <div className={styles.editorContent}>
         <div className={styles.sidebar}>
-          {/* Banner de sesión activa */}
-          {isInProgress && (
-            <div className={`${styles.banner} ${styles.mobileOnlyBanner}`} style={{
-              background: 'rgba(var(--color-accent-rgb), 0.12)',
-              border: '1px solid var(--color-accent)',
-              borderRadius: '8px',
-              padding: '12px',
-              width: '100%',
-              marginBottom: '16px',
-              boxSizing: 'border-box'
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ flex: 1, paddingRight: '8px' }}>
-                  <h4 style={{ margin: 0, color: '#fff', fontSize: '1.05rem' }}>{t('projectInProgress')}</h4>
-                  <p className={styles.panelDescription} style={{ color: '#aaa', marginTop: '4px' }}>
-                    {t('stepProgress', {
-                      current: session.currentStep + 1,
-                      total: session.totalSteps + 1,
-                      percent: Math.round((session.currentStep / session.totalSteps) * 100)
-                    })}
-                  </p>
-                </div>
-                <button
-                  onClick={() => router.push(`/${locale}/guide`)}
-                  style={{
-                    background: 'var(--color-primary)',
-                    color: '#ffffff',
-                    border: 'none',
-                    padding: '6px 12px',
-                    borderRadius: '6px',
-                    fontWeight: 'bold',
-                    cursor: 'pointer',
-                    fontSize: '0.95rem'
-                  }}
-                >
-                  {t('continue')}
-                </button>
-              </div>
-              <button
-                onClick={handleCancelProject}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#ef4444',
-                  cursor: 'pointer',
-                  fontSize: '0.8rem',
-                  marginTop: '8px',
-                  padding: 0,
-                  textDecoration: 'underline'
-                }}
-              >
-                {t('cancelProject')}
-              </button>
-            </div>
-          )}
-
           {/* Paso 1: Subir imagen */}
           <div className={`${styles.stepOne} ${isInProgress ? styles.hideOnMobileInProgress : ''}`}>
             <ImageUploader

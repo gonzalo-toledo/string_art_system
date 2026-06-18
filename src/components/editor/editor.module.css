@@ -51,10 +51,7 @@
   .sidebar {
     display: contents;
   }
-  .banner {
-    order: 1;
-    width: 100%;
-  }
+
   .stepOne {
     order: 3;
     width: 100%;
@@ -537,11 +534,7 @@
   }
 }
 
-@media (min-width: 1024px) {
-  .mobileOnlyBanner {
-    display: none !important;
-  }
-}
+
 
 .cancelLink {
   background: none;
