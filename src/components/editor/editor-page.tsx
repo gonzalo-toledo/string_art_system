@@ -11,13 +11,14 @@ import { useStringArtWorker } from '../../hooks/use-string-art-worker';
 import { useGuidedSession } from '../../hooks/use-guided-session';
 import { loadImage, processImage } from '../../utils/image-processor';
 import { ImageAdjustments, CropTransform, DEFAULT_ADJUSTMENTS, DEFAULT_CROP } from '../../utils/image-adjustments';
-import { AlgorithmParams } from '../../core/algorithm/types';
+import { AlgorithmParams, GuidedSession } from '../../core/algorithm/types';
 import { CANVAS_SIZE, DEFAULT_PARAMS } from '../../core/kit-spec';
 import { exportPDFGuide } from '../../utils/pdf-generator';
 import { Play, Copy, Download } from '../shared/icons';
 import styles from './editor.module.css';
 
 const EDITOR_STATE_KEY = 'stringo-editor-state';
+const GUIDED_SESSION_KEY = 'hacelo-art-session';
 
 /**
  * Página principal del editor.
@@ -36,7 +37,7 @@ export function EditorPage() {
   const router = useRouter();
   const paramsRoute = useParams();
   const locale = (paramsRoute.locale as string) || 'es';
-  const { session, startSession, clearSession } = useGuidedSession();
+  const { session, clearSession } = useGuidedSession();
 
   const [params, setParams] = useState<AlgorithmParams>(DEFAULT_PARAMS);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -338,7 +339,18 @@ export function EditorPage() {
                       disabled={!worker.sequence || worker.isRunning}
                       onClick={() => {
                         if (worker.sequence) {
-                          startSession(Array.from(worker.sequence), params.totalPins, params.maxIterations);
+                          // Write session directly to localStorage without triggering
+                          // a React state update (which would re-render the editor
+                          // and cause a visual flash before navigation completes).
+                          const newSession: GuidedSession = {
+                            sequence: Array.from(worker.sequence),
+                            currentStep: 0,
+                            totalSteps: worker.sequence.length - 1,
+                            config: { totalPins: params.totalPins, maxIterations: params.maxIterations },
+                            createdAt: new Date().toISOString(),
+                            updatedAt: new Date().toISOString()
+                          };
+                          localStorage.setItem(GUIDED_SESSION_KEY, JSON.stringify(newSession));
                           router.push(`/${locale}/guide`);
                         }
                       }}
