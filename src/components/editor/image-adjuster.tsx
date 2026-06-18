@@ -56,20 +56,9 @@ export function ImageAdjuster({ adjustments, crop, onAdjustmentsChange, onCropCh
       defaultOpen={false}
       headerRight={
         <button
+          className={styles.resetButton}
           onClick={onReset}
           disabled={disabled}
-          style={{
-            background: 'none',
-            border: '1px solid #555',
-            borderRadius: '6px',
-            padding: '4px 10px',
-            cursor: disabled ? 'not-allowed' : 'pointer',
-            fontSize: '0.8rem',
-            color: '#aaa',
-            transition: 'border-color 0.2s, color 0.2s'
-          }}
-          onMouseOver={(e) => { if (!disabled) { e.currentTarget.style.borderColor = 'var(--color-accent)'; e.currentTarget.style.color = '#fff'; } }}
-          onMouseOut={(e) => { e.currentTarget.style.borderColor = '#555'; e.currentTarget.style.color = '#aaa'; }}
         >
           {t('reset')}
         </button>
