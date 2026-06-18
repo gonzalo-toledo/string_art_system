@@ -53,6 +53,11 @@ export function CanvasRenderer({
   const initialCenterRef = useRef<{ x: number; y: number } | null>(null);
   const initialCropRef = useRef<CropTransform | null>(null);
 
+  // Estado y referencias para control de arrastre con mouse (drag-to-pan en escritorio)
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartRef = useRef<{ x: number; y: number } | null>(null);
+  const dragStartCropRef = useRef<CropTransform | null>(null);
+
   // Detectar Safari/iOS (donde ctx.filter no funciona correctamente)
   useEffect(() => {
     const isSafariOrIOS = typeof navigator !== 'undefined' && (
@@ -197,6 +202,60 @@ export function CanvasRenderer({
       canvas.removeEventListener('touchcancel', onTouchEnd);
     };
   }, [disabled, crop, onCropChange, dismissGestureHint]);
+
+  // Manejador de eventos de mouse para soportar arrastre (drag/pan) en escritorio
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const onMouseDown = (e: MouseEvent) => {
+      // Solo permitir arrastre con el botón izquierdo y cuando esté en modo preview
+      if (e.button !== 0 || disabled || !crop || !onCropChange || !isPreviewMode) return;
+
+      dismissGestureHint();
+      setIsDragging(true);
+      dragStartRef.current = { x: e.clientX, y: e.clientY };
+      dragStartCropRef.current = { ...crop };
+    };
+
+    const onMouseMove = (e: MouseEvent) => {
+      if (!dragStartRef.current || !dragStartCropRef.current || !onCropChange) return;
+
+      const deltaX = e.clientX - dragStartRef.current.x;
+      const deltaY = e.clientY - dragStartRef.current.y;
+      const rect = canvas.getBoundingClientRect();
+
+      // Sensibilidad de arrastre (similar a la del touch)
+      const sensitivity = 1.8;
+      let newOffsetX = dragStartCropRef.current.offsetX - (deltaX / rect.width) * sensitivity;
+      let newOffsetY = dragStartCropRef.current.offsetY - (deltaY / rect.height) * sensitivity;
+
+      newOffsetX = Math.max(-1, Math.min(1, newOffsetX));
+      newOffsetY = Math.max(-1, Math.min(1, newOffsetY));
+
+      onCropChange({
+        ...dragStartCropRef.current,
+        offsetX: newOffsetX,
+        offsetY: newOffsetY
+      });
+    };
+
+    const onMouseUp = () => {
+      setIsDragging(false);
+      dragStartRef.current = null;
+      dragStartCropRef.current = null;
+    };
+
+    canvas.addEventListener('mousedown', onMouseDown);
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+
+    return () => {
+      canvas.removeEventListener('mousedown', onMouseDown);
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+  }, [disabled, crop, onCropChange, isPreviewMode, dismissGestureHint]);
 
   // Dibuja el estado inicial (preview/imagen) o vacío
   useEffect(() => {
@@ -438,7 +497,10 @@ export function CanvasRenderer({
         width={canvasSize}
         height={canvasSize}
         className={styles.canvas}
-        style={cssFilter !== 'none' ? { filter: cssFilter, WebkitFilter: cssFilter } : undefined}
+        style={{
+          ...(cssFilter !== 'none' ? { filter: cssFilter, WebkitFilter: cssFilter } : {}),
+          cursor: isDragging ? 'grabbing' : (isPreviewMode && !disabled ? 'grab' : 'default')
+        }}
       />
       {showGestureHint && (
         <div className={`${styles.gestureHint} ${styles.mobileOnly}`}>

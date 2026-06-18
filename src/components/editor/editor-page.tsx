@@ -87,6 +87,31 @@ export function EditorPage() {
     }
   }, [worker.sequence, worker.totalMeters, params]);
 
+  // Controlar cambios de crop limitando el offset según el espacio disponible (evita drag si no hay zoom)
+  const handleCropChange = useCallback((newCrop: CropTransform) => {
+    const img = sourceImageRef.current;
+    if (!img) {
+      setCrop(newCrop);
+      return;
+    }
+
+    const baseScale = Math.max(CANVAS_SIZE / img.width, CANVAS_SIZE / img.height);
+    const scale = baseScale * newCrop.zoom;
+    const scaledW = img.width * scale;
+    const scaledH = img.height * scale;
+
+    const maxOffsetX = (scaledW - CANVAS_SIZE) / 2;
+    const maxOffsetY = (scaledH - CANVAS_SIZE) / 2;
+
+    const adjustedCrop = {
+      zoom: newCrop.zoom,
+      offsetX: maxOffsetX > 0.01 ? Math.max(-1, Math.min(1, newCrop.offsetX)) : 0,
+      offsetY: maxOffsetY > 0.01 ? Math.max(-1, Math.min(1, newCrop.offsetY)) : 0,
+    };
+
+    setCrop(adjustedCrop);
+  }, []);
+
   // Reprocesar imagen cuando cambian ajustes o crop
   const reprocessImage = useCallback(() => {
     const img = sourceImageRef.current;
@@ -361,7 +386,7 @@ export function EditorPage() {
           sourceImage={sourceImage}
           adjustments={adjustments}
           crop={crop}
-          onCropChange={setCrop}
+          onCropChange={handleCropChange}
           disabled={worker.isRunning || !!worker.sequence}
         />
 
@@ -371,7 +396,7 @@ export function EditorPage() {
             adjustments={adjustments}
             crop={crop}
             onAdjustmentsChange={setAdjustments}
-            onCropChange={setCrop}
+            onCropChange={handleCropChange}
             onReset={handleResetAdjustments}
             disabled={worker.isRunning || isInProgress || !sourceImage || !!worker.sequence}
           />

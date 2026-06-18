@@ -16,7 +16,7 @@ interface ExportPDFParams {
 
 const TEXTS = {
   es: {
-    title: "Guía de Hilado — HáceloArt",
+    title: "Guía de Hilado — Stringo",
     subtitle: "Instrucciones de armado físico paso a paso",
     instructionsTitle: "Cómo empezar a tejer:",
     instruction1: "Ate el hilo inicial en el <strong>pin 0</strong> (marcado como origen).",
@@ -30,7 +30,7 @@ const TEXTS = {
     stepAbbr: "Paso"
   },
   en: {
-    title: "Threading Guide — HáceloArt",
+    title: "Threading Guide — Stringo",
     subtitle: "Step-by-step physical assembly instructions",
     instructionsTitle: "How to start weaving:",
     instruction1: "Tie the initial thread to <strong>pin 0</strong> (marked as origin).",
@@ -44,7 +44,7 @@ const TEXTS = {
     stepAbbr: "Step"
   },
   pt: {
-    title: "Guia de Tecelagem — HáceloArt",
+    title: "Guia de Tecelagem — Stringo",
     subtitle: "Instruções passo a passo para montagem física",
     instructionsTitle: "Como começar a tecer:",
     instruction1: "Amarre o fio inicial no <strong>pino 0</strong> (marcado como origem).",
