@@ -63,30 +63,46 @@ export function exportPDFGuide({ sequence, totalPins, maxIterations, totalMeters
   const t = TEXTS[locale] || TEXTS.es;
   const printWindow = window.open('', '_blank');
   if (!printWindow) {
-    alert('Por favor, permite las ventanas emergentes (popups) para exportar el PDF.');
+    // Popup bloqueado — mostrar mensaje localizado
+    const messages: Record<string, string> = {
+      es: 'Por favor, permite las ventanas emergentes (popups) para exportar la guía.',
+      en: 'Please allow popups to export the guide.',
+      pt: 'Por favor, permita popups para exportar o guia.'
+    };
+    alert(messages[locale] || messages.es);
     return;
   }
+
+  // Escapar HTML para prevenir XSS — solo permitimos números y texto plano
+  const escapeHtml = (str: string): string => {
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  };
+
+  const safeLocale = escapeHtml(locale);
 
   // Estructuramos la grilla en columnas compactas para la hoja A4.
   // Ignoramos el primer pin (índice 0) ya que es el origen '0'. La secuencia empieza a tejerse desde el paso 1.
   let stepsHtml = '';
   for (let i = 1; i < sequence.length; i++) {
     const pin = sequence[i];
-    stepsHtml += `
-      <div class="step-cell">
-        <span class="checkbox"></span>
-        <span class="step-num">${i}.</span>
-        <span class="pin-value">${pin}</span>
-      </div>
-    `;
+    // Validar que el pin sea un número válido
+    if (typeof pin === 'number' && pin >= 0 && pin <= totalPins) {
+      stepsHtml += `
+        <div class="step-cell">
+          <span class="checkbox"></span>
+          <span class="step-num">${i}.</span>
+          <span class="pin-value">${pin}</span>
+        </div>
+      `;
+    }
   }
 
   const htmlContent = `
     <!DOCTYPE html>
-    <html lang="${locale}">
+    <html lang="${safeLocale}">
     <head>
       <meta charset="UTF-8">
-      <title>${t.title}</title>
+      <title>${escapeHtml(t.title)}</title>
       <style>
         /* Estilos base y resets */
         * {

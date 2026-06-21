@@ -56,7 +56,10 @@
     "restoreErrorNO_DATA": "Backup without data",
     "restoreErrorNEWER_VERSION": "This backup is from a newer version",
     "restoreErrorSTORAGE_FULL": "Not enough space to restore data",
-    "restoreErrorGeneric": "Could not complete restoration"
+    "restoreErrorGeneric": "Could not complete restoration",
+    "imageErrorGeneric": "Could not process the image. Try another photo.",
+    "imageErrorTooLarge": "Image is too large. Maximum size is 20MB.",
+    "imageErrorInvalidType": "Unsupported format. Use JPG, PNG or WebP."
   },
   "Guide": {
     "title": "Guided Mode",
@@ -85,6 +88,12 @@
     "repeatVoice": "Repeat instruction",
     "downloadBackup": "Download backup",
     "downloadProgress": "Download progress"
+  },
+  "Error": {
+    "title": "Something went wrong",
+    "description": "An unexpected error occurred. You can try reloading the page.",
+    "reload": "Reload page",
+    "goHome": "Go home"
   },
   "Header": {
     "title": "Stringo",

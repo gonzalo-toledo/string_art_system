@@ -56,7 +56,10 @@
     "restoreErrorNO_DATA": "Backup sem dados",
     "restoreErrorNEWER_VERSION": "Este backup é de uma versão mais recente",
     "restoreErrorSTORAGE_FULL": "Espaço insuficiente para restaurar os dados",
-    "restoreErrorGeneric": "Não foi possível concluir a restauração"
+    "restoreErrorGeneric": "Não foi possível concluir a restauração",
+    "imageErrorGeneric": "Não foi possível processar a imagem. Tente outra foto.",
+    "imageErrorTooLarge": "A imagem é muito grande. O tamanho máximo é 20MB.",
+    "imageErrorInvalidType": "Formato não suportado. Use JPG, PNG ou WebP."
   },
   "Guide": {
     "title": "Modo Guiado",
@@ -85,6 +88,12 @@
     "repeatVoice": "Repetir instrução",
     "downloadBackup": "Baixar backup",
     "downloadProgress": "Baixar progresso"
+  },
+  "Error": {
+    "title": "Algo deu errado",
+    "description": "Ocorreu um erro inesperado. Você pode tentar recarregar a página.",
+    "reload": "Recarregar página",
+    "goHome": "Voltar ao início"
   },
   "Header": {
     "title": "Stringo",

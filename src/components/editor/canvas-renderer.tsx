@@ -108,7 +108,11 @@ export function CanvasRenderer({
   const dismissGestureHint = useCallback(() => {
     if (showGestureHint) {
       setShowGestureHint(false);
-      localStorage.setItem('has_seen_gesture_hint', 'true');
+      try {
+        localStorage.setItem('has_seen_gesture_hint', 'true');
+      } catch {
+        // Silently ignore — non-critical preference
+      }
     }
   }, [showGestureHint]);
 
