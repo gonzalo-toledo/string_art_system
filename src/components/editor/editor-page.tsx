@@ -15,6 +15,7 @@ import { AlgorithmParams, GuidedSession } from '../../core/algorithm/types';
 import { CANVAS_SIZE, DEFAULT_PARAMS } from '../../core/kit-spec';
 import { exportPDFGuide } from '../../utils/pdf-generator';
 import { Play, Copy, Download } from '../shared/icons';
+import { RestoreButton } from '../shared/restore-button';
 import styles from './editor.module.css';
 
 const EDITOR_STATE_KEY = 'stringo-editor-state';
@@ -444,6 +445,18 @@ export function EditorPage() {
           )}
         </div>
       </div>
+
+      {/* Restore button - debajo del canvas en desktop, solo cuando no hay sesión activa */}
+      {!isInProgress && !worker.sequence && (
+        <div className={styles.restoreContainer}>
+          <p className={styles.restoreLabel}>
+            {t('restoreBackup')}
+          </p>
+          <RestoreButton 
+            onRestoreComplete={() => window.location.reload()}
+          />
+        </div>
+      )}
 
       {/* Overlay de drag & drop (solo desktop) */}
       {isDragging && (

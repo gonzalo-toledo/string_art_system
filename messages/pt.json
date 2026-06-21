@@ -42,7 +42,21 @@
     "gestureHint": "Use dois dedos para mover e ampliar a foto",
     "sequenceGeneratedLock": "A sequência já foi gerada. Para modificar os ajustes da imagem, você deve voltar a editar.",
     "backToEdit": "Voltar a editar imagem",
-    "dropImageHere": "Solte a imagem aqui"
+    "dropImageHere": "Solte a imagem aqui",
+    "restoreBackup": "Tem um backup? Restaure seu progresso",
+    "restoreButton": "Restaurar de Arquivo",
+    "restoreLoading": "Carregando...",
+    "restoreDescription": "Selecione um arquivo de backup do Stringo para restaurar seu progresso",
+    "restoreErrorINVALID_FILE_TYPE": "O arquivo deve ser JSON",
+    "restoreErrorINVALID_JSON": "O arquivo não é um JSON válido",
+    "restoreErrorREAD_ERROR": "Não foi possível ler o arquivo",
+    "restoreErrorNOT_OBJECT": "O arquivo não é um objeto válido",
+    "restoreErrorWRONG_APP": "Este arquivo não é um backup do Stringo",
+    "restoreErrorNO_VERSION": "Backup sem versão",
+    "restoreErrorNO_DATA": "Backup sem dados",
+    "restoreErrorNEWER_VERSION": "Este backup é de uma versão mais recente",
+    "restoreErrorSTORAGE_FULL": "Espaço insuficiente para restaurar os dados",
+    "restoreErrorGeneric": "Não foi possível concluir a restauração"
   },
   "Guide": {
     "title": "Modo Guiado",
@@ -68,7 +82,9 @@
     "backToEditor": "Voltar ao Editor",
     "screenLockWarning": "Tela ativa (Wake Lock ativado)",
     "sequenceList": "Sequência",
-    "repeatVoice": "Repetir instrução"
+    "repeatVoice": "Repetir instrução",
+    "downloadBackup": "Baixar backup",
+    "downloadProgress": "Baixar progresso"
   },
   "Header": {
     "title": "Stringo",
