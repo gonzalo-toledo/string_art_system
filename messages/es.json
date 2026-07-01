@@ -42,7 +42,24 @@
     "gestureHint": "Usá dos dedos para mover y agrandar la foto",
     "sequenceGeneratedLock": "La secuencia ya fue generada. Para modificar los ajustes de la imagen, debés volver a editar.",
     "backToEdit": "Volver a editar imagen",
-    "dropImageHere": "Soltá la imagen aquí"
+    "dropImageHere": "Soltá la imagen aquí",
+    "restoreBackup": "¿Tenés un backup? Restaurá tu progreso",
+    "restoreButton": "Restaurar desde Archivo",
+    "restoreLoading": "Cargando...",
+    "restoreDescription": "Seleccioná un archivo de backup de Stringo para restaurar tu progreso",
+    "restoreErrorINVALID_FILE_TYPE": "El archivo debe ser un JSON",
+    "restoreErrorINVALID_JSON": "El archivo no es un JSON válido",
+    "restoreErrorREAD_ERROR": "No se pudo leer el archivo",
+    "restoreErrorNOT_OBJECT": "El archivo no es un objeto válido",
+    "restoreErrorWRONG_APP": "Este archivo no es un backup de Stringo",
+    "restoreErrorNO_VERSION": "Backup sin versión",
+    "restoreErrorNO_DATA": "Backup sin datos",
+    "restoreErrorNEWER_VERSION": "Este backup es de una versión más reciente",
+    "restoreErrorSTORAGE_FULL": "No hay espacio suficiente para restaurar los datos",
+    "restoreErrorGeneric": "No se pudo completar la restauración",
+    "imageErrorGeneric": "No se pudo procesar la imagen. Intentá con otra foto.",
+    "imageErrorTooLarge": "La imagen es demasiado grande. El máximo es 20MB.",
+    "imageErrorInvalidType": "Formato no soportado. Usá JPG, PNG o WebP."
   },
   "Guide": {
     "title": "Modo Guiado",
@@ -68,7 +85,15 @@
     "backToEditor": "Volver al Editor",
     "screenLockWarning": "Pantalla activa (Wake Lock habilitado)",
     "sequenceList": "Listado",
-    "repeatVoice": "Repetir instrucción"
+    "repeatVoice": "Repetir instrucción",
+    "downloadBackup": "Descargar copia de seguridad",
+    "downloadProgress": "Descargar progreso"
+  },
+  "Error": {
+    "title": "Algo salió mal",
+    "description": "Ocurrió un error inesperado. Podés intentar recargar la página.",
+    "reload": "Recargar página",
+    "goHome": "Volver al inicio"
   },
   "Header": {
     "title": "Stringo",

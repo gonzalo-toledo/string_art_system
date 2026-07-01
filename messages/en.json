@@ -42,7 +42,24 @@
     "gestureHint": "Use two fingers to move and zoom the photo",
     "sequenceGeneratedLock": "The sequence has already been generated. To modify image adjustments, you must go back to editing.",
     "backToEdit": "Back to editing image",
-    "dropImageHere": "Drop image here"
+    "dropImageHere": "Drop image here",
+    "restoreBackup": "Have a backup? Restore your progress",
+    "restoreButton": "Restore from File",
+    "restoreLoading": "Loading...",
+    "restoreDescription": "Select a Stringo backup file to restore your progress",
+    "restoreErrorINVALID_FILE_TYPE": "File must be JSON",
+    "restoreErrorINVALID_JSON": "File is not a valid JSON",
+    "restoreErrorREAD_ERROR": "Could not read file",
+    "restoreErrorNOT_OBJECT": "File is not a valid object",
+    "restoreErrorWRONG_APP": "This file is not a Stringo backup",
+    "restoreErrorNO_VERSION": "Backup without version",
+    "restoreErrorNO_DATA": "Backup without data",
+    "restoreErrorNEWER_VERSION": "This backup is from a newer version",
+    "restoreErrorSTORAGE_FULL": "Not enough space to restore data",
+    "restoreErrorGeneric": "Could not complete restoration",
+    "imageErrorGeneric": "Could not process the image. Try another photo.",
+    "imageErrorTooLarge": "Image is too large. Maximum size is 20MB.",
+    "imageErrorInvalidType": "Unsupported format. Use JPG, PNG or WebP."
   },
   "Guide": {
     "title": "Guided Mode",
@@ -68,7 +85,15 @@
     "backToEditor": "Back to Editor",
     "screenLockWarning": "Screen active (Wake Lock enabled)",
     "sequenceList": "Sequence",
-    "repeatVoice": "Repeat instruction"
+    "repeatVoice": "Repeat instruction",
+    "downloadBackup": "Download backup",
+    "downloadProgress": "Download progress"
+  },
+  "Error": {
+    "title": "Something went wrong",
+    "description": "An unexpected error occurred. You can try reloading the page.",
+    "reload": "Reload page",
+    "goHome": "Go home"
   },
   "Header": {
     "title": "Stringo",

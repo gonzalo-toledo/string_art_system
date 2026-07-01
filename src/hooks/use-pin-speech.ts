@@ -31,7 +31,11 @@ export function usePinSpeech(initialLocale: 'es' | 'en' | 'pt') {
   const setEnabled = useCallback((val: boolean) => {
     setEnabledState(val);
     if (typeof window !== 'undefined') {
-      localStorage.setItem('hacelo-art-speech-enabled', String(val));
+      try {
+        localStorage.setItem('hacelo-art-speech-enabled', String(val));
+      } catch {
+        // Silently ignore — non-critical preference
+      }
     }
   }, []);
 

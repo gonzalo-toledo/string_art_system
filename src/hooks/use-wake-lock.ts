@@ -10,6 +10,8 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 export function useWakeLock() {
   const [isActive, setIsActive] = useState(false);
   const wakeLockRef = useRef<WakeLockSentinel | null>(null);
+  // Track whether we SHOULD have the lock (to re-acquire after tab switch)
+  const shouldHaveLockRef = useRef(false);
 
   // Solicitar wake lock al sistema operativo
   const request = useCallback(async () => {
@@ -22,21 +24,26 @@ export function useWakeLock() {
       sentinel.addEventListener('release', () => {
         setIsActive(false);
         wakeLockRef.current = null;
+        // Re-acquire if we still should have it (e.g. browser released it on tab switch)
+        if (shouldHaveLockRef.current && document.visibilityState === 'visible') {
+          request();
+        }
       });
       wakeLockRef.current = sentinel;
       setIsActive(true);
     } catch (err) {
-      console.warn('No se pudo activar el Wake Lock:', err);
+      console.warn('Wake Lock not available:', err);
     }
   }, []);
 
   // Liberar el wake lock
   const release = useCallback(async () => {
+    shouldHaveLockRef.current = false;
     if (wakeLockRef.current) {
       try {
         await wakeLockRef.current.release();
       } catch (err) {
-        console.error('Error al liberar el Wake Lock:', err);
+        // Silently ignore — sentinel may already be released
       }
       wakeLockRef.current = null;
       setIsActive(false);
@@ -46,7 +53,7 @@ export function useWakeLock() {
   // Re-adquirir wake lock cuando el usuario vuelve a la pestaña
   useEffect(() => {
     const handleVisibilityChange = async () => {
-      if (document.visibilityState === 'visible' && isActive) {
+      if (document.visibilityState === 'visible' && shouldHaveLockRef.current) {
         await request();
       }
     };
@@ -54,11 +61,18 @@ export function useWakeLock() {
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+      shouldHaveLockRef.current = false;
       if (wakeLockRef.current) {
-        wakeLockRef.current.release().catch((e: unknown) => console.error(e));
+        wakeLockRef.current.release().catch(() => {});
       }
     };
-  }, [isActive, request]);
+  }, [request]);
 
-  return { isActive, request, release };
+  // Wrap request to set shouldHaveLock flag
+  const requestWithFlag = useCallback(async () => {
+    shouldHaveLockRef.current = true;
+    await request();
+  }, [request]);
+
+  return { isActive, request: requestWithFlag, release };
 }

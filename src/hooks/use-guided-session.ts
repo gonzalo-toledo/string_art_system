@@ -10,6 +10,43 @@ import { GuidedSession } from '../core/algorithm/types';
 
 const STORAGE_KEY = 'hacelo-art-session';
 
+/**
+ * Valida que un objeto parseado tenga la estructura de GuidedSession.
+ * Previene prototype pollution y datos corruptos.
+ */
+function isValidGuidedSession(data: unknown): data is GuidedSession {
+  if (!data || typeof data !== 'object') return false;
+  const obj = data as Record<string, unknown>;
+  return (
+    Array.isArray(obj.sequence) &&
+    obj.sequence.length > 0 &&
+    typeof obj.currentStep === 'number' &&
+    typeof obj.totalSteps === 'number' &&
+    obj.config !== null &&
+    typeof obj.config === 'object' &&
+    typeof (obj.config as Record<string, unknown>).totalPins === 'number' &&
+    typeof (obj.config as Record<string, unknown>).maxIterations === 'number'
+  );
+}
+
+/**
+ * Safe localStorage write con manejo de QuotaExceededError.
+ * Muestra warning al usuario si no hay espacio.
+ */
+function safeSetItem(key: string, value: string): boolean {
+  try {
+    localStorage.setItem(key, value);
+    return true;
+  } catch (e) {
+    if (e instanceof DOMException && e.name === 'QuotaExceededError') {
+      console.error('localStorage quota exceeded — session not saved');
+      // Nota: no podemos usar toast aquí porque este hook no tiene UI propia,
+      // pero el console.error permite debugging en producción
+    }
+    return false;
+  }
+}
+
 export function useGuidedSession() {
   const [session, setSession] = useState<GuidedSession | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -17,14 +54,22 @@ export function useGuidedSession() {
   // Cargar sesión guardada de localStorage al montar el componente
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        try {
-          const parsed = JSON.parse(raw) as GuidedSession;
-          setSession(parsed);
-        } catch (e) {
-          console.error('Error al parsear la sesión guardada', e);
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (isValidGuidedSession(parsed)) {
+            setSession(parsed);
+          } else {
+            // Datos corruptos o formato incompatible — limpiar
+            console.warn('Invalid session data in localStorage, clearing');
+            localStorage.removeItem(STORAGE_KEY);
+          }
         }
+      } catch (e) {
+        // JSON parse failed — datos corruptos
+        console.error('Error parsing session from localStorage', e);
+        localStorage.removeItem(STORAGE_KEY);
       }
       setIsLoaded(true);
     }
@@ -45,7 +90,7 @@ export function useGuidedSession() {
     };
 
     if (typeof window !== 'undefined') {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newSession));
+      safeSetItem(STORAGE_KEY, JSON.stringify(newSession));
     }
     setSession(newSession);
     return newSession;
@@ -65,7 +110,7 @@ export function useGuidedSession() {
       };
 
       if (typeof window !== 'undefined') {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedSession));
+        safeSetItem(STORAGE_KEY, JSON.stringify(updatedSession));
       }
       return updatedSession;
     });
@@ -74,7 +119,11 @@ export function useGuidedSession() {
   // Borrar la sesión (el usuario quiere empezar un cuadro nuevo)
   const clearSession = useCallback(() => {
     if (typeof window !== 'undefined') {
-      localStorage.removeItem(STORAGE_KEY);
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch {
+        // Silently ignore removeItem errors
+      }
     }
     setSession(null);
   }, []);

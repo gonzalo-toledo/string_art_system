@@ -1,7 +1,8 @@
 "use client";
 import React from 'react';
 import { useTranslations } from 'next-intl';
-import { ChevronLeft, ChevronRight, Play, Pause } from '../shared/icons';
+import { ChevronLeft, ChevronRight, Play, Pause, Download } from '../shared/icons';
+import { exportAllData, downloadBackup } from '@/utils/backup';
 import styles from './guide.module.css';
 
 // Definición de las propiedades (props) para el componente GuideControls
@@ -33,6 +34,15 @@ export function GuideControls({
   // Hook de traducción de Next-intl
   const t = useTranslations('Guide');
 
+  const handleBackup = () => {
+    try {
+      const blob = exportAllData();
+      downloadBackup(blob);
+    } catch (error) {
+      console.error('Backup failed:', error);
+    }
+  };
+
   return (
     <div className={styles.controlsSection}>
       {/* Botones principales de navegación (Anterior y Siguiente) */}
@@ -55,9 +65,8 @@ export function GuideControls({
         </button>
       </div>
 
-      {/* Controles secundarios (Autoplay e indicador de WakeLock) */}
+      {/* Controles secundarios (Autoplay, Backup y WakeLock) */}
       <div className={styles.subControls}>
-        {/* Grupo de controles de reproducción automática */}
         <div className={styles.autoplayGroup}>
           <button
             className={`${styles.btnPlayPause} ${isPlaying ? styles.btnPlayPauseActive : ''}`}
@@ -67,14 +76,12 @@ export function GuideControls({
             {isPlaying ? <Pause size={16} /> : <Play size={16} />} {t('play')}
           </button>
 
-          {/* Selector de velocidad, visible solo cuando autoplay está activo */}
           {isPlaying && (
             <select
               value={playSpeed}
               onChange={(e) => onChangePlaySpeed(Number(e.target.value))}
               className={styles.speedSelector}
             >
-
               <option value={5000}>5.0s</option>
               <option value={10000}>10.0s</option>
               <option value={15000}>15.0s</option>
@@ -84,6 +91,17 @@ export function GuideControls({
             </select>
           )}
         </div>
+
+        {/* Botón de backup - tamaño del btnNext */}
+        <button
+          className={`${styles.btn} ${styles.btnBackup}`}
+          onClick={handleBackup}
+          title={t('downloadBackup')}
+          aria-label={t('downloadBackup')}
+          style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+        >
+          <Download size={16} /> {t('downloadProgress')}
+        </button>
       </div>
     </div>
   );

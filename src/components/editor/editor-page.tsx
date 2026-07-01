@@ -15,6 +15,7 @@ import { AlgorithmParams, GuidedSession } from '../../core/algorithm/types';
 import { CANVAS_SIZE, DEFAULT_PARAMS } from '../../core/kit-spec';
 import { exportPDFGuide } from '../../utils/pdf-generator';
 import { Play, Copy, Download } from '../shared/icons';
+import { RestoreButton } from '../shared/restore-button';
 import styles from './editor.module.css';
 
 const EDITOR_STATE_KEY = 'stringo-editor-state';
@@ -46,6 +47,7 @@ export function EditorPage() {
   const [crop, setCrop] = useState<CropTransform>(DEFAULT_CROP);
   const [sourceImage, setSourceImage] = useState<HTMLImageElement | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [imageError, setImageError] = useState<string | null>(null);
 
   // Referencia a la imagen original cargada (para reprocesar al cambiar ajustes)
   const sourceImageRef = useRef<HTMLImageElement | null>(null);
@@ -84,7 +86,13 @@ export function EditorPage() {
         totalMeters: worker.totalMeters,
         params
       };
-      localStorage.setItem(EDITOR_STATE_KEY, JSON.stringify(state));
+      try {
+        localStorage.setItem(EDITOR_STATE_KEY, JSON.stringify(state));
+      } catch (e) {
+        if (e instanceof DOMException && e.name === 'QuotaExceededError') {
+          console.error('localStorage quota exceeded — editor state not saved');
+        }
+      }
     }
   }, [worker.sequence, worker.totalMeters, params]);
 
@@ -141,6 +149,22 @@ export function EditorPage() {
 
   // Manejar la selección de una nueva imagen
   const handleImageSelected = async (file: File) => {
+    setImageError(null);
+
+    // Validar tipo de archivo — solo imágenes rasterizadas
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      setImageError(t('imageErrorInvalidType'));
+      return;
+    }
+
+    // Validar tamaño — máximo 20MB
+    const MAX_SIZE = 20 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+      setImageError(t('imageErrorTooLarge'));
+      return;
+    }
+
     try {
       worker.reset();
       localStorage.removeItem(EDITOR_STATE_KEY);
@@ -163,7 +187,8 @@ export function EditorPage() {
       setPixelData(result.imageData);
       setPreviewUrl(result.previewUrl);
     } catch (err) {
-      console.error("Error al procesar la imagen", err);
+      console.error("Error processing image", err);
+      setImageError(t('imageErrorGeneric'));
     }
   };
 
@@ -251,6 +276,21 @@ export function EditorPage() {
               hasImage={!!sourceImage}
               previewUrl={objectUrlRef.current}
             />
+            {imageError && (
+              <div style={{
+                marginTop: '8px',
+                padding: '10px 12px',
+                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                color: '#ef4444',
+                borderRadius: '8px',
+                fontSize: '0.85rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+              }}>
+                {imageError}
+              </div>
+            )}
           </div>
 
           {/* Paso 2: Configuración del algoritmo */}
@@ -350,8 +390,14 @@ export function EditorPage() {
                             createdAt: new Date().toISOString(),
                             updatedAt: new Date().toISOString()
                           };
-                          localStorage.setItem(GUIDED_SESSION_KEY, JSON.stringify(newSession));
-                          router.push(`/${locale}/guide`);
+                          try {
+                            localStorage.setItem(GUIDED_SESSION_KEY, JSON.stringify(newSession));
+                            router.push(`/${locale}/guide`);
+                          } catch (e) {
+                            if (e instanceof DOMException && e.name === 'QuotaExceededError') {
+                              console.error('localStorage quota exceeded — cannot start guided mode');
+                            }
+                          }
                         }
                       }}
                     >
@@ -444,6 +490,18 @@ export function EditorPage() {
           )}
         </div>
       </div>
+
+      {/* Restore button - debajo del canvas en desktop, solo cuando no hay sesión activa */}
+      {!isInProgress && !worker.sequence && (
+        <div className={styles.restoreContainer}>
+          <p className={styles.restoreLabel}>
+            {t('restoreBackup')}
+          </p>
+          <RestoreButton 
+            onRestoreComplete={() => window.location.reload()}
+          />
+        </div>
+      )}
 
       {/* Overlay de drag & drop (solo desktop) */}
       {isDragging && (
