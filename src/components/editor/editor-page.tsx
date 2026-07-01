@@ -15,7 +15,7 @@ import { AlgorithmParams, GuidedSession } from '../../core/algorithm/types';
 import { CANVAS_SIZE, DEFAULT_PARAMS } from '../../core/kit-spec';
 import { exportPDFGuide } from '../../utils/pdf-generator';
 import { Play, Copy, Download } from '../shared/icons';
-import { RestoreButton } from '../shared/restore-button';
+import { RestoreButton } from '../backup/restore-button';
 import styles from './editor.module.css';
 
 const EDITOR_STATE_KEY = 'stringo-editor-state';
