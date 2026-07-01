@@ -26,4 +26,7 @@ Thumbs.db
 .vercel/
 
 # Presupuestos
-[pP]resupuesto*tsconfig.tsbuildinfo
+[pP]resupuesto*
+
+# Cache
+tsconfig.tsbuildinfo
